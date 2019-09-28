@@ -64,7 +64,10 @@ def stemming(data):
     tokens = word_tokenize(str(data))
     new_text = ""
     for w in tokens:
+        stemmed_word = stemmer.stem(w)
+        add_to_unstem_dict(w, stemmed_word)
         new_text = new_text + " " + stemmer.stem(w)
+
     return new_text
 
 
@@ -153,7 +156,8 @@ def findFeatures(corpusPath, rootPath):
                     out_file = openFileForWritingWithPathCreation(out_file_path)
                     sf = sorted(f, key=f.__getitem__, reverse=True)
                     for k in sf:
-                        print(k + "\t" + str(f[k]), file=out_file)
+                        uk = unstem(k)
+                        print(uk + "\t" + str(f[k]), file=out_file)
 
 
 corpusPath = sys.argv[1]
