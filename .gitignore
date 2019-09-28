@@ -1,8 +1,13 @@
 out/
-sourcedata/
+
+!sourcedata/
+sourcedata/*
+!sourcedata/erpnext.tgz
+
 .idea
 venv
 wiki/
 .ipynb_checkpoints
 notebooks/tfidf/stories
 testdata/
+
