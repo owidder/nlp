@@ -1,13 +1,22 @@
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+
 import nltk
 import string
 import os
 import errno
 import re
 import sys
+import numpy as np
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 nltk.download('punkt')
+nltk.download('stopwords')
+
+
+unstem_dict = {}
 
 
 def tokenize(text):
@@ -15,12 +24,48 @@ def tokenize(text):
     return tokens
 
 
-def convert(name):
+def splitCamelCase(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name).lower()
 
 
 def removeSingleChars(string):
     return ' '.join([w for w in string.split() if len(w) > 1])
+
+
+def convert_lower_case(data):
+    return np.char.lower(data)
+
+
+def remove_stop_words(data):
+    stop_words = stopwords.words('english')
+    words = word_tokenize(str(data))
+    new_text = ""
+    for w in words:
+        if w not in stop_words and len(w) > 1:
+            new_text = new_text + " " + w
+    return new_text
+
+
+def add_to_unstem_dict(word, stemmed_word):
+    if stemmed_word in unstem_dict:
+        if len(word) < len(unstem_dict[stemmed_word]):
+            unstem_dict[stemmed_word] = word
+    else:
+        unstem_dict[stemmed_word] = word
+
+
+def unstem(word):
+    return unstem_dict[word]
+
+
+def stemming(data):
+    stemmer = PorterStemmer()
+
+    tokens = word_tokenize(str(data))
+    new_text = ""
+    for w in tokens:
+        new_text = new_text + " " + stemmer.stem(w)
+    return new_text
 
 
 def fileString(file_path):
@@ -29,9 +74,11 @@ def fileString(file_path):
         text = shakes.read()
         no_punctuation = text.translate(string.punctuation)
         only_a_to_z = re.sub('[^A-Za-z ]+', ' ', no_punctuation)
-        camel_case_split = convert(only_a_to_z)
+        camel_case_split = splitCamelCase(only_a_to_z)
         camel_case_split_no_single_chars = removeSingleChars(camel_case_split)
-        return camel_case_split_no_single_chars
+        camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
+        camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words)
+        return camel_case_split_no_single_chars_no_stop_words_stemmed
     except:
         return ""
 
@@ -92,7 +139,7 @@ def findFeatures(corpusPath, rootPath):
         for file in files:
             file_path = subdir + os.path.sep + file
             if isIncluded(file_path):
-                out_file_path = "out/" + relPathFromAbsPath(rootPath, file_path) + ".csv"
+                out_file_path = "out/" + relPathFromAbsPath(rootPath, file_path) + ".tfidf.csv"
                 print("--> " + out_file_path)
                 file_str = fileString(file_path)
                 file_response = tfidf.transform([file_str])
@@ -103,7 +150,7 @@ def findFeatures(corpusPath, rootPath):
                     f[feature_names[col]] = file_response[0, col]
 
                 if len(list(f.keys())) > 0:
-                    out_file = openFileForWritingWithPathCreation(out_file_path, 'w')
+                    out_file = openFileForWritingWithPathCreation(out_file_path)
                     sf = sorted(f, key=f.__getitem__, reverse=True)
                     for k in sf:
                         print(k + "\t" + str(f[k]), file=out_file)

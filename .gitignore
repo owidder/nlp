@@ -2,3 +2,7 @@ out/
 sourcedata/
 .idea
 venv
+wiki/
+.ipynb_checkpoints
+notebooks/tfidf/stories
+testdata/
