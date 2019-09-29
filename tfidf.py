@@ -17,7 +17,7 @@ nltk.download('stopwords')
 
 
 unstem_dict = {}
-
+english_words = []
 
 def tokenize(text):
     tokens = nltk.word_tokenize(text)
@@ -71,6 +71,11 @@ def stemming(data):
     return new_text
 
 
+def filter_non_english_words(data):
+    tokens = word_tokenize(str(data))
+    return " ".join(list(filter(lambda w: unstem(w) in english_words, tokens)))
+
+
 def fileString(file_path):
     try:
         shakes = open(file_path, 'r')
@@ -81,7 +86,8 @@ def fileString(file_path):
         camel_case_split_no_single_chars = removeSingleChars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
         camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words)
-        return camel_case_split_no_single_chars_no_stop_words_stemmed
+        camel_case_split_no_single_chars_no_stop_words_stemmed_only_english = filter_non_english_words(camel_case_split_no_single_chars_no_stop_words_stemmed)
+        return camel_case_split_no_single_chars_no_stop_words_stemmed_only_english
     except:
         return ""
 
@@ -134,6 +140,11 @@ def openFileForWritingWithPathCreation(file_path):
     return open(file_path, 'w')
 
 
+def readEnglishWords():
+    global english_words
+    english_words = [line.rstrip('\n') for line in open("./english-words/words.txt").readlines()]
+
+
 def findFeatures(corpusPath, rootPath):
     print("---- do the fitting ----\n")
     tfidf = fit(corpusPath=corpusPath)
@@ -162,5 +173,7 @@ def findFeatures(corpusPath, rootPath):
 
 corpusPath = sys.argv[1]
 rootPath = (sys.argv[2] if len(sys.argv) > 2 else corpusPath)
+
+readEnglishWords()
 
 findFeatures(corpusPath=corpusPath, rootPath=rootPath)
