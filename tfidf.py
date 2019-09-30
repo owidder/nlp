@@ -9,12 +9,17 @@ import errno
 import re
 import sys
 import numpy as np
+import enchant
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 nltk.download('punkt')
 nltk.download('stopwords')
 
+
+en = enchant.Dict("en_US")
+de = enchant.Dict("de_DE")
+fr = enchant.Dict("fr_FR")
 
 unstem_dict = {}
 english_words = []
@@ -76,6 +81,15 @@ def filter_non_english_words(data):
     return " ".join(list(filter(lambda w: unstem(w) in english_words, tokens)))
 
 
+def is_en_de_fr(word):
+    return en.check(word) or de.check(word) or fr.check(word)
+
+
+def filter_non_en_de_fr_words(data):
+    tokens = word_tokenize(str(data))
+    return " ".join(list(filter(lambda w: is_en_de_fr(unstem(w)), tokens)))
+
+
 def fileString(file_path):
     try:
         shakes = open(file_path, 'r')
@@ -86,7 +100,7 @@ def fileString(file_path):
         camel_case_split_no_single_chars = removeSingleChars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
         camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words)
-        camel_case_split_no_single_chars_no_stop_words_stemmed_only_english = filter_non_english_words(camel_case_split_no_single_chars_no_stop_words_stemmed)
+        camel_case_split_no_single_chars_no_stop_words_stemmed_only_english = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words_stemmed)
         return camel_case_split_no_single_chars_no_stop_words_stemmed_only_english
     except:
         return ""
@@ -142,7 +156,7 @@ def openFileForWritingWithPathCreation(file_path):
 
 def readEnglishWords():
     global english_words
-    english_words = [line.rstrip('\n') for line in open("./english-words/words.txt").readlines()]
+    english_words = [line.rstrip('\n') for line in open("./english-words/corncob_lowercase.txt").readlines()]
 
 
 def findFeatures(corpusPath, rootPath):
