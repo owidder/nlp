@@ -17,7 +17,7 @@ de = enchant.Dict("de_DE")
 fr = enchant.Dict("fr_FR")
 
 
-def splitCamelCase(name):
+def split_camel_case(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name).lower()
 
 
@@ -75,7 +75,7 @@ def words_of_file(file_path):
         text = shakes.read()
         no_punctuation = text.translate(string.punctuation)
         only_a_to_z = re.sub('[^A-Za-z ]+', ' ', no_punctuation)
-        camel_case_split = splitCamelCase(only_a_to_z)
+        camel_case_split = split_camel_case(only_a_to_z)
         camel_case_split_no_single_chars = removeSingleChars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
         camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words)
