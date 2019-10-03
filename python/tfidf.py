@@ -7,7 +7,7 @@ import sys
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from words.words_of_file import words_of_file, unstem
-from util.tokenize import tokenizePath
+from util.tokenize import tokenize_path
 
 def isNoDotFile(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
@@ -32,7 +32,7 @@ def tokenize(text):
 
 
 def fit(corpusPath):
-    token_dict = tokenizePath(corpusPath)
+    token_dict = tokenize_path(corpusPath)
     tfidf = TfidfVectorizer(tokenizer=tokenize, stop_words='english')
     print("--- start fit transform ---\n")
     tfidf.fit_transform(token_dict.values())

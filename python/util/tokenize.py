@@ -15,7 +15,7 @@ def isIncluded(file_path):
     return isNoDotFile(file_path) and hasNoExcludedExtension(file_path)
 
 
-def tokenizePath(path):
+def tokenize_path(path):
     token_dict = {}
     for subdir, dirs, files in os.walk(path):
         for file in files:
