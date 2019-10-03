@@ -1,8 +1,7 @@
 out/
 
 !sourcedata/
-sourcedata/*
-!sourcedata/erpnext.tgz
+sourcedata
 
 .idea
 venv
@@ -11,3 +10,5 @@ wiki/
 notebooks/tfidf/stories
 testdata/
 
+__pycache__
+*.tgz

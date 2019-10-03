@@ -4,8 +4,6 @@ from collections import defaultdict
 import os
 import pickle
 
-from .file_string.sourcecode import fileString
-
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 def readDocuments(path):
