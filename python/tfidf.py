@@ -6,7 +6,8 @@ import sys
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from util.words_of_file import words_of_file, unstem
+from words.words_of_file import words_of_file, unstem
+from util.tokenize import tokenizePath
 
 def isNoDotFile(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
@@ -23,18 +24,6 @@ def isIncluded(file_path):
 
 def relPathFromAbsPath(rootPath, absPath):
   return re.sub(rootPath + "/", '', absPath)
-
-
-def tokenizePath(path):
-    token_dict = {}
-    for subdir, dirs, files in os.walk(path):
-        for file in files:
-            file_path = subdir + os.path.sep + file
-            if isIncluded(file_path):
-                wordsOfFile = words_of_file(file_path)
-                if len(wordsOfFile) > 0:
-                    token_dict[file] = wordsOfFile
-    return token_dict
 
 
 def tokenize(text):
@@ -95,4 +84,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
