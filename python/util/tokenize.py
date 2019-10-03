@@ -6,13 +6,13 @@ def isNoDotFile(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
 
 
-def hasNoExcludedExtension(file_path):
-  extension = file_path.split(".")[-1]
-  return extension.lower() not in ["jpg", "jpeg", "png", "bmp", "csv"]
+def has_no_excluded_extension(file_path):
+    extension = file_path.split(".")[-1]
+    return extension.lower() not in ["jpg", "jpeg", "png", "bmp", "csv"]
 
 
 def is_included(file_path):
-    return isNoDotFile(file_path) and hasNoExcludedExtension(file_path)
+    return isNoDotFile(file_path) and has_no_excluded_extension(file_path)
 
 
 def tokenize_path(path):
