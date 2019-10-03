@@ -2,6 +2,7 @@ import os
 
 from ..words.words_of_file import words_of_file
 
+
 def is_no_dot_file(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
 
