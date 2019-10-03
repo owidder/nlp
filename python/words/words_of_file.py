@@ -21,7 +21,7 @@ def split_camel_case(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name).lower()
 
 
-def removeSingleChars(string):
+def remove_single_chars(string):
     return ' '.join([w for w in string.split() if len(w) > 1])
 
 
@@ -76,7 +76,7 @@ def words_of_file(file_path):
         no_punctuation = text.translate(string.punctuation)
         only_a_to_z = re.sub('[^A-Za-z ]+', ' ', no_punctuation)
         camel_case_split = split_camel_case(only_a_to_z)
-        camel_case_split_no_single_chars = removeSingleChars(camel_case_split)
+        camel_case_split_no_single_chars = remove_single_chars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
         camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words)
         camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words_stemmed)
