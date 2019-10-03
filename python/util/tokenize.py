@@ -2,7 +2,7 @@ import os
 
 from ..words.words_of_file import words_of_file
 
-def isNoDotFile(file_path):
+def is_no_dot_file(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
 
 
@@ -12,7 +12,7 @@ def has_no_excluded_extension(file_path):
 
 
 def is_included(file_path):
-    return isNoDotFile(file_path) and has_no_excluded_extension(file_path)
+    return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
 def tokenize_path(path):
