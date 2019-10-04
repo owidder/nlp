@@ -2,6 +2,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 
+import os
 import nltk
 import re
 import string
@@ -69,7 +70,7 @@ def filter_non_en_de_fr_words(data):
     return " ".join(list(filter(lambda w: is_en_de_fr(unstem(w)), tokens)))
 
 
-def words_of_file(file_path):
+def get_words_of_file(file_path):
     try:
         shakes = open(file_path, 'r')
         text = shakes.read()
@@ -85,3 +86,26 @@ def words_of_file(file_path):
         return ""
 
 
+def is_no_dot_file(file_path):
+    return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
+
+
+def has_no_excluded_extension(file_path):
+    extension = file_path.split(".")[-1]
+    return extension.lower() not in ["jpg", "jpeg", "png", "bmp", "csv"]
+
+
+def is_included(file_path):
+    return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
+
+
+def create_word_dict(path):
+    word_dict = {}
+    for subdir, dirs, files in os.walk(path):
+        for file in files:
+            file_path = subdir + os.path.sep + file
+            if is_included(file_path):
+                words_of_file = get_words_of_file(file_path)
+                if len(words_of_file) > 0:
+                    word_dict[file] = words_of_file
+    return word_dict
