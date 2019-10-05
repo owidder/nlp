@@ -7,6 +7,9 @@ import nltk
 import re
 import string
 import enchant
+import pickle
+import hashlib
+import sys
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -104,8 +107,26 @@ def create_word_dict(path):
     for subdir, dirs, files in os.walk(path):
         for file in files:
             file_path = subdir + os.path.sep + file
+            print(file_path)
             if is_included(file_path):
                 words_of_file = get_words_of_file(file_path)
                 if len(words_of_file) > 0:
-                    word_dict[file] = words_of_file
+                    word_dict[file_path] = words_of_file
     return word_dict
+
+
+def read_or_create_word_dict(path):
+    hashvalue = hashlib.sha256(path.encode()).hexdigest()
+    file_name = f"word_dict.{hashvalue}.pickle"
+    if os.path.exists(file_name):
+        pickle_file = open(file_name, "rb")
+        return pickle.load(pickle_file)
+    else:
+        word_dict = create_word_dict(path)
+        pickle_file = open(file_name, "wb")
+        pickle.dump(word_dict, pickle_file)
+        return word_dict
+
+
+if __name__ == "__main__":
+    read_or_create_word_dict(sys.argv[1])
