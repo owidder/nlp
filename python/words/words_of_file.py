@@ -11,6 +11,8 @@ import pickle
 import hashlib
 import sys
 
+from util.util import rel_path_from_abs_path
+
 nltk.download('punkt')
 nltk.download('stopwords')
 
@@ -102,31 +104,31 @@ def is_included(file_path):
     return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
-def create_word_dict(path):
+def create_word_dict(base_path, path):
+    abs_path = os.path.join(base_path, path)
     word_dict = {}
-    for subdir, dirs, files in os.walk(path):
+    for subdir, dirs, files in os.walk(abs_path):
         for file in files:
-            file_path = subdir + os.path.sep + file
-            print(file_path)
-            if is_included(file_path):
-                words_of_file = get_words_of_file(file_path)
+            file_abs_path = subdir + os.path.sep + file
+            if is_included(file_abs_path):
+                words_of_file = get_words_of_file(file_abs_path)
                 if len(words_of_file) > 0:
-                    word_dict[file_path] = words_of_file
+                    file_rel_path = rel_path_from_abs_path(base_path, file_abs_path)
+                    print(file_rel_path)
+                    word_dict[file_rel_path] = words_of_file
     return word_dict
 
 
-def read_or_create_word_dict(path):
+def read_or_create_word_dict(base_path, path):
     hashvalue = hashlib.sha256(path.encode()).hexdigest()
     file_name = f"word_dict.{hashvalue}.pickle"
     if os.path.exists(file_name):
         pickle_file = open(file_name, "rb")
         return pickle.load(pickle_file)
     else:
-        word_dict = create_word_dict(path)
+        word_dict = create_word_dict(base_path, path)
         pickle_file = open(file_name, "wb")
         pickle.dump(word_dict, pickle_file)
         return word_dict
 
 
-if __name__ == "__main__":
-    read_or_create_word_dict(sys.argv[1])
