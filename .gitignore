@@ -11,3 +11,5 @@ testdata/
 
 __pycache__
 *.tgz
+
+nohup*
