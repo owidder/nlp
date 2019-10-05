@@ -8,8 +8,6 @@ import re
 import string
 import enchant
 import pickle
-import hashlib
-import sys
 
 from util.util import rel_path_from_abs_path
 
@@ -104,10 +102,9 @@ def is_included(file_path):
     return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
-def create_word_dict(base_path, path):
-    abs_path = os.path.join(base_path, path)
+def create_word_dict(base_path):
     word_dict = {}
-    for subdir, dirs, files in os.walk(abs_path):
+    for subdir, dirs, files in os.walk(base_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
@@ -119,14 +116,13 @@ def create_word_dict(base_path, path):
     return word_dict
 
 
-def read_or_create_word_dict(base_path, path):
-    hashvalue = hashlib.sha256(path.encode()).hexdigest()
-    file_name = f"word_dict.{hashvalue}.pickle"
+def read_or_create_word_dict(base_path, name):
+    file_name = f"word_dict.{name}.pickle"
     if os.path.exists(file_name):
         pickle_file = open(file_name, "rb")
         return pickle.load(pickle_file)
     else:
-        word_dict = create_word_dict(base_path, path)
+        word_dict = create_word_dict(base_path)
         pickle_file = open(file_name, "wb")
         pickle.dump(word_dict, pickle_file)
         return word_dict
