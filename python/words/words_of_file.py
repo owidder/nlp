@@ -108,11 +108,14 @@ def create_word_dict(base_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
+                file_rel_path = rel_path_from_abs_path(base_path, file_abs_path)
+                print(f">>> {file_rel_path}")
                 words_of_file = get_words_of_file(file_abs_path)
+                print(f"\t[{words_of_file}]")
                 if len(words_of_file) > 0:
-                    file_rel_path = rel_path_from_abs_path(base_path, file_abs_path)
-                    print(file_rel_path)
                     word_dict[file_rel_path] = words_of_file
+                print(f"<<< {file_rel_path}")
+    print("!!!! FINISHED !!!")
     return word_dict
 
 
