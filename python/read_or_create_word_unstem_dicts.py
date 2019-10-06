@@ -10,7 +10,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', required=True, action='store', help='Name of the dictionary (see paramter --dictpath)')
     args = parser.parse_args()
 
-    word_unstem_dicts = read_or_create_word_unstem_dict(doc_path=args.docpath, word_dict_path=args.dictpath, name=args.name)
+    word_unstem_dicts = read_or_create_word_unstem_dict(doc_path=args.docpath, dict_path=args.dictpath, name=args.name)
     print(word_unstem_dicts.word_dict.keys())
     print(word_unstem_dicts.unstem_dict.keys())
 

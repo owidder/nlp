@@ -22,7 +22,7 @@ def fit(word_dict):
 
 
 def find_features(doc_path, word_dict_path, out_path,  name):
-    word_unstem_dict = read_or_create_word_unstem_dict(doc_path=doc_path, word_dict_path=word_dict_path, name=name)
+    word_unstem_dict = read_or_create_word_unstem_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
 
     print("---- do the fitting ----\n")
     tfidf = fit(word_unstem_dict.word_dict)

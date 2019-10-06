@@ -125,8 +125,8 @@ def fill_word_unstem_dicts(doc_path):
     print("!!!! FINISHED !!!")
 
 
-def read_or_create_word_unstem_dict(doc_path, word_dict_path, name) -> WordUnstemDicts:
-    word_unstem_dicts_path = os.path.join(word_dict_path, f"word_unstem_dicts.{name}.pickle")
+def read_or_create_word_unstem_dict(doc_path, dict_path, name) -> WordUnstemDicts:
+    word_unstem_dicts_path = os.path.join(dict_path, f"word_unstem_dicts.{name}.pickle")
     if os.path.exists(word_unstem_dicts_path):
         pickle_file = open(word_unstem_dicts_path, "rb")
         return pickle.load(pickle_file)
