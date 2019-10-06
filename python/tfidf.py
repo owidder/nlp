@@ -13,8 +13,7 @@ def tokenize(text):
     return tokens
 
 
-def fit(doc_path, word_dict_path, name):
-    word_dict = read_or_create_word_dict(doc_path=doc_path, word_dict_path=word_dict_path, name=name)
+def fit(word_dict):
     tfidf = TfidfVectorizer(tokenizer=nltk.word_tokenize, stop_words='english')
     print("--- start fit transform ---\n")
     tfidf.fit_transform(word_dict.values())
@@ -23,26 +22,29 @@ def fit(doc_path, word_dict_path, name):
 
 
 def find_features(doc_path, word_dict_path, out_path,  name):
+    word_dict = read_or_create_word_dict(doc_path=doc_path, word_dict_path=word_dict_path, name=name)
+
     print("---- do the fitting ----\n")
-    tfidf = fit(doc_path, word_dict_path, name)
+    tfidf = fit(word_dict)
+    feature_names = tfidf.get_feature_names()
+
     print("--- analyze root path ---\n")
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = os.path.join(subdir, file)
             if is_included(file_abs_path):
                 file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
-                out_file_path = f"out/{file_rel_path}.tfidf.csv"
-                print("--> " + out_file_path)
-                file_str = get_words_of_file(file_abs_path)
+                file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
+                print("--> " + file_out_path)
+                file_str = word_dict[file_rel_path]
                 file_response = tfidf.transform([file_str])
-                feature_names = tfidf.get_feature_names()
 
                 f = {}
                 for col in file_response.nonzero()[1]:
                     f[feature_names[col]] = file_response[0, col]
 
                 if len(list(f.keys())) > 0:
-                    out_file = open_file_for_writing_with_path_creation(out_file_path)
+                    out_file = open_file_for_writing_with_path_creation(file_out_path)
                     sf = sorted(f, key=f.__getitem__, reverse=True)
                     for k in sf:
                         uk = unstem(k)
