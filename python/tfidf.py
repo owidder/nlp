@@ -1,16 +1,11 @@
 import nltk
 import os
-import errno
-import re
-import sys
+import argparse
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from words.words_of_file import unstem, get_words_of_file, create_word_dict, is_included
-
-
-def rel_path_from_abs_path(rootPath, absPath):
-    return re.sub(rootPath + "/", '', absPath)
+from words.words_of_file import unstem, get_words_of_file, read_or_create_word_dict, is_included
+from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 
 
 def tokenize(text):
@@ -18,36 +13,27 @@ def tokenize(text):
     return tokens
 
 
-def fit(corpusPath):
-    word_dict = create_word_dict(corpusPath)
-    tfidf = TfidfVectorizer(tokenizer=tokenize, stop_words='english')
+def fit(doc_path, word_dict_path, name):
+    word_dict = read_or_create_word_dict(doc_path=doc_path, word_dict_path=word_dict_path, name=name)
+    tfidf = TfidfVectorizer(tokenizer=nltk.word_tokenize, stop_words='english')
     print("--- start fit transform ---\n")
     tfidf.fit_transform(word_dict.values())
     print("--- fit transform ended ---\n")
     return tfidf
 
 
-def open_file_for_writing_with_path_creation(file_path):
-    if not os.path.exists(os.path.dirname(file_path)):
-        try:
-            os.makedirs(os.path.dirname(file_path))
-        except OSError as exc:  # Guard against race condition
-            if exc.errno != errno.EEXIST:
-                raise
-    return open(file_path, 'w')
-
-
-def find_features(corpusPath, rootPath):
+def find_features(doc_path, word_dict_path, out_path,  name):
     print("---- do the fitting ----\n")
-    tfidf = fit(corpusPath=corpusPath)
+    tfidf = fit(doc_path, word_dict_path, name)
     print("--- analyze root path ---\n")
-    for subdir, dirs, files in os.walk(rootPath):
+    for subdir, dirs, files in os.walk(doc_path):
         for file in files:
-            file_path = subdir + os.path.sep + file
-            if is_included(file_path):
-                out_file_path = "out/" + rel_path_from_abs_path(rootPath, file_path) + ".tfidf.csv"
+            file_abs_path = os.path.join(subdir, file)
+            if is_included(file_abs_path):
+                file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
+                out_file_path = f"out/{file_rel_path}.tfidf.csv"
                 print("--> " + out_file_path)
-                file_str = get_words_of_file(file_path)
+                file_str = get_words_of_file(file_abs_path)
                 file_response = tfidf.transform([file_str])
                 feature_names = tfidf.get_feature_names()
 
@@ -64,10 +50,15 @@ def find_features(corpusPath, rootPath):
 
 
 def main():
-    corpus_path = sys.argv[1]
-    root_path = (sys.argv[2] if len(sys.argv) > 2 else corpus_path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--docpath', required=True, action='store', help='Path to the documents')
+    parser.add_argument('--dictpath', required=True, action='store', help='Path to the dictionarty. Has to be name word_dict.<name>.pickle. If it does not exist, it will be created')
+    parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
+    parser.add_argument('--name', required=True, action='store', help='Name of the dictionary (see paramter --dictpath)')
 
-    find_features(corpusPath=corpus_path, rootPath=root_path)
+    args = parser.parse_args()
+
+    find_features(doc_path=args.docpath, word_dict_path=args.dictpath, out_path=args.outpath, name=args.name)
 
 
 if __name__ == "__main__":
