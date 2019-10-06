@@ -1,6 +1,7 @@
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
+from typing import Dict
 
 import os
 import nltk
@@ -14,7 +15,14 @@ from util.util import rel_path_from_abs_path
 nltk.download('punkt')
 nltk.download('stopwords')
 
-unstem_dict = {}
+class WordUnstemDicts:
+    def __init__(self):
+        self.word_dict = {}
+        self.unstem_dict = {}
+
+
+word_unstem_dicts = WordUnstemDicts()
+
 
 en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
@@ -39,12 +47,12 @@ def remove_stop_words(data):
     return new_text
 
 
-def add_to_unstem_dict(word, stemmed_word):
-    if stemmed_word in unstem_dict:
-        if len(word) < len(unstem_dict[stemmed_word]):
-            unstem_dict[stemmed_word] = word
+def add_to_unstem_dict(word: str, stemmed_word: str):
+    if stemmed_word in word_unstem_dicts.unstem_dict:
+        if len(word) < len(word_unstem_dicts.unstem_dict[stemmed_word]):
+            word_unstem_dicts.unstem_dict[stemmed_word] = word
     else:
-        unstem_dict[stemmed_word] = word
+        word_unstem_dicts.unstem_dict[stemmed_word] = word
 
 
 def stemming(data):
@@ -61,7 +69,7 @@ def stemming(data):
 
 
 def unstem(word):
-    return unstem_dict[word]
+    return word_unstem_dicts.unstem_dict[word]
 
 
 def is_en_de_fr(word):
@@ -102,8 +110,7 @@ def is_included(file_path):
     return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
-def create_word_dict(doc_path):
-    word_dict = {}
+def fill_word_unstem_dicts(doc_path):
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
@@ -113,21 +120,20 @@ def create_word_dict(doc_path):
                 words_of_file = get_words_of_file(file_abs_path)
                 print(f"\t[{words_of_file}]")
                 if len(words_of_file) > 0:
-                    word_dict[file_rel_path] = words_of_file
+                    word_unstem_dicts.word_dict[file_rel_path] = words_of_file
                 print(f"<<< {file_rel_path}")
     print("!!!! FINISHED !!!")
-    return word_dict
 
 
-def read_or_create_word_dict(doc_path, word_dict_path, name):
-    file_path = os.path.join(word_dict_path, f"word_dict.{name}.pickle")
-    if os.path.exists(file_path):
-        pickle_file = open(file_path, "rb")
+def read_or_create_word_unstem_dict(doc_path, word_dict_path, name) -> WordUnstemDicts:
+    word_unstem_dicts_path = os.path.join(word_dict_path, f"word_unstem_dicts.{name}.pickle")
+    if os.path.exists(word_unstem_dicts_path):
+        pickle_file = open(word_unstem_dicts_path, "rb")
         return pickle.load(pickle_file)
     else:
-        word_dict = create_word_dict(doc_path)
-        pickle_file = open(file_path, "wb")
-        pickle.dump(word_dict, pickle_file)
-        return word_dict
+        fill_word_unstem_dicts(doc_path)
+        pickle_file = open(word_unstem_dicts_path, "wb")
+        pickle.dump(word_unstem_dicts, pickle_file)
+        return word_unstem_dicts
 
 
