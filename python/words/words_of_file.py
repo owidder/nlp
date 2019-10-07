@@ -10,7 +10,7 @@ import string
 import enchant
 import pickle
 
-from util.util import rel_path_from_abs_path
+from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -132,7 +132,7 @@ def read_or_create_word_unstem_dict(doc_path, dict_path, name) -> WordUnstemDict
         return pickle.load(pickle_file)
     else:
         fill_word_unstem_dicts(doc_path)
-        pickle_file = open(word_unstem_dicts_path, "wb")
+        pickle_file = open_file_for_writing_with_path_creation(word_unstem_dicts_path, 'wb')
         pickle.dump(word_unstem_dicts, pickle_file)
         return word_unstem_dicts
 
