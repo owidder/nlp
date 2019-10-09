@@ -22,10 +22,10 @@ def fit(word_dict):
 
 
 def find_features(doc_path, word_dict_path, out_path,  name):
-    word_unstem_dict = read_or_create_word_unstem_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
+    word_unstem_dicts = read_or_create_word_unstem_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
 
     print("---- do the fitting ----\n")
-    tfidf = fit(word_unstem_dict.word_dict)
+    tfidf = fit(word_unstem_dicts.word_dict)
     feature_names = tfidf.get_feature_names()
 
     print("--- analyze root path ---\n")
@@ -36,7 +36,7 @@ def find_features(doc_path, word_dict_path, out_path,  name):
                 file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
                 file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
                 print("--> " + file_out_path)
-                file_str = word_unstem_dict.word_dict[file_rel_path]
+                file_str = word_unstem_dicts.word_dict[file_rel_path]
                 file_response = tfidf.transform([file_str])
 
                 f = {}
@@ -47,7 +47,7 @@ def find_features(doc_path, word_dict_path, out_path,  name):
                     out_file = open_file_for_writing_with_path_creation(file_out_path)
                     sf = sorted(f, key=f.__getitem__, reverse=True)
                     for k in sf:
-                        uk = unstem(k)
+                        uk = word_unstem_dicts.unstem_dict[k]
                         print(uk + "\t" + str(f[k]), file=out_file)
 
 

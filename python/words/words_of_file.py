@@ -21,9 +21,6 @@ class WordUnstemDicts:
         self.unstem_dict = {}
 
 
-word_unstem_dicts = WordUnstemDicts()
-
-
 en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
 fr = enchant.Dict("fr_FR")
@@ -110,7 +107,8 @@ def is_included(file_path):
     return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
-def fill_word_unstem_dicts(doc_path):
+def create_word_unstem_dicts(doc_path) -> WordUnstemDicts:
+    word_unstem_dicts = WordUnstemDicts()
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
@@ -123,15 +121,18 @@ def fill_word_unstem_dicts(doc_path):
                     word_unstem_dicts.word_dict[file_rel_path] = words_of_file
                 print(f"<<< {file_rel_path}")
     print("!!!! FINISHED !!!")
+    return word_unstem_dicts
 
 
 def read_or_create_word_unstem_dict(doc_path, dict_path, name) -> WordUnstemDicts:
+    global word_unstem_dicts
     word_unstem_dicts_path = os.path.join(dict_path, f"word_unstem_dicts.{name}.pickle")
     if os.path.exists(word_unstem_dicts_path):
         pickle_file = open(word_unstem_dicts_path, "rb")
-        return pickle.load(pickle_file)
+        word_unstem_dicts = pickle.load(pickle_file)
+        return word_unstem_dicts
     else:
-        fill_word_unstem_dicts(doc_path)
+        word_unstem_dicts = create_word_unstem_dicts(doc_path)
         pickle_file = open_file_for_writing_with_path_creation(word_unstem_dicts_path, 'wb')
         pickle.dump(word_unstem_dicts, pickle_file)
         return word_unstem_dicts
