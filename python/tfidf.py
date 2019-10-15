@@ -36,7 +36,11 @@ def find_features(doc_path, word_dict_path, out_path,  name):
                 file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
                 file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
                 print("--> " + file_out_path)
-                file_str = word_unstem_dicts.word_dict[file_rel_path]
+                try:
+                    file_str = word_unstem_dicts.word_dict[file_rel_path]
+                except:
+                    print(f"Couldn't find {file_rel_path}")
+
                 file_response = tfidf.transform([file_str])
 
                 f = {}
