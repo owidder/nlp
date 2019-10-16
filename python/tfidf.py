@@ -4,7 +4,7 @@ import argparse
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from words.words_of_file import unstem, get_words_of_file, read_or_create_word_unstem_dict, is_included
+from words.words_of_file import read_or_create_word_unstem_dict, is_included
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 
 

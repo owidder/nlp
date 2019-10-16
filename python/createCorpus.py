@@ -3,45 +3,37 @@ from gensim import corpora
 from collections import defaultdict
 import os
 import pickle
+import argparse
 
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-
-def readDocuments(path):
-    documents = {}
-    for subdir, dirs, files in os.walk(path):
-        for file in files:
-            file_path = subdir + os.path.sep + file
-            if file_path.endswith("utf8"):
-                content = fileString(file_path)
-                if len(content) > 0:
-                    documents[file_path] = fileString(file_path)
-    return documents
+from words.words_of_file import read_or_create_word_unstem_dict, is_included
 
 
-documents = readDocuments('/Users/owidder/dev/iteragit/nge/python/OpenSpeedMonitor')
+def create_corpus(doc_path, word_dict_path, name, out_path):
+    word_unstem_dict = read_or_create_word_unstem_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
+    texts = [[word for word in document.lower().split()] for document in list(word_unstem_dict.word_dict.values())]
+    # remove words that appear only once
+    frequency = defaultdict(int)
+    for text in texts:
+        for token in text:
+            frequency[token] += 1
+    texts = [[token for token in text if frequency[token] > 1] for text in texts]
+    dictionary = corpora.Dictionary(texts)
+    dictionary.save(f"{out_path}/corpus-{name}.dict")
+    corpus = [dictionary.doc2bow(text) for text in texts]
+    corpora.MmCorpus.serialize(f"{out_path}/corpus-{name}.mm", corpus)
 
-with open('./data/docnames', 'wb') as dn:
-    pickle.dump(list(documents.keys()), dn)
 
-stoplist = set('if for a of the and to in'.split())
-texts = [[word for word in document.lower().split() if word not in stoplist]
-         for document in list(documents.values())]
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--docpath', required=True, action='store', help='Path to the documents')
+    parser.add_argument('--dictpath', required=True, action='store', help='Path to the dictionarty. Has to be name word_dict.<name>.pickle. If it does not exist, it will be created')
+    parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
+    parser.add_argument('--name', required=True, action='store', help='Name of the dictionary (see paramter --dictpath)')
 
-# remove words that appear only once
-frequency = defaultdict(int)
-for text in texts:
-    for token in text:
-        frequency[token] += 1
+    args = parser.parse_args()
 
-texts = [[token for token in text if frequency[token] > 1]
-         for text in texts]
+    create_corpus(doc_path=args.docpath, word_dict_path=args.dictpath, out_path=args.outpath, name=args.name)
 
-dictionary = corpora.Dictionary(texts)
-dictionary.save('./data/corpus.dict')
-print(dictionary)
 
-print(dictionary.token2id)
-
-corpus = [dictionary.doc2bow(text) for text in texts]
-corpora.MmCorpus.serialize('./data/corpus.mm', corpus)  # store to disk, for later use
-print(corpus)
+if __name__ == "__main__":
+    main()
