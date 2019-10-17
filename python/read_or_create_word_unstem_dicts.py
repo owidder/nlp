@@ -1,4 +1,4 @@
-from util.get_args import get_args
+from get_args import get_args
 from words.words_of_file import read_or_create_word_unstem_dict
 
 if __name__ == '__main__':
