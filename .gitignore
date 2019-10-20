@@ -11,5 +11,6 @@ testdata/
 
 __pycache__
 *.tgz
+!out.tgz
 
 nohup*
