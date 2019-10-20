@@ -6,7 +6,8 @@ from typing import Dict
 import os
 import nltk
 import re
-import string
+import sys
+import traceback
 import enchant
 import pickle
 
@@ -19,6 +20,9 @@ class WordUnstemDicts:
     def __init__(self):
         self.word_dict = {}
         self.unstem_dict = {}
+
+
+word_unstem_dicts: WordUnstemDicts = None
 
 
 en = enchant.Dict("en_US")
@@ -45,6 +49,7 @@ def remove_stop_words(data):
 
 
 def add_to_unstem_dict(word: str, stemmed_word: str):
+    global word_unstem_dicts
     if stemmed_word in word_unstem_dicts.unstem_dict:
         if len(word) < len(word_unstem_dicts.unstem_dict[stemmed_word]):
             word_unstem_dicts.unstem_dict[stemmed_word] = word
@@ -66,6 +71,7 @@ def stemming(data):
 
 
 def unstem(word):
+    global word_unstem_dicts
     return word_unstem_dicts.unstem_dict[word]
 
 
@@ -82,8 +88,7 @@ def get_words_of_file(file_path):
     try:
         shakes = open(file_path, 'r')
         text = shakes.read()
-        no_punctuation = text.translate(string.punctuation)
-        only_a_to_z = re.sub('[^A-Za-z ]+', ' ', no_punctuation)
+        only_a_to_z = re.sub('[^A-Za-z ]+', ' ', text)
         camel_case_split = split_camel_case(only_a_to_z)
         camel_case_split_no_single_chars = remove_single_chars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
@@ -91,6 +96,8 @@ def get_words_of_file(file_path):
         camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words_stemmed)
         return camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr
     except:
+        print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
+        traceback.print_exc(file=sys.stdout)
         return ""
 
 
@@ -108,6 +115,7 @@ def is_included(file_path):
 
 
 def create_word_unstem_dicts(doc_path) -> WordUnstemDicts:
+    global word_unstem_dicts
     word_unstem_dicts = WordUnstemDicts()
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
