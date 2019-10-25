@@ -15,6 +15,14 @@ from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_cr
 nltk.download('punkt')
 nltk.download('stopwords')
 
+class WordUnstemDicts:
+    def __init__(self):
+        self.word_dict = {}
+        self.unstem_dict = {}
+
+
+word_unstem_dicts: WordUnstemDicts = None
+
 
 en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
@@ -39,37 +47,43 @@ def remove_stop_words(data):
     return new_text
 
 
-def add_to_unstem_dict(word: str, stemmed_word: str, unstem_dict):
-    if stemmed_word in unstem_dict:
-        if len(word) < len(unstem_dict[stemmed_word]):
-            unstem_dict[stemmed_word] = word
+def add_to_unstem_dict(word: str, stemmed_word: str):
+    global word_unstem_dicts
+    if stemmed_word in word_unstem_dicts.unstem_dict:
+        if len(word) < len(word_unstem_dicts.unstem_dict[stemmed_word]):
+            word_unstem_dicts.unstem_dict[stemmed_word] = word
     else:
-        unstem_dict[stemmed_word] = word
+        word_unstem_dicts.unstem_dict[stemmed_word] = word
 
 
-def stemming(data, unstem_dict):
+def stemming(data):
     stemmer = PorterStemmer()
 
     tokens = word_tokenize(str(data))
     new_text = ""
     for w in tokens:
         stemmed_word = stemmer.stem(w)
-        add_to_unstem_dict(w, stemmed_word, unstem_dict)
+        add_to_unstem_dict(w, stemmed_word)
         new_text = new_text + " " + stemmer.stem(w)
 
     return new_text
+
+
+def unstem(word):
+    global word_unstem_dicts
+    return word_unstem_dicts.unstem_dict[word]
 
 
 def is_en_de_fr(word):
     return en.check(word) or de.check(word) or fr.check(word)
 
 
-def filter_non_en_de_fr_words(data, unstem_dict):
+def filter_non_en_de_fr_words(data):
     tokens = word_tokenize(str(data))
-    return " ".join(list(filter(lambda w: is_en_de_fr(unstem_dict[w]), tokens)))
+    return " ".join(list(filter(lambda w: is_en_de_fr(unstem(w)), tokens)))
 
 
-def get_words_of_file(file_path, unstem_dict):
+def get_words_of_file(file_path):
     try:
         shakes = open(file_path, 'r')
         text = shakes.read()
@@ -77,8 +91,8 @@ def get_words_of_file(file_path, unstem_dict):
         camel_case_split = split_camel_case(only_a_to_z)
         camel_case_split_no_single_chars = remove_single_chars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
-        camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words, unstem_dict)
-        camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words_stemmed, unstem_dict)
+        camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words)
+        camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words_stemmed)
         return camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
@@ -99,39 +113,35 @@ def is_included(file_path):
     return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
-def unstem_word_dict(word_dict_stemmed, unstem_dict):
-    return {file_rel_path: [unstem_dict[word_stemmed] for word_stemmed in words_stemmed] for file_rel_path, words_stemmed in word_dict_stemmed}
-
-
-def create_word_dict(doc_path):
-    word_dict_stemmed = {}
-    unstem_dict = {}
+def create_word_unstem_dicts(doc_path) -> WordUnstemDicts:
+    global word_unstem_dicts
+    word_unstem_dicts = WordUnstemDicts()
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
                 file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
                 print(f">>> {file_rel_path}")
-                words_of_file = get_words_of_file(file_abs_path, unstem_dict)
+                words_of_file = get_words_of_file(file_abs_path)
                 print(f"\t[{words_of_file}]")
                 if len(words_of_file) > 0:
-                    word_dict_stemmed[file_rel_path] = words_of_file
+                    word_unstem_dicts.word_dict[file_rel_path] = words_of_file
                 print(f"<<< {file_rel_path}")
     print("!!!! FINISHED !!!")
-    word_dict = unstem_word_dict(word_dict_stemmed, unstem_dict)
-    return word_dict
+    return word_unstem_dicts
 
 
-def read_or_create_word_dict(doc_path, dict_path, name):
-    word_dict_path = os.path.join(dict_path, f"word_dict.{name}.pickle")
-    if os.path.exists(word_dict_path):
-        pickle_file = open(word_dict_path, "rb")
-        word_dict = pickle.load(pickle_file)
-        return word_dict
+def read_or_create_word_unstem_dict(doc_path, dict_path, name) -> WordUnstemDicts:
+    global word_unstem_dicts
+    word_unstem_dicts_path = os.path.join(dict_path, f"word_unstem_dicts.{name}.pickle")
+    if os.path.exists(word_unstem_dicts_path):
+        pickle_file = open(word_unstem_dicts_path, "rb")
+        word_unstem_dicts = pickle.load(pickle_file)
+        return word_unstem_dicts
     else:
-        word_dict = create_word_dict(doc_path)
-        pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
-        pickle.dump(word_dict, pickle_file)
-        return word_dict
+        word_unstem_dicts = create_word_unstem_dicts(doc_path)
+        pickle_file = open_file_for_writing_with_path_creation(word_unstem_dicts_path, 'wb')
+        pickle.dump(word_unstem_dicts, pickle_file)
+        return word_unstem_dicts
 
 
