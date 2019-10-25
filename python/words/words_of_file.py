@@ -100,7 +100,7 @@ def is_included(file_path):
 
 
 def unstem_word_dict(word_dict_stemmed, unstem_dict):
-    return {file_rel_path: [unstem_dict[word_stemmed] for word_stemmed in words_stemmed] for file_rel_path, words_stemmed in word_dict_stemmed}
+    return {file_rel_path: " ".join([unstem_dict[word_stemmed] for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed}
 
 
 def create_word_dict(doc_path):
