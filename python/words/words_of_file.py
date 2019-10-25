@@ -1,15 +1,14 @@
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
-from typing import Dict
-
 import os
-import nltk
+import pickle
 import re
 import sys
 import traceback
+
 import enchant
-import pickle
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 
