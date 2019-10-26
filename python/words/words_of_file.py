@@ -61,7 +61,9 @@ def stemming(data, unstem_dict):
 
 
 def is_en_de_fr(word):
-    return en.check(word) or de.check(word) or fr.check(word)
+    result = en.check(word) or de.check(word) or fr.check(word)
+    print(f"{word} => {result}")
+    return result
 
 
 def filter_non_en_de_fr_words(data, unstem_dict):
@@ -99,8 +101,13 @@ def is_included(file_path):
     return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
 
 
+def unstem(word_stemmed, unstem_dict):
+    print(f"{word_stemmed} -> {unstem_dict[word_stemmed]}")
+    return unstem_dict[word_stemmed]
+
+
 def unstem_word_dict(word_dict_stemmed, unstem_dict):
-    return {file_rel_path: " ".join([unstem_dict[word_stemmed] for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
+    return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
 def create_word_dict(doc_path):
@@ -111,13 +118,9 @@ def create_word_dict(doc_path):
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
                 file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                print(f">>> {file_rel_path}")
                 words_of_file = get_words_of_file(file_abs_path, unstem_dict)
-                print(f"\t[{words_of_file}]")
                 if len(words_of_file) > 0:
                     word_dict_stemmed[file_rel_path] = words_of_file
-                print(f"<<< {file_rel_path}")
-    print("!!!! FINISHED !!!")
     word_dict = unstem_word_dict(word_dict_stemmed, unstem_dict)
     return word_dict
 

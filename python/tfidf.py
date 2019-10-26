@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from get_args import get_args
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from words.words_of_file import read_or_create_word_unstem_dict, is_included
+from words.words_of_file import read_or_create_word_dict, is_included
 
 
 def tokenize(text):
@@ -22,10 +22,10 @@ def fit(word_dict):
 
 
 def find_features(doc_path, word_dict_path, out_path,  name):
-    word_unstem_dicts = read_or_create_word_unstem_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
+    word_dict = read_or_create_word_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
 
     print("---- do the fitting ----\n")
-    tfidf = fit(word_unstem_dicts.word_dict)
+    tfidf = fit(word_dict)
     feature_names = tfidf.get_feature_names()
 
     print("--- analyze root path ---\n")
@@ -37,22 +37,21 @@ def find_features(doc_path, word_dict_path, out_path,  name):
                 file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
                 print("--> " + file_out_path)
                 try:
-                    file_str = word_unstem_dicts.word_dict[file_rel_path]
+                    file_str = word_dict[file_rel_path]
+                    file_response = tfidf.transform([file_str])
+
+                    f = {}
+                    for col in file_response.nonzero()[1]:
+                        f[feature_names[col]] = file_response[0, col]
+
+                    if len(list(f.keys())) > 0:
+                        out_file = open_file_for_writing_with_path_creation(file_out_path)
+                        sf = sorted(f, key=f.__getitem__, reverse=True)
+                        for k in sf:
+                            print(k + "\t" + str(f[k]), file=out_file)
                 except:
                     print(f"Couldn't find {file_rel_path}")
 
-                file_response = tfidf.transform([file_str])
-
-                f = {}
-                for col in file_response.nonzero()[1]:
-                    f[feature_names[col]] = file_response[0, col]
-
-                if len(list(f.keys())) > 0:
-                    out_file = open_file_for_writing_with_path_creation(file_out_path)
-                    sf = sorted(f, key=f.__getitem__, reverse=True)
-                    for k in sf:
-                        uk = word_unstem_dicts.unstem_dict[k]
-                        print(uk + "\t" + str(f[k]), file=out_file)
 
 
 def main():
