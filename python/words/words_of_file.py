@@ -18,7 +18,6 @@ nltk.download('stopwords')
 
 en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
-fr = enchant.Dict("fr_FR")
 
 
 def split_camel_case(name):
@@ -61,26 +60,15 @@ def stemming(data, unstem_dict):
     return new_text
 
 
-def is_en_de_fr(word):
-    result = en.check(word) or de.check(word) or fr.check(word)
-    print(f"isword\t{word}\t{result}")
-    return result
-
-
 def is_en_de(word):
     result = en.check(word) or de.check(word)
     print(f"isword\t{word}\t{result}")
     return result
 
 
-def filter_non_en_de_fr_words(data):
-    tokens = word_tokenize(str(data))
-    return " ".join(list(filter(lambda word: is_en_de_fr(word), tokens)))
-
-
 def filter_non_en_de_words(data):
     tokens = word_tokenize(str(data))
-    return " ".join(list(filter(lambda word: is_en_de_fr(word), tokens)))
+    return " ".join(list(filter(lambda word: is_en_de(word), tokens)))
 
 
 def get_words_of_file(file_path, unstem_dict):
