@@ -8,7 +8,7 @@ def create_index(dict_path, name):
     tfidf = models.TfidfModel(doc_term_matrix)
 
     corpus_tfidf = tfidf[doc_term_matrix]
-    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
+    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=10)
     lsi.save(f"{dict_path}/corpus-{name}.lsi")
 
     index = similarities.MatrixSimilarity(lsi[doc_term_matrix])
