@@ -52,23 +52,35 @@ def stemming(data, unstem_dict):
 
     tokens = word_tokenize(str(data))
     new_text = ""
-    for w in tokens:
-        stemmed_word = stemmer.stem(w)
-        add_to_unstem_dict(w, stemmed_word, unstem_dict)
-        new_text = new_text + " " + stemmer.stem(w)
+    for word in tokens:
+        stemmed_word = stemmer.stem(word)
+        print(f"stem\t{word}\t{stemmed_word}")
+        add_to_unstem_dict(word, stemmed_word, unstem_dict)
+        new_text = new_text + " " + stemmer.stem(word)
 
     return new_text
 
 
 def is_en_de_fr(word):
     result = en.check(word) or de.check(word) or fr.check(word)
-    print(f"{word} => {result}")
+    print(f"isword\t{word}\t{result}")
     return result
 
 
-def filter_non_en_de_fr_words(data, unstem_dict):
+def is_en_de(word):
+    result = en.check(word) or de.check(word)
+    print(f"isword\t{word}\t{result}")
+    return result
+
+
+def filter_non_en_de_fr_words(data):
     tokens = word_tokenize(str(data))
-    return " ".join(list(filter(lambda w: is_en_de_fr(unstem_dict[w]), tokens)))
+    return " ".join(list(filter(lambda word: is_en_de_fr(word), tokens)))
+
+
+def filter_non_en_de_words(data):
+    tokens = word_tokenize(str(data))
+    return " ".join(list(filter(lambda word: is_en_de_fr(word), tokens)))
 
 
 def get_words_of_file(file_path, unstem_dict):
@@ -79,9 +91,9 @@ def get_words_of_file(file_path, unstem_dict):
         camel_case_split = split_camel_case(only_a_to_z)
         camel_case_split_no_single_chars = remove_single_chars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
-        camel_case_split_no_single_chars_no_stop_words_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words, unstem_dict)
-        camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words_stemmed, unstem_dict)
-        return camel_case_split_no_single_chars_no_stop_words_stemmed_only_en_de_fr
+        camel_case_split_no_single_chars_no_stop_words_only_en_de_fr = filter_non_en_de_fr_words(camel_case_split_no_single_chars_no_stop_words)
+        camel_case_split_no_single_chars_no_stop_words_only_en_de_fr_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words_only_en_de_fr, unstem_dict)
+        return camel_case_split_no_single_chars_no_stop_words_only_en_de_fr_stemmed
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
@@ -102,7 +114,7 @@ def is_included(file_path):
 
 
 def unstem(word_stemmed, unstem_dict):
-    print(f"{word_stemmed} -> {unstem_dict[word_stemmed]}")
+    print(f"unstem\t{word_stemmed}\t{unstem_dict[word_stemmed]}")
     return unstem_dict[word_stemmed]
 
 
