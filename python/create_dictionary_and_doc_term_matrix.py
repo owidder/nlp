@@ -4,6 +4,7 @@ from get_args import get_args
 from util.word_utils import remove_words_that_appear_only_once
 from words.words_of_file import read_or_create_word_dict
 from words.term_filter_level import TermFilterLevel
+from words.isTerm import init_term_dict
 
 
 def create_corpus(doc_path, dict_path, name, filter_level: TermFilterLevel):
@@ -16,7 +17,8 @@ def create_corpus(doc_path, dict_path, name, filter_level: TermFilterLevel):
 
 
 def main():
-    args = get_args(doc_path_required=True, dict_path_required=True, name_required=True, filterlevel_required=True)
+    args = get_args(doc_path_required=True, dict_path_required=True, name_required=True, filterlevel_required=True, termdict_required=True)
+    init_term_dict(args.termdict)
     create_corpus(doc_path=args.docpath, dict_path=args.dictpath, name=args.name, filter_level=TermFilterLevel[args.filterlevel])
 
 

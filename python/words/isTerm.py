@@ -36,5 +36,3 @@ def is_term_soft(term: str) -> bool:
 
 def is_term_medium(term: str) -> bool:
     return is_in_term(term) or is_dontknow_term(term)
-
-
