@@ -11,6 +11,8 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
+from words.term_filter_level import TermFilterLevel
+from words.isTerm import is_term_hard, is_term_medium, is_term_soft
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -106,11 +108,38 @@ def unstem(word_stemmed, unstem_dict):
     return unstem_dict[word_stemmed]
 
 
+def unstemAndFilterNonTerms(word_stemmed, unstem_dict, filter_level: TermFilterLevel):
+    unstemmed = unstem(word_stemmed, unstem_dict)
+    if filter_level == TermFilterLevel.NONE:
+        return unstemmed
+    elif filter_level == TermFilterLevel.SOFT:
+        return is_term_soft(unstemmed)
+    pass
+
+
 def unstem_word_dict(word_dict_stemmed, unstem_dict):
     return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
-def create_word_dict(doc_path):
+def filter_word(word: str, filter_level: TermFilterLevel):
+    if filter_level == TermFilterLevel.SOFT:
+        return is_term_soft(word)
+    elif filter_level == TermFilterLevel.MEDIUM:
+        return is_term_medium(word)
+    elif filter_level == TermFilterLevel.HARD:
+        return is_term_hard(word)
+    else:
+        return word
+
+
+def filter_word_dict(word_dict, filter_level: TermFilterLevel):
+    if filter_level == TermFilterLevel.NONE:
+        return word_dict
+
+    return {file_rel_path: " ".join([filter_word(word, filter_level) for word in words]) for file_rel_path, words in word_dict.items()}
+
+
+def create_word_dict(doc_path, filter_level: TermFilterLevel):
     word_dict_stemmed = {}
     unstem_dict = {}
     for subdir, dirs, files in os.walk(doc_path):
@@ -122,17 +151,18 @@ def create_word_dict(doc_path):
                 if len(words_of_file) > 0:
                     word_dict_stemmed[file_rel_path] = words_of_file
     word_dict = unstem_word_dict(word_dict_stemmed, unstem_dict)
-    return word_dict
+    filtered_word_dict = filter_word_dict(word_dict, filter_level)
+    return filtered_word_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name):
-    word_dict_path = os.path.join(dict_path, f"word_dict.{name}.pickle")
+def read_or_create_word_dict(doc_path, dict_path, name, filter_level: TermFilterLevel):
+    word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{filter_level.value}.pickle")
     if os.path.exists(word_dict_path):
         pickle_file = open(word_dict_path, "rb")
         word_dict = pickle.load(pickle_file)
         return word_dict
     else:
-        word_dict = create_word_dict(doc_path)
+        word_dict = create_word_dict(doc_path, filter_level)
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
         pickle.dump(word_dict, pickle_file)
         return word_dict
