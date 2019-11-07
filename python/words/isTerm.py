@@ -27,12 +27,18 @@ def is_dontknow_term(term: str) -> bool:
 
 
 def is_term_hard(term: str) -> bool:
-    return is_in_term(term)
+    is_term = is_in_term(term)
+    print(f"isterm\t{term}\t{is_term}")
+    return is_term
 
 
 def is_term_soft(term: str) -> bool:
-    return not is_out_term(term)
+    is_term = not is_out_term(term)
+    print(f"isterm\t{term}\t{is_term}")
+    return is_term
 
 
 def is_term_medium(term: str) -> bool:
-    return is_in_term(term) or is_dontknow_term(term)
+    is_term = is_in_term(term) or is_dontknow_term(term)
+    print(f"isterm\t{term}\t{is_term}")
+    return is_term

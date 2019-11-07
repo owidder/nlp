@@ -12,7 +12,7 @@ from nltk.tokenize import word_tokenize
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from words.term_filter_level import TermFilterLevel
-from words.isTerm import is_term_hard, is_term_medium, is_term_soft
+from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_dict
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -155,13 +155,14 @@ def create_word_dict(doc_path, filter_level: TermFilterLevel):
     return filtered_word_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name, filter_level: TermFilterLevel):
-    word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{filter_level.value}.pickle")
+def read_or_create_word_dict(doc_path, dict_path, name, term_dict, filter_level: TermFilterLevel):
+    word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{term_dict}-{filter_level.value}.pickle")
     if os.path.exists(word_dict_path):
         pickle_file = open(word_dict_path, "rb")
         word_dict = pickle.load(pickle_file)
         return word_dict
     else:
+        init_term_dict(term_dict)
         word_dict = create_word_dict(doc_path, filter_level)
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
         pickle.dump(word_dict, pickle_file)
