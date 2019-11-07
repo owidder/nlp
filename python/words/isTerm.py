@@ -1,17 +1,18 @@
 import csv
+import os
 
 
-term_dict = {}
+term_infos = {}
 
 
-def init_term_dict(name: str):
-    with open(f"/Users/oliver/dev/github/nlpClient/server/termInfos.{name}.csv") as csv_file:
+def init_term_infos(term_infos_path: str, name: str):
+    with open(os.path.join(term_infos_path, f"termInfos.{name}.csv")) as csv_file:
         for row in csv.reader(csv_file, delimiter=';'):
-            term_dict[row[0]] = row[1]
+            term_infos[row[0]] = row[1]
 
 
 def check_term_type(term: str, term_type: str) -> bool:
-    return term in term_dict and term_dict[term] == term_type
+    return term in term_infos and term_infos[term] == term_type
 
 
 def is_in_term(term: str) -> bool:
