@@ -136,7 +136,7 @@ def filter_word_dict(word_dict, filter_level: TermFilterLevel):
     if filter_level == TermFilterLevel.NONE:
         return word_dict
 
-    return {file_rel_path: " ".join([filter_word(word, filter_level) for word in words]) for file_rel_path, words in word_dict.items()}
+    return {file_rel_path: " ".join(list(filter(lambda w: filter_word(w, filter_level), words.split()))) for file_rel_path, words in word_dict.items()}
 
 
 def create_word_dict(doc_path, filter_level: TermFilterLevel):
