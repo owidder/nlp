@@ -133,6 +133,7 @@ def filter_word(word: str, filter_level: TermFilterLevel):
 
 
 def filter_word_dict(word_dict, filter_level: TermFilterLevel):
+    print("filter_word_dict:", locals())
     if filter_level == TermFilterLevel.NONE:
         return word_dict
 
@@ -140,6 +141,7 @@ def filter_word_dict(word_dict, filter_level: TermFilterLevel):
 
 
 def create_word_dict(doc_path, filter_level: TermFilterLevel):
+    print("create_word_dict:", locals())
     word_dict_stemmed = {}
     unstem_dict = {}
     for subdir, dirs, files in os.walk(doc_path):
@@ -156,7 +158,7 @@ def create_word_dict(doc_path, filter_level: TermFilterLevel):
 
 
 def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name, term_infos_path, filter_level: TermFilterLevel):
-    print("args:", locals())
+    print("read_or_create_word_dict:", locals())
     word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{term_infos_name}-{filter_level.value}.pickle")
     if os.path.exists(word_dict_path):
         pickle_file = open(word_dict_path, "rb")
