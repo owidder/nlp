@@ -12,5 +12,6 @@ testdata/
 __pycache__
 *.tgz
 !out.tgz
+!word_dict_out.tgz
 
 nohup*
