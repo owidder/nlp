@@ -7,6 +7,8 @@ if __name__ == '__main__':
 
     for filter_level in ['SOFT', 'MEDIUM', 'HARD']:
         for term_info_name in ['default', 'small']:
+            print(f"START: -------- {filter_level} --------- {term_info_name} ---------------")
             read_or_create_word_dict(doc_path=args.docpath, dict_path=args.dictpath, name=args.name,
                                      term_infos_name=term_info_name, term_infos_path=args.term_infos_path,
                                      filter_level=TermFilterLevel[filter_level], force=True)
+            print(f"END: -------- {filter_level} --------- {term_info_name} ---------------")
