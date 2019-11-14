@@ -33,6 +33,7 @@ def create_wikipedia_terms(titles_path) -> Set[str]:
             words = remove_numbers(words)
             words = remove_single_chars(words)
             for word in words.split():
+                print(word)
                 terms.add(word)
             words = titles_file.readline()
 
