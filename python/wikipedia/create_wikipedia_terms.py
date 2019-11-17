@@ -1,5 +1,7 @@
 import re
 import argparse
+import csv
+import os
 
 from typing import Set
 
@@ -22,20 +24,17 @@ def remove_single_chars(words):
     return ' '.join([w for w in words.split() if len(w) > 1])
 
 
-def create_wikipedia_terms(titles_path) -> Set[str]:
+def create_wikipedia_terms(tags_path) -> Set[str]:
     terms = set()
 
-    with open(titles_path) as titles_file:
-        words = titles_file.readline()
-        while words:
-            words = remove_hex_chars(words)
-            words = only_chars_and_numbers(words)
-            words = remove_numbers(words)
-            words = remove_single_chars(words)
-            for word in words.split():
-                print(word)
-                terms.add(word)
-            words = titles_file.readline()
+    file_pattern = re.compile("\.tags\.")
+    for subdir, dirs, files in os.walk(tags_path):
+        for file in files:
+            if file_pattern.match(file):
+                tags_file_abs_path = os.path.join(subdir, file)
+                with open(tags_file_abs_path) as tags_file:
+                    for row in csv.reader(tags_file, delimiter=",", quoting=csv.QUOTE_ALL):
+                        print(row)
 
     return terms
 
@@ -50,8 +49,8 @@ def write_terms(out_path: str, terms: Set[str]):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--titles', required=True, action='store', help='Path to the wikipedia titles file')
+    parser.add_argument('--tagspath', required=True, action='store', help='Path to the wikipedia tags files')
     parser.add_argument('--out', required=True, action='store', help='Path to the output file')
     args = parser.parse_args()
-    terms = create_wikipedia_terms(titles_path=args.titles)
+    terms = create_wikipedia_terms(tags_path=args.tagspath)
     write_terms(out_path=args.out, terms=terms)
