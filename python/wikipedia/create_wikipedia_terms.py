@@ -25,7 +25,7 @@ def remove_single_chars(words):
 
 
 def create_wikipedia_terms(tags_path) -> Set[str]:
-    terms = set()
+    terms: Set[str] = set()
 
     file_pattern = re.compile("^.*\.tags\..*$")
     for subdir, dirs, files in os.walk(tags_path):
@@ -34,9 +34,9 @@ def create_wikipedia_terms(tags_path) -> Set[str]:
                 tags_file_abs_path = os.path.join(subdir, file)
                 print(tags_file_abs_path)
                 with open(tags_file_abs_path) as tags_file:
-                    csvReader = csv.reader(tags_file, delimiter=",", quoting=csv.QUOTE_ALL)
-                    for row in csvReader:
-                        if csvReader.line_num > 1:
+                    csv_reader = csv.reader(tags_file, delimiter=",", quoting=csv.QUOTE_ALL)
+                    for row in csv_reader:
+                        if csv_reader.line_num > 1:
                             terms.add(row[1])
                             if row[1].find('-') > -1:
                                 for part in row[1].split("-"):

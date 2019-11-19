@@ -13,6 +13,8 @@ from nltk.tokenize import word_tokenize
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from words.term_filter_level import TermFilterLevel
 from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_infos
+from stackexchange.stackexchange import remove_non_stackexchange
+
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -77,13 +79,14 @@ def get_words_of_file(file_path, unstem_dict):
     try:
         shakes = open(file_path, 'r')
         text = shakes.read()
+        stackexchange_tags = remove_non_stackexchange(text)
         only_a_to_z = re.sub('[^A-Za-z ]+', ' ', text)
         camel_case_split = split_camel_case(only_a_to_z)
         camel_case_split_no_single_chars = remove_single_chars(camel_case_split)
         camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
         camel_case_split_no_single_chars_no_stop_words_only_en_de = filter_non_en_de_words(camel_case_split_no_single_chars_no_stop_words)
         camel_case_split_no_single_chars_no_stop_words_only_en_de_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words_only_en_de, unstem_dict)
-        return camel_case_split_no_single_chars_no_stop_words_only_en_de_stemmed
+        return " ".join([camel_case_split_no_single_chars_no_stop_words_only_en_de_stemmed, stackexchange_tags])
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
