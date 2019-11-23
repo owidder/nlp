@@ -11,9 +11,10 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
+from util.dict_util import merge_dict2_into_dict1
 from words.term_filter_level import TermFilterLevel
 from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_infos
-from stackexchange.stackexchange import remove_non_stackexchange
+from stackexchange.stackexchange import remove_non_stackexchange, init_stackexchange_tags
 
 
 nltk.download('punkt')
@@ -33,11 +34,13 @@ def remove_single_chars(string):
 
 
 def remove_stop_words(data):
-    stop_words = stopwords.words('english')
+    stop_words_en = stopwords.words('english')
+    stop_words_de = stopwords.words('german')
+    stop_words = stop_words_en + stop_words_de
     words = word_tokenize(str(data))
     new_text = ""
     for w in words:
-        if w not in stop_words and len(w) > 1:
+        if w.lower() not in stop_words and len(w) > 1:
             new_text = new_text + " " + w
     return new_text
 
@@ -75,22 +78,26 @@ def filter_non_en_de_words(data):
     return " ".join(list(filter(lambda word: is_en_de(word), tokens)))
 
 
-def get_words_of_file(file_path, unstem_dict):
-    try:
-        shakes = open(file_path, 'r')
-        text = shakes.read()
-        stackexchange_tags = remove_non_stackexchange(text)
-        only_a_to_z = re.sub('[^A-Za-z ]+', ' ', text)
-        camel_case_split = split_camel_case(only_a_to_z)
-        camel_case_split_no_single_chars = remove_single_chars(camel_case_split)
-        camel_case_split_no_single_chars_no_stop_words = remove_stop_words(camel_case_split_no_single_chars)
-        camel_case_split_no_single_chars_no_stop_words_only_en_de = filter_non_en_de_words(camel_case_split_no_single_chars_no_stop_words)
-        camel_case_split_no_single_chars_no_stop_words_only_en_de_stemmed = stemming(camel_case_split_no_single_chars_no_stop_words_only_en_de, unstem_dict)
-        return " ".join([camel_case_split_no_single_chars_no_stop_words_only_en_de_stemmed, stackexchange_tags])
-    except:
-        print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
-        traceback.print_exc(file=sys.stdout)
-        return ""
+def get_stackexchange_tags(text):
+    stackexchange_tags = remove_non_stackexchange(text)
+    stackexchange_tags = remove_stop_words(stackexchange_tags)
+    return stackexchange_tags
+
+
+def get_words_of_file(text, unstem_dict):
+    words_of_file = re.sub('[^A-Za-z ]+', ' ', text)
+    words_of_file = split_camel_case(words_of_file)
+    words_of_file = remove_single_chars(words_of_file)
+    words_of_file = remove_stop_words(words_of_file)
+    words_of_file = filter_non_en_de_words(words_of_file)
+    words_of_file = stemming(words_of_file, unstem_dict)
+    return words_of_file
+
+
+def get_words_and_tags_of_file(file_path, unstem_dict):
+    shakes = open(file_path, 'r')
+    text = shakes.read()
+    return get_words_of_file(text, unstem_dict), get_stackexchange_tags(text)
 
 
 def is_no_dot_file(file_path):
@@ -146,21 +153,24 @@ def filter_word_dict(word_dict, filter_level: TermFilterLevel):
 def create_word_dict(doc_path, filter_level: TermFilterLevel):
     print("create_word_dict:", locals())
     word_dict_stemmed = {}
+    tags_dict = {}
     unstem_dict = {}
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
                 file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                words_of_file = get_words_of_file(file_abs_path, unstem_dict)
+                words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict)
                 if len(words_of_file) > 0:
                     word_dict_stemmed[file_rel_path] = words_of_file
+                if len(tags_of_file) > 0:
+                    tags_dict[file_rel_path] = tags_of_file
     word_dict = unstem_word_dict(word_dict_stemmed, unstem_dict)
     filtered_word_dict = filter_word_dict(word_dict, filter_level)
-    return filtered_word_dict
+    return filtered_word_dict, tags_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name, term_infos_path, filter_level: TermFilterLevel, force=False):
+def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, force=False):
     print("read_or_create_word_dict:", locals())
     word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{term_infos_name}-{filter_level.value}.pickle")
     if not force and os.path.exists(word_dict_path):
@@ -168,10 +178,10 @@ def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name, term_in
         word_dict = pickle.load(pickle_file)
         return word_dict
     else:
+        init_stackexchange_tags()
         init_term_infos(term_infos_path, term_infos_name)
-        word_dict = create_word_dict(doc_path, filter_level)
+        word_dict, tags_dict = create_word_dict(doc_path, filter_level)
+        word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict)
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
-        pickle.dump(word_dict, pickle_file)
+        pickle.dump(word_tags_dict, pickle_file)
         return word_dict
-
-

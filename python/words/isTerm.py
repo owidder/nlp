@@ -6,9 +6,10 @@ term_infos = {}
 
 
 def init_term_infos(term_infos_path: str, name: str):
-    with open(os.path.join(term_infos_path, f"termInfos.{name}.csv")) as csv_file:
-        for row in csv.reader(csv_file, delimiter=';'):
-            term_infos[row[0]] = row[1]
+    if term_infos_path is not None:
+        with open(os.path.join(term_infos_path, f"termInfos.{name}.csv")) as csv_file:
+            for row in csv.reader(csv_file, delimiter=';'):
+                term_infos[row[0]] = row[1]
 
 
 def check_term_type(term: str, term_type: str) -> bool:

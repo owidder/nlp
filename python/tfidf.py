@@ -14,7 +14,7 @@ def tokenize(text):
 
 
 def fit(word_dict):
-    tfidf = TfidfVectorizer(tokenizer=nltk.word_tokenize, stop_words='english')
+    tfidf = TfidfVectorizer(tokenizer=nltk.word_tokenize, stop_words='english', lowercase=False)
     print("--- start fit transform ---\n")
     tfidf.fit_transform(word_dict.values())
     print("--- fit transform ended ---\n")
