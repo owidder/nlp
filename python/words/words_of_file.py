@@ -95,9 +95,14 @@ def get_words_of_file(text, unstem_dict):
 
 
 def get_words_and_tags_of_file(file_path, unstem_dict):
-    shakes = open(file_path, 'r')
-    text = shakes.read()
-    return get_words_of_file(text, unstem_dict), get_stackexchange_tags(text)
+    try:
+        shakes = open(file_path, 'r')
+        text = shakes.read()
+        return get_words_of_file(text, unstem_dict), get_stackexchange_tags(text)
+    except:
+        print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
+        traceback.print_exc(file=sys.stdout)
+        return ""
 
 
 def is_no_dot_file(file_path):
