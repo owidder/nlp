@@ -102,7 +102,7 @@ def get_words_and_tags_of_file(file_path, unstem_dict):
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
-        return ""
+        return "", ""
 
 
 def is_no_dot_file(file_path):
@@ -164,12 +164,16 @@ def create_word_dict(doc_path, filter_level: TermFilterLevel):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
-                file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict)
-                if len(words_of_file) > 0:
-                    word_dict_stemmed[file_rel_path] = words_of_file
-                if len(tags_of_file) > 0:
-                    tags_dict[file_rel_path] = tags_of_file
+                try:
+                    file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
+                    words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict)
+                    if len(words_of_file) > 0:
+                        word_dict_stemmed[file_rel_path] = words_of_file
+                    if len(tags_of_file) > 0:
+                        tags_dict[file_rel_path] = tags_of_file
+                except:
+                    print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
+                    traceback.print_exc(file=sys.stdout)
     word_dict = unstem_word_dict(word_dict_stemmed, unstem_dict)
     filtered_word_dict = filter_word_dict(word_dict, filter_level)
     return filtered_word_dict, tags_dict
