@@ -1,4 +1,6 @@
-out/
+!out
+out/*
+!out/*.tgz
 
 sourcedata
 
@@ -10,7 +12,6 @@ notebooks/tfidf/stories
 testdata/
 
 __pycache__
-*.tgz
 !out.tgz
 !word_dict_out.tgz
 
