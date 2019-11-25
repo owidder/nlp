@@ -149,7 +149,6 @@ def filter_word(word: str, filter_level: TermFilterLevel):
 
 
 def filter_word_dict(word_dict, filter_level: TermFilterLevel):
-    print("filter_word_dict:", locals())
     if filter_level == TermFilterLevel.NONE:
         return word_dict
 
