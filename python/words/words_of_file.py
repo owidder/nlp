@@ -26,7 +26,7 @@ de = enchant.Dict("de_DE")
 
 
 def split_camel_case(name):
-    return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name).lower()
+    return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name)
 
 
 def remove_single_chars(string):
@@ -78,19 +78,20 @@ def filter_non_en_de_words(data):
     return " ".join(list(filter(lambda word: is_en_de(word), tokens)))
 
 
-def get_stackexchange_tags(text):
+def get_tags_of_file(text):
     stackexchange_tags = remove_non_stackexchange(text)
     stackexchange_tags = remove_stop_words(stackexchange_tags)
     return stackexchange_tags
 
 
-def get_words_of_file(text, unstem_dict):
+def get_words_of_file(text, unstem_dict=None):
     words_of_file = re.sub('[^A-Za-z ]+', ' ', text)
     words_of_file = split_camel_case(words_of_file)
     words_of_file = remove_single_chars(words_of_file)
     words_of_file = remove_stop_words(words_of_file)
     words_of_file = filter_non_en_de_words(words_of_file)
-    words_of_file = stemming(words_of_file, unstem_dict)
+    if unstem_dict is not None:
+        words_of_file = stemming(words_of_file, unstem_dict)
     return words_of_file
 
 
@@ -98,7 +99,7 @@ def get_words_and_tags_of_file(file_path, unstem_dict):
     try:
         shakes = open(file_path, 'r')
         text = shakes.read()
-        return get_words_of_file(text, unstem_dict), get_stackexchange_tags(text)
+        return get_words_of_file(text, unstem_dict), get_tags_of_file(text)
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
@@ -155,11 +156,11 @@ def filter_word_dict(word_dict, filter_level: TermFilterLevel):
     return {file_rel_path: " ".join(list(filter(lambda w: filter_word(w, filter_level), words.split()))) for file_rel_path, words in word_dict.items()}
 
 
-def create_word_dict(doc_path, filter_level: TermFilterLevel):
+def create_word_and_tags_dict(doc_path, filter_level: TermFilterLevel, with_stemming: bool):
     print("create_word_dict:", locals())
-    word_dict_stemmed = {}
+    word_dict = {}
     tags_dict = {}
-    unstem_dict = {}
+    unstem_dict = {} if with_stemming else None
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
@@ -168,18 +169,19 @@ def create_word_dict(doc_path, filter_level: TermFilterLevel):
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
                     words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict)
                     if len(words_of_file) > 0:
-                        word_dict_stemmed[file_rel_path] = words_of_file
+                        word_dict[file_rel_path] = words_of_file
                     if len(tags_of_file) > 0:
                         tags_dict[file_rel_path] = tags_of_file
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
-    word_dict = unstem_word_dict(word_dict_stemmed, unstem_dict)
-    filtered_word_dict = filter_word_dict(word_dict, filter_level)
-    return filtered_word_dict, tags_dict
+    if with_stemming:
+        word_dict = unstem_word_dict(word_dict, unstem_dict)
+    word_dict = filter_word_dict(word_dict, filter_level)
+    return word_dict, tags_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, force=False):
+def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, with_stemming=False, force=False):
     print("read_or_create_word_dict:", locals())
     word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{term_infos_name}-{filter_level.value}.pickle")
     if not force and os.path.exists(word_dict_path):
@@ -189,7 +191,7 @@ def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', 
     else:
         init_stackexchange_tags()
         init_term_infos(term_infos_path, term_infos_name)
-        word_dict, tags_dict = create_word_dict(doc_path, filter_level)
+        word_dict, tags_dict = create_word_and_tags_dict(doc_path, filter_level, with_stemming)
         word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict)
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
         pickle.dump(word_tags_dict, pickle_file)
