@@ -2,6 +2,8 @@ import csv
 import re
 import os
 
+from typing import Set
+
 only_digits_regex = re.compile('^\d*$')
 at_least_one_char_regex = re.compile('^.*[A-Za-z]+.*$')
 
@@ -11,7 +13,7 @@ def add_to_terms(word, terms):
         terms.add(word)
 
 
-def init_tags(terms, tags_path):
+def init_tags(terms: Set[str], tags_path: str):
     file_pattern = re.compile("^.*\.tags\..*$")
     for subdir, dirs, files in os.walk(tags_path):
         for file in files:
