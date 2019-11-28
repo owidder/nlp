@@ -28,5 +28,3 @@ def init_tags(terms: Set[str], tags_path: str):
                             if row[1].find('-') > -1:
                                 for part in row[1].split("-"):
                                     add_to_terms(part, terms)
-
-

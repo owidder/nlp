@@ -1,9 +1,8 @@
 from typing import Set
 
-from .tags import init_tags
+from tech.tags import *
 
-
-def create_tech_file(tags_path='/Users/oliver/dev/github/nlp/stackexchange'):
+def create_tech_file(tags_path='/Users/oliver/dev/github/nlp/python/tech'):
     terms: Set[str] = set()
     init_tags(terms, tags_path)
     tech_terms_file = open("./tech_terms.txt", "w")

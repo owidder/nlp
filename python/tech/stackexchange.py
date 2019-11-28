@@ -1,7 +1,7 @@
 from nltk.tokenize import word_tokenize
 from typing import Set
 
-from .tags import init_tags
+from tech.tags import *
 
 
 terms: Set[str] = set()

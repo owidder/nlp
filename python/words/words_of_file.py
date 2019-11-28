@@ -14,7 +14,7 @@ from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_cr
 from util.dict_util import merge_dict2_into_dict1
 from words.term_filter_level import TermFilterLevel
 from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_infos
-from stackexchange.stackexchange import remove_non_stackexchange, init_stackexchange_tags
+from tech.stackexchange import remove_non_stackexchange, init_stackexchange_tags
 
 
 nltk.download('punkt')
