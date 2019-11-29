@@ -37,13 +37,7 @@ def normalize(string: str):
 
 
 def folder_name(name: str) -> str:
-    folder_names = ['_AKQ', '_Inno-slab', '_KURZREFERENZEN', 'A1', 'AirPlus', 'AKM', 'ATRON', 'Audi', 'Baumarktdirekt', 'BCG', 'BMW',
-                    'BRZ_Justiz', 'BS-Energy', 'cargo-Partner', 'Commerzbank', 'Continental', 'DAB', 'Daimler', 'DBSystel', 'DB', 'DeguassaBank',
-                    'Deutsche-Messe', 'Digitalisierung', 'Die-Bayerische', 'DNV', 'EON', 'EOS', 'EVN', 'FI', 'First-Data', 'FISP', 'Fraport',
-                    'GAD', 'GI', 'GL', 'Hectronic', 'Helaba', 'HPA', 'HUK', 'Hutschison', 'ICA', 'INGDiBa', 'intel', 'ITSV', 'KD', 'KN',
-                    'LH', 'LHT', 'M-net', 'Manz', 'Oberndorfer', 'OSRAM', 'OTTO', 'ProSieben', 'RAG', 'Red-Bull', 'SBG', 'SBK', 'Schenker',
-                    'sinform', 'SwissLife', 'SWM', 'T-Home', 'T-Systems', 'Telekom', 'Testo', 'TU-Wien', 'UniCredit', 'Verbund', 'VHV',
-                    'Webasto', 'Zeiss', 'Zeppelin']
+    folder_names = [line.rstrip('\n') for line in open('./foldernames.txt')]
     sorted_folder_names = sorted(folder_names, key=custom_key)
     for folder_name in sorted_folder_names:
         if normalize(name).startswith(normalize(folder_name)):
