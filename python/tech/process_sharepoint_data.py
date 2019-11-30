@@ -40,7 +40,9 @@ def folder_name(name: str) -> str:
     folder_names = [line.rstrip('\n') for line in open('./foldernames.txt')]
     sorted_folder_names = sorted(folder_names, key=custom_key)
     for folder_name in sorted_folder_names:
-        if normalize(name).startswith(normalize(folder_name)):
+        norm_name = normalize(name)
+        norm_folder_name = normalize(folder_name)
+        if norm_name.startswith(norm_folder_name):
             return folder_name
     return '_DEFAULT'
 
