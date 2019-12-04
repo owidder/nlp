@@ -11,7 +11,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from util.dict_util import merge_dict2_into_dict1
+from util.dict_util import merge_dict2_into_dict1, create_file_name
 from words.term_filter_level import TermFilterLevel
 from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_infos
 from tech.stackexchange import remove_non_stackexchange, init_stackexchange_tags
@@ -180,13 +180,18 @@ def create_word_and_tags_dict(doc_path, filter_level: TermFilterLevel, with_stem
     return word_dict, tags_dict
 
 
+def read_word_dict(name: str, dict_path: str, term_infos_name='BASE', filter_level=TermFilterLevel.NONE):
+    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle'))
+    pickle_file = open(word_dict_path, "rb")
+    word_dict = pickle.load(pickle_file)
+    return word_dict
+
+
 def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, with_stemming=False, force=False):
     print("read_or_create_word_dict:", locals())
-    word_dict_path = os.path.join(dict_path, f"word_dict.{name}-{term_infos_name}-{filter_level.value}.pickle")
+    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle'))
     if not force and os.path.exists(word_dict_path):
-        pickle_file = open(word_dict_path, "rb")
-        word_dict = pickle.load(pickle_file)
-        return word_dict
+        return read_word_dict(name, dict_path, term_infos_name, filter_level)
     else:
         init_stackexchange_tags()
         init_term_infos(term_infos_path, term_infos_name)

@@ -15,16 +15,13 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
     tfidf = models.TfidfModel(doc_term_matrix)
 
     corpus_tfidf = tfidf[doc_term_matrix]
-    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
-    lsi.save(f"{dict_path}/corpus-{name}-{term_infos_name}-{filter_level.value}.lsi")
-
-    index = similarities.MatrixSimilarity(lsi[doc_term_matrix])
-    index.save(f"{dict_path}/corpus_100-{name}-{term_infos_name}-{filter_level.value}.index")
-
     documents = [word.split(' ') for word in list(word_dict.values())]
-    coherence_model = models.coherencemodel.CoherenceModel(model=lsi, texts=documents, dictionary=dictionary, coherence='c_v')
-    coherence_score = coherence_model.get_coherence()
-    print(coherence_score)
+
+    for num_topics in range(3, 100):
+        lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
+        coherence_model = models.coherencemodel.CoherenceModel(model=lsi, texts=documents, dictionary=dictionary, coherence='c_v')
+        coherence_score = coherence_model.get_coherence()
+        print(f"\nCoherence score for {num_topics} topics: {coherence_score}")
 
 
 def main():
