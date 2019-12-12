@@ -16,3 +16,5 @@ __pycache__
 !word_dict_out.tgz
 
 nohup*
+
+.python-version
