@@ -4,7 +4,6 @@ from gensim import corpora, models
 
 from get_args import get_args
 from words.term_filter_level import TermFilterLevel
-from util.dict_util import create_file_name
 from words.words_of_file import read_word_dict
 
 
