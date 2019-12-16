@@ -1,4 +1,4 @@
-import os
+import mlflow
 
 from gensim import corpora, models
 
@@ -16,12 +16,14 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
     tfidf = models.TfidfModel(document_terms)
     corpus_tfidf = tfidf[document_terms]
 
-    for num_topics in range(3, 100):
-        lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
-        #lsi = models.LsiModel(document_terms, id2word=dictionary, num_topics=num_topics)
-        coherence_model = models.coherencemodel.CoherenceModel(model=lsi, texts=documents, dictionary=dictionary, coherence='c_v')
-        coherence_score = coherence_model.get_coherence()
-        print(f"\nCoherence score for {num_topics} topics: {coherence_score}")
+    for num_topics in range(3, 5):
+        with mlflow.start_run():
+            mlflow.log_param("num_topics", num_topics)
+            lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
+            coherence_model = models.coherencemodel.CoherenceModel(model=lsi, texts=documents, dictionary=dictionary, coherence='c_v')
+            coherence_score = coherence_model.get_coherence()
+            mlflow.log_metric("coherence_score", coherence_score)
+            print(f"\nCoherence score for {num_topics} topics: {coherence_score}")
 
 
 def main():
