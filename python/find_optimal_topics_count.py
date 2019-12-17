@@ -16,7 +16,7 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
     tfidf = models.TfidfModel(document_terms)
     corpus_tfidf = tfidf[document_terms]
 
-    for num_topics in range(3, 5):
+    for num_topics in range(3, 10):
         with mlflow.start_run():
             mlflow.log_param("num_topics", num_topics)
             lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
