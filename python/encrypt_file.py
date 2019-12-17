@@ -1,13 +1,16 @@
-from simplecrypt import encrypt
+from cryptography.fernet import Fernet
 
 from get_args import get_args
+from util.crypto import generate_key
 
 
 def encrypt_file(filepath: str, password: str):
+    key = generate_key(password)
+    encrypter = Fernet(key)
     file_to_encrypt = open(filepath, "r")
     encrypted_file = open(f"{filepath}.crypt", "w")
-    unencrypted_content = file_to_encrypt.read()
-    encrypted_content = encrypt(password, unencrypted_content)
+    unencrypted_content = file_to_encrypt.read().encode()
+    encrypted_content = encrypter.encrypt(unencrypted_content)
     encrypted_file.write(encrypted_content)
 
 
