@@ -23,3 +23,15 @@ def get_content_of_encrypted_file(filepath: str, password: str) -> str:
     file_to_decrypt = open(filepath, "r")
     encrypted_content = file_to_decrypt.read().encode()
     return decrypter.decrypt(encrypted_content).decode("utf-8")
+
+
+def encrypt_string(string: str, password: str) -> str:
+    key = generate_key(password)
+    encrypter = Fernet(key)
+    return encrypter.encrypt(string.encode()).decode("utf-8")
+
+
+def decrypt_string(string: str, password: str) -> str:
+    key = generate_key(password)
+    decrypter = Fernet(key)
+    return decrypter.decrypt(string.encode()).decode("utf-8")

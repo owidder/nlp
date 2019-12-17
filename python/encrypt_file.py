@@ -7,9 +7,13 @@ from util.crypto import generate_key
 def encrypt_file(filepath: str, password: str):
     key = generate_key(password)
     encrypter = Fernet(key)
-    file_to_encrypt = open(filepath, "r")
+    file_to_encrypt = open(filepath, "rb")
     encrypted_file = open(f"{filepath}.crypt", "w")
-    unencrypted_content = file_to_encrypt.read().encode()
+    unencrypted_content = file_to_encrypt.read()
+    try:
+        unencrypted_content = unencrypted_content.encode()
+    except:
+        pass
     encrypted_content = encrypter.encrypt(unencrypted_content)
     encrypted_file.write(encrypted_content.decode("utf-8"))
 
