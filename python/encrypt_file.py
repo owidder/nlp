@@ -11,7 +11,7 @@ def encrypt_file(filepath: str, password: str):
     encrypted_file = open(f"{filepath}.crypt", "w")
     unencrypted_content = file_to_encrypt.read().encode()
     encrypted_content = encrypter.encrypt(unencrypted_content)
-    encrypted_file.write(encrypted_content)
+    encrypted_file.write(encrypted_content.decode("utf-8"))
 
 
 if __name__ == '__main__':
