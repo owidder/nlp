@@ -18,5 +18,5 @@ def merge_dict2_into_dict1(dict1, dict2):
     return {file_rel_path: add_words2_to_words1(merge_2_into_1.get(file_rel_path), words1) for file_rel_path, words1 in dict1.items()}
 
 
-def create_file_name(base: str, name: str, term_infos_name: str, filter_level: TermFilterLevel, extension: str):
-    return f"{base}-{name}-{term_infos_name}-{filter_level.value}.{extension}"
+def create_file_name(base: str, name: str, term_infos_name: str, filter_level: TermFilterLevel, extension: str, encrypted: bool):
+    return f"{base}-{name}-{term_infos_name}-{filter_level.value}.{extension}{'.crypt' if encrypted else ''}"

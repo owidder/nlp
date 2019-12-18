@@ -7,8 +7,8 @@ from words.term_filter_level import TermFilterLevel
 from words.words_of_file import read_word_dict
 
 
-def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilterLevel.NONE):
-    word_dict = read_word_dict(name, dict_path, term_infos_name, filter_level)
+def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None):
+    word_dict = read_word_dict(name, dict_path, term_infos_name, filter_level, password)
     documents = [word.split(' ') for word in list(word_dict.values())]
     dictionary = corpora.Dictionary(documents)
     document_terms = [dictionary.doc2bow(doc) for doc in documents]
@@ -27,8 +27,8 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
 
 
 def main():
-    args = get_args(dict_path_required=True, name_required=True, filterlevel_required=False, term_infos_name_required=False, term_infos_path_required=False)
-    create_index(dict_path=args.dictpath, name=args.name)
+    args = get_args(dict_path_required=True, name_required=True, password_required=False, filterlevel_required=False, term_infos_name_required=False, term_infos_path_required=False)
+    create_index(dict_path=args.dictpath, name=args.name, password=args.password)
 
 
 if __name__ == "__main__":

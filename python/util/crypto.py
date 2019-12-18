@@ -4,6 +4,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 
+# from: https://nitratine.net/blog/post/encryption-and-decryption-in-python/
 def generate_key(password_provided: str) -> str:
     password = password_provided.encode()
     salt = b'A3X9IGQu7zAJISmwCZYI2g8O527kgXRDQo21WDh6NsWwLHmnUct89MBDdjviuYq'
@@ -14,7 +15,7 @@ def generate_key(password_provided: str) -> str:
         iterations=100000,
         backend=default_backend()
     )
-    return base64.urlsafe_b64encode(kdf.derive(password)) # Can only use kdf once
+    return base64.urlsafe_b64encode(kdf.derive(password))
 
 
 def get_content_of_encrypted_file(filepath: str, password: str) -> str:
@@ -35,3 +36,15 @@ def decrypt_string(string: str, password: str) -> str:
     key = generate_key(password)
     decrypter = Fernet(key)
     return decrypter.decrypt(string.encode()).decode("utf-8")
+
+
+def encrypt_bytes(b: bytes, password: str) -> bytes:
+    key = generate_key(password)
+    encrypter = Fernet(key)
+    return encrypter.encrypt(b)
+
+
+def decrypt_bytes(b: bytes, password: str) -> str:
+    key = generate_key(password)
+    decrypter = Fernet(key)
+    return decrypter.decrypt(b)

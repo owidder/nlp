@@ -1,15 +1,9 @@
-from cryptography.fernet import Fernet
-
 from get_args import get_args
-from util.crypto import generate_key
+from util.crypto import get_content_of_encrypted_file
 
 
 def decrypt_file(filepath: str, password: str):
-    key = generate_key(password)
-    decrypter = Fernet(key)
-    file_to_decrypt = open(filepath, "r")
-    encrypted_content = file_to_decrypt.read().encode()
-    print(decrypter.decrypt(encrypted_content).decode("utf-8"))
+    print(get_content_of_encrypted_file(filepath, password))
 
 
 if __name__ == '__main__':

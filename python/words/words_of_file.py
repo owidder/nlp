@@ -15,6 +15,7 @@ from util.dict_util import merge_dict2_into_dict1, create_file_name
 from words.term_filter_level import TermFilterLevel
 from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_infos
 from tech.stackexchange import remove_non_stackexchange, init_stackexchange_tags
+from util.crypto import decrypt_bytes
 
 
 nltk.download('punkt')
@@ -180,10 +181,13 @@ def create_word_and_tags_dict(doc_path, filter_level: TermFilterLevel, with_stem
     return word_dict, tags_dict
 
 
-def read_word_dict(name: str, dict_path: str, term_infos_name='BASE', filter_level=TermFilterLevel.NONE):
-    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle'))
+def read_word_dict(name: str, dict_path: str, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None):
+    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle', password is not None))
     pickle_file = open(word_dict_path, "rb")
-    word_dict = pickle.load(pickle_file)
+    pickle_bytes = pickle_file.read()
+    if password is not None:
+        pickle_bytes = decrypt_bytes(pickle_bytes, password)
+    word_dict = pickle.loads(pickle_bytes)
     return word_dict
 
 
