@@ -193,7 +193,7 @@ def read_word_dict(name: str, dict_path: str, term_infos_name='BASE', filter_lev
 
 def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, with_stemming=False, force=False):
     print("read_or_create_word_dict:", locals())
-    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle'))
+    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle', False))
     if not force and os.path.exists(word_dict_path):
         return read_word_dict(name, dict_path, term_infos_name, filter_level)
     else:
