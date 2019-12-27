@@ -12,11 +12,13 @@ from util.util import open_file_for_writing_with_path_creation
 
 def write_topic(topic_num: int, topic: List[float], dictionary: corpora.Dictionary, outpath: str, num_topics: int):
     topic_str = functools.reduce(lambda t, val: (f"{t[0]}{dictionary[t[1]]}\t{val}\n", t[1]+1), topic, ("", 0))[0]
-    file = open_file_for_writing_with_path_creation(f"{outpath}/_{str(num_topics).zfill(5)}/t{str(topic_num).zfill(5)}.csv")
-    print(topic_str, file=file)
+    csvFile = open_file_for_writing_with_path_creation(f"{outpath}/_{str(num_topics).zfill(5)}/t{str(topic_num).zfill(5)}.csv")
+    print(topic_str, file=csvFile)
 
 
 def write_all_topics(lsi_model: models.LsiModel, dictionary: corpora.Dictionary, outpath: str, num_topics: int):
+    txtFile = open_file_for_writing_with_path_creation(f"{outpath}/_{str(num_topics).zfill(5)}/topics.txt")
+    print(lsi_model.print_topics(), file=txtFile)
     for topic_num in range(0, len(lsi_model.get_topics())):
         write_topic(topic_num, lsi_model.get_topics()[topic_num], dictionary, outpath, num_topics)
 
@@ -30,7 +32,7 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
     tfidf = models.TfidfModel(document_terms)
     corpus_tfidf = tfidf[document_terms]
 
-    for num_topics in range(100, 110):
+    for num_topics in range(10, 50):
         with mlflow.start_run():
             mlflow.log_param("num_topics", num_topics)
             lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
