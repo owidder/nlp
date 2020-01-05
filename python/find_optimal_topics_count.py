@@ -27,7 +27,7 @@ def write_all_topics(lsi_model: models.LsiModel, dictionary: corpora.Dictionary,
         write_topic(topic_num, lsi_model.get_topics()[topic_num], dictionary, outpath, num_topics, num_entries)
 
 
-def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None, outpath=None, num_entries=0):
+def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None, outpath=None, num_entries=0, min_topics=10, max_topics=50):
     word_dict = read_word_dict(name, dict_path, term_infos_name, filter_level, password)
     documents = [word.split(' ') for word in list(word_dict.values())]
     dictionary = corpora.Dictionary(documents)
@@ -36,7 +36,7 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
     tfidf = models.TfidfModel(document_terms)
     corpus_tfidf = tfidf[document_terms]
 
-    for num_topics in range(10, 50):
+    for num_topics in range(min_topics, max_topics+1):
         with mlflow.start_run():
             mlflow.log_param("num_topics", num_topics)
             lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
@@ -56,6 +56,8 @@ def main():
                     term_infos_name_required=False,
                     term_infos_path_required=False,
                     num_entries_required=True,
+                    min_topics_required=True,
+                    max_topics_required=True,
                     out_path_required=False)
     create_index(dict_path=args.dictpath, name=args.name, password=args.password, outpath=args.outpath, num_entries=int(args.num_entries))
 
