@@ -59,7 +59,8 @@ def main():
                     min_topics_required=True,
                     max_topics_required=True,
                     out_path_required=False)
-    create_index(dict_path=args.dictpath, name=args.name, password=args.password, outpath=args.outpath, num_entries=int(args.num_entries))
+    create_index(dict_path=args.dictpath, name=args.name, password=args.password, outpath=args.outpath, num_entries=int(args.num_entries),
+                 min_topics=int(args.min_topics), max_topics=int(args.max_topics))
 
 
 if __name__ == "__main__":
