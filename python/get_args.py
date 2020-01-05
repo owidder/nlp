@@ -10,7 +10,8 @@ def get_args(
         term_infos_name_required=False,
         term_infos_path_required=False,
         file_path_required=False,
-        password_required=False):
+        password_required=False,
+        num_entries_required=False):
     parser = argparse.ArgumentParser()
     parser.add_argument('--docpath', required=doc_path_required, action='store', help='Path to the documents')
     parser.add_argument('--dictpath', required=dict_path_required, action='store', help='Path to the dictionaries.')
@@ -21,4 +22,5 @@ def get_args(
     parser.add_argument('--term_infos_path', required=term_infos_path_required, action='store', help='path to termInfo.<term_infos_name>.csv')
     parser.add_argument('--filepath', required=file_path_required, action='store', help='path to file (e.g. to encrypt)')
     parser.add_argument('--password', required=password_required, action='store', help='password to encrypt file')
+    parser.add_argument('--num_entries', required=num_entries_required, action='store', help='number of entries')
     return parser.parse_args()
