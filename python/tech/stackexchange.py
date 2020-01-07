@@ -7,7 +7,7 @@ from tech.tags import *
 terms: Set[str] = set()
 
 
-def init_stackexchange_tags(tags_path='/Users/oliver/dev/github/nlp/python/tech'):
+def init_stackexchange_tags(tags_path='/Users/oliver/dev/github/nlpDocs/python/tech'):
     init_tags(terms, tags_path)
 
 
