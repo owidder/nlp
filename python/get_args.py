@@ -13,6 +13,7 @@ def get_args(
         password_required=False,
         min_topics_required=False,
         max_topics_required=False,
+        with_tags_required=False,
         num_entries_required=False):
     parser = argparse.ArgumentParser()
     parser.add_argument('--docpath', required=doc_path_required, action='store', help='Path to the documents')
@@ -27,4 +28,5 @@ def get_args(
     parser.add_argument('--num_entries', required=num_entries_required, action='store', help='number of entries')
     parser.add_argument('--min_topics', required=min_topics_required, action='store', help='min number of topics')
     parser.add_argument('--max_topics', required=max_topics_required, action='store', help='max number of topics')
+    parser.add_argument('--with_tags', required=with_tags_required, action='store', help='use stackexchange tags')
     return parser.parse_args()

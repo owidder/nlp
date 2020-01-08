@@ -191,7 +191,7 @@ def read_word_dict(name: str, dict_path: str, term_infos_name='BASE', filter_lev
     return word_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, with_stemming=False, force=False):
+def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, with_stemming=False, force=False, with_tags=False):
     print("read_or_create_word_dict:", locals())
     word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle', False))
     if not force and os.path.exists(word_dict_path):
@@ -200,7 +200,7 @@ def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', 
         init_stackexchange_tags()
         init_term_infos(term_infos_path, term_infos_name)
         word_dict, tags_dict = create_word_and_tags_dict(doc_path, filter_level, with_stemming)
-        word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict)
+        word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict) if with_tags else word_dict
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
         pickle.dump(word_tags_dict, pickle_file)
         return word_dict

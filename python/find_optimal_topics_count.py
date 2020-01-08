@@ -64,7 +64,7 @@ def main():
                  password=args.password,
                  outpath=args.outpath,
                  num_entries=int(args.num_entries),
-                 filter_level=args.filterlevel,
+                 filter_level=TermFilterLevel[args.filterlevel],
                  term_infos_name=args.term_infos_name,
                  min_topics=int(args.min_topics), max_topics=int(args.max_topics))
 
