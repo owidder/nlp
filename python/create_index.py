@@ -28,7 +28,11 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
 
 
 def main():
-    args = get_args(dict_path_required=True, name_required=True, filterlevel_required=False, term_infos_name_required=False, term_infos_path_required=False)
+    args = get_args(dict_path_required=True,
+                    name_required=True,
+                    filterlevel_required=False,
+                    term_infos_name_required=False,
+                    term_infos_path_required=False)
     create_index(dict_path=args.dictpath, name=args.name)
 
 
