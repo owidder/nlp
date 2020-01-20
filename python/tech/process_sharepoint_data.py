@@ -1,6 +1,8 @@
 import json
 import os
 import re
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 
 from util.util import open_file_for_writing_with_path_creation
@@ -16,7 +18,7 @@ def write_string(property_name: str, onepager, onepager_file):
 def write_array(property_name: str, onepager, onepager_file):
     array = onepager.get(property_name)
     if array is not None:
-        onepager_file.write(" ".join(list(array)))
+        onepager_file.write(remove_stop_words(" ".join(list(array))))
         onepager_file.write("\n")
 
 
@@ -26,6 +28,16 @@ def write_double_array(property_name: str, onepager, onepager_file):
         for array in double_array:
             onepager_file.write(" ".join(list(array)))
             onepager_file.write("\n")
+
+
+def remove_stop_words(data):
+    stop_words = stopwords.words('german')
+    words = word_tokenize(str(data))
+    new_text = ""
+    for w in words:
+        if w.lower() not in stop_words and len(w) > 1:
+            new_text = new_text + " " + w
+    return new_text
 
 
 def custom_key(string: str):

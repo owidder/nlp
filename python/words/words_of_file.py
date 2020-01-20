@@ -85,14 +85,18 @@ def get_tags_of_file(text):
     return stackexchange_tags
 
 
-def get_words_of_file(text, unstem_dict=None):
-    words_of_file = re.sub('[^A-Za-z ]+', ' ', text)
-    words_of_file = split_camel_case(words_of_file)
-    words_of_file = remove_single_chars(words_of_file)
-    words_of_file = remove_stop_words(words_of_file)
-    words_of_file = filter_non_en_de_words(words_of_file)
-    if unstem_dict is not None:
-        words_of_file = stemming(words_of_file, unstem_dict)
+def get_words_of_file(text, unstem_dict=None,
+                      do_remove_non_chars=True,
+                      do_split_camel_case=True,
+                      do_remove_stop_words=True,
+                      do_filter_non_en_de_words=True,
+                      do_remove_single_chars=True):
+    words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if do_remove_non_chars else text
+    words_of_file = split_camel_case(words_of_file) if do_split_camel_case else words_of_file
+    words_of_file = remove_single_chars(words_of_file) if do_remove_single_chars else words_of_file
+    words_of_file = remove_stop_words(words_of_file) if do_remove_stop_words else words_of_file
+    words_of_file = filter_non_en_de_words(words_of_file) if do_filter_non_en_de_words else words_of_file
+    words_of_file = stemming(words_of_file, unstem_dict) if unstem_dict is not None else words_of_file
     return words_of_file
 
 
