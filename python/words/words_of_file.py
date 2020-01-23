@@ -34,9 +34,9 @@ def remove_single_chars(string):
     return ' '.join([w for w in string.split() if len(w) > 1])
 
 
-def remove_stop_words(data):
-    stop_words_en = stopwords.words('english')
-    stop_words_de = stopwords.words('german')
+def remove_stop_words(data, remove_de=True, remove_en=True):
+    stop_words_en = stopwords.words('english') if remove_en else []
+    stop_words_de = stopwords.words('german') if remove_de else []
     stop_words = stop_words_en + stop_words_de
     words = word_tokenize(str(data))
     new_text = ""
@@ -86,15 +86,15 @@ def get_tags_of_file(text):
 
 
 def get_words_of_file(text, unstem_dict=None,
-                      do_remove_non_chars=True,
-                      do_split_camel_case=True,
+                      do_remove_non_chars=False,
+                      do_split_camel_case=False,
                       do_remove_stop_words=True,
-                      do_filter_non_en_de_words=True,
-                      do_remove_single_chars=True):
+                      do_filter_non_en_de_words=False,
+                      do_remove_single_chars=False):
     words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if do_remove_non_chars else text
     words_of_file = split_camel_case(words_of_file) if do_split_camel_case else words_of_file
     words_of_file = remove_single_chars(words_of_file) if do_remove_single_chars else words_of_file
-    words_of_file = remove_stop_words(words_of_file) if do_remove_stop_words else words_of_file
+    words_of_file = remove_stop_words(words_of_file, remove_en=False) if do_remove_stop_words else words_of_file
     words_of_file = filter_non_en_de_words(words_of_file) if do_filter_non_en_de_words else words_of_file
     words_of_file = stemming(words_of_file, unstem_dict) if unstem_dict is not None else words_of_file
     return words_of_file

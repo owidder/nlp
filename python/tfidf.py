@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from get_args import get_args
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from words.words_of_file import read_or_create_word_dict, is_included
+from words.term_filter_level import TermFilterLevel
 
 
 def tokenize(text):
@@ -21,8 +22,13 @@ def fit(word_dict):
     return tfidf
 
 
-def find_features(doc_path, word_dict_path, out_path,  name):
-    word_dict = read_or_create_word_dict(doc_path=doc_path, dict_path=word_dict_path, name=name)
+def find_features(doc_path: str, word_dict_path: str, out_path: str, name: str, term_infos_path: str, term_infos_name: str, filter_level=TermFilterLevel.NONE):
+    word_dict = read_or_create_word_dict(doc_path=doc_path,
+                                         dict_path=word_dict_path,
+                                         name=name,
+                                         term_infos_path=term_infos_path,
+                                         filter_level=filter_level,
+                                         term_infos_name=term_infos_name)
 
     print("---- do the fitting ----\n")
     tfidf = fit(word_dict)
@@ -55,8 +61,21 @@ def find_features(doc_path, word_dict_path, out_path,  name):
 
 
 def main():
-    args = get_args(doc_path_required=True, dict_path_required=True, out_path_required=True, name_required=True)
-    find_features(doc_path=args.docpath, word_dict_path=args.dictpath, out_path=args.outpath, name=args.name)
+    args = get_args(
+        doc_path_required=True,
+        dict_path_required=True,
+        out_path_required=True,
+        term_infos_name_required=True,
+        term_infos_path_required=True,
+        filterlevel_required=True,
+        name_required=True)
+    find_features(doc_path=args.docpath,
+                  word_dict_path=args.dictpath,
+                  out_path=args.outpath,
+                  term_infos_name=args.term_infos_name,
+                  term_infos_path=args.term_infos_path,
+                  filter_level=TermFilterLevel[args.filterlevel] if args.filterlevel is not None else TermFilterLevel.NONE,
+                  name=args.name)
 
 
 if __name__ == "__main__":

@@ -13,7 +13,8 @@ def init_term_infos(term_infos_path: str, name: str):
 
 
 def check_term_type(term: str, term_type: str) -> bool:
-    return term in term_infos and term_infos[term] == term_type
+    termLc = term.lower()
+    return termLc in term_infos and term_infos[termLc] == term_type
 
 
 def is_in_term(term: str) -> bool:
