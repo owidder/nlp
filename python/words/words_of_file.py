@@ -6,17 +6,22 @@ import traceback
 
 import enchant
 import nltk
+import ssl
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
-from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from util.dict_util import merge_dict2_into_dict1, create_file_name
-from words.term_filter_level import TermFilterLevel
-from words.isTerm import is_term_hard, is_term_medium, is_term_soft, init_term_infos
-from tech.stackexchange import remove_non_stackexchange, init_stackexchange_tags
-from util.crypto import decrypt_bytes
+from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
+from python.util.dict_util import merge_dict2_into_dict1, create_file_name
+from python.stackexchange.stackexchange import remove_non_stackexchange
 
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -94,7 +99,7 @@ def get_words_of_file(text, unstem_dict=None,
     words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if do_remove_non_chars else text
     words_of_file = split_camel_case(words_of_file) if do_split_camel_case else words_of_file
     words_of_file = remove_single_chars(words_of_file) if do_remove_single_chars else words_of_file
-    words_of_file = remove_stop_words(words_of_file, remove_en=False) if do_remove_stop_words else words_of_file
+    words_of_file = remove_stop_words(words_of_file) if do_remove_stop_words else words_of_file
     words_of_file = filter_non_en_de_words(words_of_file) if do_filter_non_en_de_words else words_of_file
     words_of_file = stemming(words_of_file, unstem_dict) if unstem_dict is not None else words_of_file
     return words_of_file
@@ -102,6 +107,7 @@ def get_words_of_file(text, unstem_dict=None,
 
 def get_words_and_tags_of_file(file_path, unstem_dict):
     try:
+        print(file_path)
         shakes = open(file_path, 'r')
         text = shakes.read()
         return get_words_of_file(text, unstem_dict), get_tags_of_file(text)
@@ -120,8 +126,16 @@ def has_no_excluded_extension(file_path):
     return extension.lower() not in ["jpg", "jpeg", "png", "bmp", "csv"]
 
 
+def has_included_extension(file_path):
+    parts = file_path.split(".")
+    if len(parts) > 2:
+        extension = ".".join(parts[-2:])
+        return extension.lower() in ["py.utf8", "js.utf8", "json.utf8", "txt.utf8"]
+    return False
+
+
 def is_included(file_path):
-    return is_no_dot_file(file_path) and has_no_excluded_extension(file_path)
+    return is_no_dot_file(file_path) and has_included_extension(file_path)
 
 
 def unstem(word_stemmed, unstem_dict):
@@ -129,38 +143,11 @@ def unstem(word_stemmed, unstem_dict):
     return unstem_dict[word_stemmed]
 
 
-def unstemAndFilterNonTerms(word_stemmed, unstem_dict, filter_level: TermFilterLevel):
-    unstemmed = unstem(word_stemmed, unstem_dict)
-    if filter_level == TermFilterLevel.NONE:
-        return unstemmed
-    elif filter_level == TermFilterLevel.SOFT:
-        return is_term_soft(unstemmed)
-    pass
-
-
 def unstem_word_dict(word_dict_stemmed, unstem_dict):
     return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
-def filter_word(word: str, filter_level: TermFilterLevel):
-    if filter_level == TermFilterLevel.SOFT:
-        return is_term_soft(word)
-    elif filter_level == TermFilterLevel.MEDIUM:
-        return is_term_medium(word)
-    elif filter_level == TermFilterLevel.HARD:
-        return is_term_hard(word)
-    else:
-        return word
-
-
-def filter_word_dict(word_dict, filter_level: TermFilterLevel):
-    if filter_level == TermFilterLevel.NONE:
-        return word_dict
-
-    return {file_rel_path: " ".join(list(filter(lambda w: filter_word(w, filter_level), words.split()))) for file_rel_path, words in word_dict.items()}
-
-
-def create_word_and_tags_dict(doc_path, filter_level: TermFilterLevel, with_stemming: bool):
+def create_word_and_tags_dict(doc_path, with_stemming: bool):
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
@@ -181,29 +168,23 @@ def create_word_and_tags_dict(doc_path, filter_level: TermFilterLevel, with_stem
                     traceback.print_exc(file=sys.stdout)
     if with_stemming:
         word_dict = unstem_word_dict(word_dict, unstem_dict)
-    word_dict = filter_word_dict(word_dict, filter_level)
     return word_dict, tags_dict
 
 
-def read_word_dict(name: str, dict_path: str, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None):
-    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle', password is not None))
+def read_word_dict(word_dict_path):
     pickle_file = open(word_dict_path, "rb")
     pickle_bytes = pickle_file.read()
-    if password is not None:
-        pickle_bytes = decrypt_bytes(pickle_bytes, password)
     word_dict = pickle.loads(pickle_bytes)
     return word_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name, term_infos_name='BASE', term_infos_path=None, filter_level=TermFilterLevel.NONE, with_stemming=False, force=False, with_tags=False):
+def read_or_create_word_dict(doc_path, dict_path, name, with_stemming=False, force=False, with_tags=False):
     print("read_or_create_word_dict:", locals())
-    word_dict_path = os.path.join(dict_path, create_file_name('word_dict', name, term_infos_name, filter_level, 'pickle', False))
+    word_dict_path = os.path.join(dict_path, f'word_dict.{name}')
     if not force and os.path.exists(word_dict_path):
-        return read_word_dict(name, dict_path, term_infos_name, filter_level)
+        return read_word_dict(word_dict_path)
     else:
-        init_stackexchange_tags()
-        init_term_infos(term_infos_path, term_infos_name)
-        word_dict, tags_dict = create_word_and_tags_dict(doc_path, filter_level, with_stemming)
+        word_dict, tags_dict = create_word_and_tags_dict(doc_path, with_stemming)
         word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict) if with_tags else word_dict
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
         pickle.dump(word_tags_dict, pickle_file)

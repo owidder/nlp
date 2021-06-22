@@ -1,11 +1,11 @@
 import functools
 import mlflow
+import os
 
 from gensim import corpora, models
-from typing import List, Dict
+from typing import List
 
 from get_args import get_args
-from words.term_filter_level import TermFilterLevel
 from words.words_of_file import read_word_dict
 from util.util import open_file_for_writing_with_path_creation
 
@@ -27,8 +27,9 @@ def write_all_topics(lsi_model: models.LsiModel, dictionary: corpora.Dictionary,
         write_topic(topic_num, lsi_model.get_topics()[topic_num], dictionary, outpath, num_topics, num_entries)
 
 
-def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None, outpath=None, num_entries=0, min_topics=10, max_topics=50):
-    word_dict = read_word_dict(name, dict_path, term_infos_name, filter_level, password)
+def create_index(dict_path, name, outpath=None, num_entries=0, min_topics=10, max_topics=50):
+    word_dict_path = os.path.join(dict_path, f'word_dict.{name}')
+    word_dict = read_word_dict(word_dict_path)
     documents = [word.split(' ') for word in list(word_dict.values())]
     dictionary = corpora.Dictionary(documents)
     document_terms = [dictionary.doc2bow(doc) for doc in documents]
@@ -51,21 +52,14 @@ def create_index(dict_path, name, term_infos_name='BASE', filter_level=TermFilte
 def main():
     args = get_args(dict_path_required=True,
                     name_required=True,
-                    password_required=False,
-                    filterlevel_required=False,
-                    term_infos_name_required=False,
-                    term_infos_path_required=False,
                     num_entries_required=True,
                     min_topics_required=True,
                     max_topics_required=True,
                     out_path_required=False)
     create_index(dict_path=args.dictpath,
                  name=args.name,
-                 password=args.password,
                  outpath=args.outpath,
                  num_entries=int(args.num_entries),
-                 filter_level=TermFilterLevel[args.filterlevel],
-                 term_infos_name=args.term_infos_name,
                  min_topics=int(args.min_topics), max_topics=int(args.max_topics))
 
 
