@@ -2,15 +2,13 @@ import os
 
 from gensim import corpora, models, similarities
 
-from words.words_of_file import read_or_create_word_dict, is_included, read_word_dict
-from util.util import rel_path_from_abs_path
+from words.words_of_file import read_word_dict
 from get_args import get_args
-from words.term_filter_level import TermFilterLevel
-from util.dict_util import create_file_name
 
 
-def create_matrix(doc_path, dict_path, name, term_infos_name='BASE', filter_level=TermFilterLevel.NONE, password=None):
-    word_dict = read_word_dict(name, dict_path, term_infos_name, filter_level, password)
+def create_matrix(dict_path, name):
+    word_dict_path = os.path.join(dict_path, f'word_dict.{name}')
+    word_dict = read_word_dict(word_dict_path)
     documents = [word.split(' ') for word in list(word_dict.values())]
     dictionary = corpora.Dictionary(documents)
     document_terms = [dictionary.doc2bow(doc) for doc in documents]
@@ -61,18 +59,8 @@ def create_matrix(doc_path, dict_path, name, term_infos_name='BASE', filter_leve
 
 
 def main():
-    args = get_args(doc_path_required=True,
-                    dict_path_required=True,
-                    password_required=False,
-                    name_required=True,
-                    filterlevel_required=False,
-                    term_infos_name_required=False)
-    create_matrix(doc_path=args.docpath,
-                  dict_path=args.dictpath,
-                  name=args.name,
-                  password=args.password,
-                  filter_level=TermFilterLevel[args.filterlevel],
-                  term_infos_name=args.term_infos_name)
+    args = get_args(dict_path_required=True, name_required=True)
+    create_matrix(dict_path=args.dictpath, name=args.name)
 
 
 if __name__ == "__main__":
