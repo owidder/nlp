@@ -14,6 +14,7 @@ from nltk.tokenize import word_tokenize
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from python.util.dict_util import merge_dict2_into_dict1, create_file_name
 from python.stackexchange.stackexchange import remove_non_stackexchange
+from python.get_args import get_bool_env_var, WITH_STEMMING, DO_REMOVE_NON_CHARS, DO_REMOVE_SINGLE_CHARS, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE
 
 
 try:
@@ -96,11 +97,11 @@ def get_words_of_file(text, unstem_dict=None,
                       do_remove_stop_words=False,
                       do_filter_non_en_de_words=False,
                       do_remove_single_chars=False):
-    words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if do_remove_non_chars else text
-    words_of_file = split_camel_case(words_of_file) if do_split_camel_case else words_of_file
-    words_of_file = remove_single_chars(words_of_file) if do_remove_single_chars else words_of_file
-    words_of_file = remove_stop_words(words_of_file) if do_remove_stop_words else words_of_file
-    words_of_file = filter_non_en_de_words(words_of_file) if do_filter_non_en_de_words else words_of_file
+    words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
+    words_of_file = split_camel_case(words_of_file) if get_bool_env_var(DO_SPLIT_CAMEL_CASE, do_split_camel_case) else words_of_file
+    words_of_file = remove_single_chars(words_of_file) if get_bool_env_var(DO_REMOVE_SINGLE_CHARS, do_remove_single_chars) else words_of_file
+    words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
+    words_of_file = filter_non_en_de_words(words_of_file) if get_bool_env_var(DO_FILTER_NON_EN_DE_WORDS, do_filter_non_en_de_words) else words_of_file
     words_of_file = stemming(words_of_file, unstem_dict) if unstem_dict is not None else words_of_file
     return words_of_file
 
@@ -151,7 +152,8 @@ def create_word_and_tags_dict(doc_path, with_stemming: bool):
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
-    unstem_dict = {} if with_stemming else None
+    _with_stemming = get_bool_env_var(WITH_STEMMING, with_stemming)
+    unstem_dict = {} if _with_stemming else None
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
@@ -166,7 +168,7 @@ def create_word_and_tags_dict(doc_path, with_stemming: bool):
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
-    if with_stemming:
+    if _with_stemming:
         word_dict = unstem_word_dict(word_dict, unstem_dict)
     return word_dict, tags_dict
 

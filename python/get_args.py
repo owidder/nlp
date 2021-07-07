@@ -1,4 +1,6 @@
 import argparse
+import distutils.util
+import os
 
 
 def get_args(
@@ -30,3 +32,18 @@ def get_args(
     parser.add_argument('--max_topics', required=max_topics_required, action='store', help='max number of topics')
     parser.add_argument('--with_tags', required=with_tags_required, action='store', help='use stackexchange tags')
     return parser.parse_args()
+
+
+def get_bool_env_var(name: str, defvalue: bool) -> bool:
+    if name in list(os.environ.keys()):
+        return bool(distutils.util.strtobool(os.environ[name]))
+    else:
+        return defvalue
+
+
+DO_REMOVE_NON_CHARS = "DO_REMOVE_NON_CHARS"
+DO_SPLIT_CAMEL_CASE = "DO_SPLIT_CAMEL_CASE"
+DO_REMOVE_STOP_WORDS = "DO_REMOVE_STOP_WORDS"
+DO_FILTER_NON_EN_DE_WORDS = "DO_FILTER_NON_EN_DE_WORDS"
+DO_REMOVE_SINGLE_CHARS = "DO_REMOVE_SINGLE_CHARS"
+WITH_STEMMING = "WITH_STEMMING"
