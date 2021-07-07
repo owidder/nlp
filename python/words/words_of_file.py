@@ -93,7 +93,7 @@ def get_tags_of_file(text):
 def get_words_of_file(text, unstem_dict=None,
                       do_remove_non_chars=False,
                       do_split_camel_case=False,
-                      do_remove_stop_words=True,
+                      do_remove_stop_words=False,
                       do_filter_non_en_de_words=False,
                       do_remove_single_chars=False):
     words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if do_remove_non_chars else text

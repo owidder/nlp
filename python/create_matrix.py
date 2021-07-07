@@ -2,13 +2,13 @@ import os
 
 from gensim import corpora, models, similarities
 
-from words.words_of_file import read_word_dict
+from words.words_of_file import create_word_and_tags_dict
 from get_args import get_args
 
 
-def create_matrix(dict_path, name):
-    word_dict_path = os.path.join(dict_path, f'word_dict.{name}')
-    word_dict = read_word_dict(word_dict_path)
+def create_matrix(doc_path, dict_path, name):
+    _word_dict = create_word_and_tags_dict(doc_path=doc_path, with_stemming=False)
+    word_dict = _word_dict[0]
     documents = [word.split(' ') for word in list(word_dict.values())]
     dictionary = corpora.Dictionary(documents)
     document_terms = [dictionary.doc2bow(doc) for doc in documents]
@@ -59,8 +59,8 @@ def create_matrix(dict_path, name):
 
 
 def main():
-    args = get_args(dict_path_required=True, name_required=True)
-    create_matrix(dict_path=args.dictpath, name=args.name)
+    args = get_args(doc_path_required=True, dict_path_required=True, name_required=True)
+    create_matrix(doc_path=args.docpath, dict_path=args.dictpath, name=args.name)
 
 
 if __name__ == "__main__":
