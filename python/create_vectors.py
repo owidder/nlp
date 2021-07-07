@@ -1,7 +1,7 @@
 from gensim import corpora, models
 
 from words.words_of_file import create_word_and_tags_dict
-from get_args import get_args
+from get_args import get_args, get_int_env_var, NUM_TOPICS
 
 
 def create_vectors(doc_path, out_path, name):
@@ -16,7 +16,7 @@ def create_vectors(doc_path, out_path, name):
     tfidf = models.TfidfModel(document_terms)
     corpus_tfidf = tfidf[document_terms]
 
-    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=200)
+    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=get_int_env_var(NUM_TOPICS, 200))
 
     vectors_out_file = open(f"{out_path}/vectors-{name}.csv", 'w')
 

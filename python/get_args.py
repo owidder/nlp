@@ -41,9 +41,17 @@ def get_bool_env_var(name: str, defvalue: bool) -> bool:
         return defvalue
 
 
+def get_int_env_var(name: str, defvalue: int) -> int:
+    if name in list(os.environ.keys()):
+        return int(os.environ[name])
+    else:
+        return defvalue
+
+
 DO_REMOVE_NON_CHARS = "DO_REMOVE_NON_CHARS"
 DO_SPLIT_CAMEL_CASE = "DO_SPLIT_CAMEL_CASE"
 DO_REMOVE_STOP_WORDS = "DO_REMOVE_STOP_WORDS"
 DO_FILTER_NON_EN_DE_WORDS = "DO_FILTER_NON_EN_DE_WORDS"
 DO_REMOVE_SINGLE_CHARS = "DO_REMOVE_SINGLE_CHARS"
 WITH_STEMMING = "WITH_STEMMING"
+NUM_TOPICS = "NUM_TOPICS"
