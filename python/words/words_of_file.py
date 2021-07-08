@@ -60,7 +60,7 @@ def add_to_unstem_dict(word: str, stemmed_word: str, unstem_dict):
         unstem_dict[stemmed_word] = word
 
 
-def stemming(data, unstem_dict):
+def stemming(data):
     stemmer = PorterStemmer()
 
     tokens = word_tokenize(str(data))
@@ -68,7 +68,6 @@ def stemming(data, unstem_dict):
     for word in tokens:
         stemmed_word = stemmer.stem(word)
         print(f"stem\t{word}\t{stemmed_word}")
-        add_to_unstem_dict(word, stemmed_word, unstem_dict)
         new_text = new_text + " " + stemmer.stem(word)
 
     return new_text
@@ -91,7 +90,7 @@ def get_tags_of_file(text):
     return stackexchange_tags
 
 
-def get_words_of_file(text, unstem_dict=None,
+def get_words_of_file(text, with_stemming=None,
                       do_remove_non_chars=False,
                       do_split_camel_case=False,
                       do_remove_stop_words=False,
@@ -103,16 +102,16 @@ def get_words_of_file(text, unstem_dict=None,
     words_of_file = remove_single_chars(words_of_file) if get_bool_env_var(DO_REMOVE_SINGLE_CHARS, do_remove_single_chars) else words_of_file
     words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
     words_of_file = filter_non_en_de_words(words_of_file) if get_bool_env_var(DO_FILTER_NON_EN_DE_WORDS, do_filter_non_en_de_words) else words_of_file
-    words_of_file = stemming(words_of_file, unstem_dict) if unstem_dict is not None else words_of_file
+    words_of_file = stemming(words_of_file) if get_bool_env_var(WITH_STEMMING, with_stemming) else words_of_file
     return words_of_file
 
 
-def get_words_and_tags_of_file(file_path, unstem_dict):
+def get_words_and_tags_of_file(file_path):
     try:
         print(file_path)
         shakes = open(file_path, 'r')
         text = shakes.read()
-        return get_words_of_file(text, unstem_dict), get_tags_of_file(text)
+        return get_words_of_file(text), get_tags_of_file(text)
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
@@ -149,19 +148,17 @@ def unstem_word_dict(word_dict_stemmed, unstem_dict):
     return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
-def create_word_and_tags_dict(doc_path, with_stemming=False):
+def create_word_and_tags_dict(doc_path):
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
-    _with_stemming = get_bool_env_var(WITH_STEMMING, with_stemming)
-    unstem_dict = {} if _with_stemming else None
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             if is_included(file_abs_path):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                    words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict)
+                    words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path)
                     if len(words_of_file) > 0:
                         word_dict[file_rel_path] = words_of_file
                     if len(tags_of_file) > 0:
@@ -169,8 +166,6 @@ def create_word_and_tags_dict(doc_path, with_stemming=False):
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
-    if _with_stemming:
-        word_dict = unstem_word_dict(word_dict, unstem_dict)
     return word_dict, tags_dict
 
 
@@ -181,13 +176,13 @@ def read_word_dict(word_dict_path):
     return word_dict
 
 
-def read_or_create_word_dict(doc_path, dict_path, name, with_stemming=False, force=False, with_tags=False):
+def read_or_create_word_dict(doc_path, dict_path, name, force=False, with_tags=False):
     print("read_or_create_word_dict:", locals())
     word_dict_path = os.path.join(dict_path, f'word_dict.{name}')
     if not force and os.path.exists(word_dict_path):
         return read_word_dict(word_dict_path)
     else:
-        word_dict, tags_dict = create_word_and_tags_dict(doc_path, with_stemming)
+        word_dict, tags_dict = create_word_and_tags_dict(doc_path)
         word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict) if with_tags else word_dict
         pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
         pickle.dump(word_tags_dict, pickle_file)
