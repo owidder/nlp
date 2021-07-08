@@ -97,7 +97,8 @@ def get_words_of_file(text, unstem_dict=None,
                       do_remove_stop_words=False,
                       do_filter_non_en_de_words=False,
                       do_remove_single_chars=False):
-    words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
+    words_of_file = text.lower()
+    words_of_file = re.sub('[^a-z ]+', ' ', words_of_file) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
     words_of_file = split_camel_case(words_of_file) if get_bool_env_var(DO_SPLIT_CAMEL_CASE, do_split_camel_case) else words_of_file
     words_of_file = remove_single_chars(words_of_file) if get_bool_env_var(DO_REMOVE_SINGLE_CHARS, do_remove_single_chars) else words_of_file
     words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
@@ -148,7 +149,7 @@ def unstem_word_dict(word_dict_stemmed, unstem_dict):
     return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
-def create_word_and_tags_dict(doc_path, with_stemming: bool):
+def create_word_and_tags_dict(doc_path, with_stemming=False):
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
