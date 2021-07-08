@@ -10,7 +10,7 @@
       <env name="DO_REMOVE_STOP_WORDS" value="True" />
       <env name="DO_FILTER_NON_EN_DE_WORDS" value="True" />
       <env name="DO_REMOVE_SINGLE_CHARS" value="True" />
-      <env name="WITH_STEMMING" value="True" />
+      <env name="WITH_STEMMING" value="False" />
       <env name="NUM_TOPICS" value="1000" />
     </envs>
     <option name="SDK_HOME" value="" />

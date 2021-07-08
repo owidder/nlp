@@ -36,8 +36,8 @@ def split_camel_case(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name)
 
 
-def remove_single_chars(string):
-    return ' '.join([w for w in string.split() if len(w) > 1])
+def remove_short_words(string, min_length):
+    return ' '.join([w for w in string.split() if len(w) >= min_length])
 
 
 def remove_stop_words(data, remove_de=True, remove_en=True):
@@ -99,7 +99,7 @@ def get_words_of_file(text, with_stemming=None,
     words_of_file = text.lower()
     words_of_file = re.sub('[^a-z ]+', ' ', words_of_file) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
     words_of_file = split_camel_case(words_of_file) if get_bool_env_var(DO_SPLIT_CAMEL_CASE, do_split_camel_case) else words_of_file
-    words_of_file = remove_single_chars(words_of_file) if get_bool_env_var(DO_REMOVE_SINGLE_CHARS, do_remove_single_chars) else words_of_file
+    words_of_file = remove_short_words(words_of_file, min_length=4) if get_bool_env_var(DO_REMOVE_SINGLE_CHARS, do_remove_single_chars) else words_of_file
     words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
     words_of_file = filter_non_en_de_words(words_of_file) if get_bool_env_var(DO_FILTER_NON_EN_DE_WORDS, do_filter_non_en_de_words) else words_of_file
     words_of_file = stemming(words_of_file) if get_bool_env_var(WITH_STEMMING, with_stemming) else words_of_file
