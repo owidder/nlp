@@ -129,9 +129,8 @@ def has_no_excluded_extension(file_path):
 
 def has_included_extension(file_path):
     parts = file_path.split(".")
-    if len(parts) > 2:
-        extension = ".".join(parts[-2:])
-        return extension.lower() in ["py.utf8", "js.utf8", "json.utf8", "txt.utf8"]
+    if len(parts) > 1:
+        return parts[-1].lower() in ["py", "js", "json", "txt", "md", "html"]
     return False
 
 
