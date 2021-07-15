@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from words.words_of_file import is_included
+from get_args import get_int_env_var, MAX_WORDS
 
 
 def fit(word_dict):
@@ -15,7 +16,8 @@ def fit(word_dict):
     return tfidf
 
 
-def find_features(word_dict, doc_path: str, out_path: str):
+def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
+    tfidf_word_dict = {}
     print("---- do the fitting ----\n")
     tfidf = fit(word_dict)
     feature_names = tfidf.get_feature_names()
@@ -39,8 +41,11 @@ def find_features(word_dict, doc_path: str, out_path: str):
                     if len(list(f.keys())) > 0:
                         out_file = open_file_for_writing_with_path_creation(file_out_path)
                         sf = sorted(f, key=f.__getitem__, reverse=True)
+                        tfidf_word_dict[file_rel_path] = ' '.join(sf[:get_int_env_var(MAX_WORDS, 10)])
                         for k in sf:
                             print(f"{k}\t{str(f[k])}", file=out_file)
                 except:
                     print(f"Couldn't find {file_rel_path}")
+
+        return tfidf_word_dict
 

@@ -66,8 +66,6 @@ def stemming(data):
     tokens = word_tokenize(str(data))
     new_text = ""
     for word in tokens:
-        stemmed_word = stemmer.stem(word)
-        print(f"stem\t{word}\t{stemmed_word}")
         new_text = new_text + " " + stemmer.stem(word)
 
     return new_text

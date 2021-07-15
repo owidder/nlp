@@ -5,10 +5,10 @@ from gensim import corpora, models
 from words.words_of_file import create_word_and_tags_dict
 from python.tfidf import find_features
 from get_args import get_args, get_int_env_var, NUM_TOPICS
-from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
+from util.util import open_file_for_writing_with_path_creation
 
 
-def create_vectors(word_dict, out_path, name, num_topis):
+def create_vectors(word_dict: dict, out_path: str, name: str, num_topis: int):
     print("---- create word dict ----")
     documents = [word.split(' ') for word in list(word_dict.values())]
     dictionary = corpora.Dictionary(documents)
@@ -47,8 +47,8 @@ def main():
     word_dict = create_word_and_tags_dict(doc_path=args.docpath)[0]
     num_topics = get_int_env_var(NUM_TOPICS, 200)
     out_path = os.path.join(args.outpath, f"nt_{num_topics:04d}")
-    create_vectors(word_dict, out_path=out_path, name=args.name, num_topis=num_topics)
-    find_features(word_dict, doc_path=args.docpath, out_path=os.path.join(out_path, "tfidf"))
+    tfidf_word_dict = find_features(word_dict, doc_path=args.docpath, out_path=os.path.join(out_path, "tfidf"))
+    create_vectors(tfidf_word_dict, out_path=out_path, name=args.name, num_topis=num_topics)
 
 
 if __name__ == "__main__":
