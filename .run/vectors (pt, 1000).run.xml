@@ -8,7 +8,7 @@
       <env name="DO_REMOVE_NON_CHARS" value="True" />
       <env name="DO_SPLIT_CAMEL_CASE" value="True" />
       <env name="DO_REMOVE_STOP_WORDS" value="True" />
-      <env name="DO_FILTER_NON_EN_DE_WORDS" value="True" />
+      <env name="DO_FILTER_NON_EN_DE_WORDS" value="False" />
       <env name="DO_REMOVE_SINGLE_CHARS" value="True" />
       <env name="WITH_STEMMING" value="True" />
       <env name="NUM_TOPICS" value="1000" />
