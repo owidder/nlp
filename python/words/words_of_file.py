@@ -12,9 +12,9 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.util.dict_util import merge_dict2_into_dict1, create_file_name
+from python.util.dict_util import merge_dict2_into_dict1
 from python.stackexchange.stackexchange import remove_non_stackexchange
-from python.get_args import get_bool_env_var, WITH_STEMMING, DO_REMOVE_NON_CHARS, DO_REMOVE_SINGLE_CHARS, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE
+from python.get_args import get_bool_env_var, get_int_env_var, WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE
 
 
 try:
@@ -36,8 +36,8 @@ def split_camel_case(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name)
 
 
-def remove_short_words(string, min_length):
-    return ' '.join([w for w in string.split() if len(w) >= min_length])
+def filter_min_word_size(string, min_word_size):
+    return ' '.join([w for w in string.split() if len(w) >= min_word_size])
 
 
 def remove_stop_words(data, remove_de=True, remove_en=True):
@@ -71,9 +71,8 @@ def stemming(data):
     return new_text
 
 
-def is_en_de(word):
+def  is_en_de(word):
     result = en.check(word) or de.check(word)
-    print(f"isword\t{word}\t{result}")
     return result
 
 
@@ -93,10 +92,11 @@ def get_words_of_file(text, with_stemming=None,
                       do_split_camel_case=False,
                       do_remove_stop_words=False,
                       do_filter_non_en_de_words=False,
-                      do_remove_single_chars=False):
+                      min_word_size=0):
     words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
     words_of_file = split_camel_case(words_of_file) if get_bool_env_var(DO_SPLIT_CAMEL_CASE, do_split_camel_case) else words_of_file
-    words_of_file = remove_short_words(words_of_file, min_length=4) if get_bool_env_var(DO_REMOVE_SINGLE_CHARS, do_remove_single_chars) else words_of_file
+    _min_word_size = get_int_env_var(MIN_WORD_SIZE, min_word_size)
+    words_of_file = filter_min_word_size(words_of_file, min_word_size=_min_word_size) if _min_word_size > 0 else words_of_file
     words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
     words_of_file = filter_non_en_de_words(words_of_file) if get_bool_env_var(DO_FILTER_NON_EN_DE_WORDS, do_filter_non_en_de_words) else words_of_file
     words_of_file = stemming(words_of_file) if get_bool_env_var(WITH_STEMMING, with_stemming) else words_of_file
@@ -128,7 +128,7 @@ def has_no_excluded_extension(file_path):
 def has_included_extension(file_path):
     parts = file_path.split(".")
     if len(parts) > 1:
-        return parts[-1].lower() in ["py", "js", "json", "txt", "md", "html"]
+        return parts[-1].lower() in ["py", "js", "json", "txt", "md", "html", "jsx", "ts", "tsx", "java"]
     return False
 
 

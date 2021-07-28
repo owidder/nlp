@@ -47,12 +47,28 @@ def get_int_env_var(name: str, defvalue: int) -> int:
     else:
         return defvalue
 
+def get_str_env_var(name: str, defvalue: str) -> str:
+    if name in list(os.environ.keys()):
+        return os.environ[name]
+    else:
+        return defvalue
+
+
+def get_float_env_var(name: str, defvalue: float) -> float:
+    if name in list(os.environ.keys()):
+        return float(os.environ[name])
+    else:
+        return defvalue
+
 
 DO_REMOVE_NON_CHARS = "DO_REMOVE_NON_CHARS"
 DO_SPLIT_CAMEL_CASE = "DO_SPLIT_CAMEL_CASE"
 DO_REMOVE_STOP_WORDS = "DO_REMOVE_STOP_WORDS"
 DO_FILTER_NON_EN_DE_WORDS = "DO_FILTER_NON_EN_DE_WORDS"
-DO_REMOVE_SINGLE_CHARS = "DO_REMOVE_SINGLE_CHARS"
+MIN_WORD_SIZE = "MIN_WORD_SIZE"
 WITH_STEMMING = "WITH_STEMMING"
 NUM_TOPICS = "NUM_TOPICS"
 MAX_WORDS = "MAX_WORDS"
+OUT_SUB_FOLDER = "OUT_SUB_FOLDER"
+MIN_TFIDF = "MIN_TFIDF"
+CLASSIC_MODE = "CLASSIC_MODE"

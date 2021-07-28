@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from words.words_of_file import is_included
-from get_args import get_int_env_var, MAX_WORDS
+from get_args import get_int_env_var, get_float_env_var, MAX_WORDS, MIN_TFIDF
 
 
 def fit(word_dict):
@@ -41,11 +41,18 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
                     if len(list(f.keys())) > 0:
                         out_file = open_file_for_writing_with_path_creation(file_out_path)
                         sf = sorted(f, key=f.__getitem__, reverse=True)
-                        tfidf_word_dict[file_rel_path] = ' '.join(sf[:get_int_env_var(MAX_WORDS, 10)])
-                        for k in sf:
+                        max_words = get_int_env_var(MAX_WORDS, 0)
+                        if max_words > 0:
+                            fsf = sf[:max_words]
+                        else:
+                            min_tfidf = get_float_env_var(MIN_TFIDF, 0.0)
+                            fsf = [k for k in sf if f[k] > min_tfidf]
+
+                        tfidf_word_dict[file_rel_path] = ' '.join(fsf)
+                        for k in fsf:
                             print(f"{k}\t{str(f[k])}", file=out_file)
                 except:
                     print(f"Couldn't find {file_rel_path}")
 
-        return tfidf_word_dict
+    return tfidf_word_dict
 
