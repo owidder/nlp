@@ -1,7 +1,7 @@
 from antlr4 import CommonTokenStream, InputStream
-from python.Python3Parser import Python3Parser
-from python.Python3Lexer import Python3Lexer
-from python.Python3Visitor import Python3Visitor
+from python.antlr.python.Python3Parser import Python3Parser
+from python.antlr.python.Python3Lexer import Python3Lexer
+from python.antlr.python.Python3Visitor import Python3Visitor
 
 
 class Visitor(Python3Visitor):
@@ -19,23 +19,20 @@ class Visitor(Python3Visitor):
         return self.visitChildren(ctx)
 
 
-def get_words(path):
-    with open(path, "r") as file:
-        text = file.read()
-        lexer = Python3Lexer(InputStream(text))
-        stream = CommonTokenStream(lexer)
-        parser = Python3Parser(stream)
-        tre = parser.file_input()
-        # if parser.getNumberOfSyntaxErrors() != 0:
-        #     print("File contains {} "
-        #           "syntax errors".format(parser.getNumberOfSyntaxErrors()))
-        #     return
+def get_words_from_python(text):
+    lexer = Python3Lexer(InputStream(text))
+    stream = CommonTokenStream(lexer)
+    parser = Python3Parser(stream)
+    tree = parser.file_input()
 
-        visitor = Visitor()
-        visitor.visit(tre)
-        print(str(list(visitor.words)))
+    visitor = Visitor()
+    visitor.visit(tree)
+    return list(visitor.words)
 
 
 if __name__ == '__main__':
-    get_words("/Users/oliverwidder/Documents/dev/erp_doc/erpnext/code/healthcare/doctype/patient_appointment/patient_appointment.py")
+    with open("/Users/oliverwidder/Documents/dev/erp_doc/erpnext/code/healthcare/doctype/patient_appointment/patient_appointment.py", "r") as file:
+        text = file.read()
+        l = get_words_from_python(text)
+        print(str(l))
 

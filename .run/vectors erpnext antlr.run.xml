@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="vectors erpnext" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="vectors erpnext antlr" type="PythonConfigurationType" factoryName="Python">
     <module name="nlp" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -13,8 +13,10 @@
       <env name="WITH_STEMMING" value="True" />
       <env name="NUM_TOPICS" value="2000" />
       <env name="MAX_WORDS" value="0" />
-      <env name="OUT_SUB_FOLDER" value="tfidf18" />
-      <env name="MIN_TFIDF" value="0.18" />
+      <env name="OUT_SUB_FOLDER" value="classic" />
+      <env name="MIN_TFIDF" value="0" />
+      <env name="CLASSIC_MODE" value="True" />
+      <env name="USE_ANTLR" value="True" />
     </envs>
     <option name="SDK_HOME" value="" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python" />

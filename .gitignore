@@ -21,3 +21,8 @@ nohup*
 
 mlruns/
 topics/
+
+/antlr
+/dict/_all
+/dict/axelor
+/dict/erpnext
