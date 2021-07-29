@@ -13,9 +13,9 @@
       <env name="WITH_STEMMING" value="True" />
       <env name="NUM_TOPICS" value="2000" />
       <env name="MAX_WORDS" value="0" />
-      <env name="OUT_SUB_FOLDER" value="classic" />
+      <env name="OUT_SUB_FOLDER" value="antlr" />
       <env name="MIN_TFIDF" value="0" />
-      <env name="CLASSIC_MODE" value="True" />
+      <env name="CLASSIC_MODE" value="False" />
       <env name="USE_ANTLR" value="True" />
     </envs>
     <option name="SDK_HOME" value="" />

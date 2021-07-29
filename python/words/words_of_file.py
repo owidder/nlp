@@ -112,7 +112,9 @@ def get_words_and_tags_of_file(file_path):
 
         if get_bool_env_var(USE_ANTLR, False):
             if file_path.endswith(".py"):
-                text = " ".join(get_words_from_python(text))
+                list_of_words = get_words_from_python(text)
+                if len(list_of_words) > 0:
+                    text = " ".join(list_of_words)
 
         return get_words_of_file(text), get_tags_of_file(text)
     except:

@@ -29,7 +29,6 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
             if is_included(file_abs_path):
                 file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
                 file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
-                print("--> " + file_out_path)
                 try:
                     file_str = word_dict[file_rel_path]
                     file_response = tfidf.transform([file_str])

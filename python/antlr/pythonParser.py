@@ -24,6 +24,10 @@ def get_words_from_python(text):
     stream = CommonTokenStream(lexer)
     parser = Python3Parser(stream)
     tree = parser.file_input()
+    if parser.getNumberOfSyntaxErrors() != 0:
+        print("File contains {} "
+              "syntax errors".format(parser.getNumberOfSyntaxErrors()))
+        return list()
 
     visitor = Visitor()
     visitor.visit(tree)
