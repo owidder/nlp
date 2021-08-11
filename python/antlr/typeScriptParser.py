@@ -1,16 +1,16 @@
 from antlr4 import CommonTokenStream, InputStream
 
 if __name__ == '__main__':
-    from python.Python3Parser import Python3Parser
-    from python.Python3Lexer import Python3Lexer
-    from python.Python3Visitor import Python3Visitor
+    from typeScript.TypeScriptParser import TypeScriptParser
+    from typeScript.TypeScriptLexer import TypeScriptLexer
+    from typeScript.TypeScriptParserVisitor import TypeScriptParserVisitor
 else:
-    from python.antlr.python.Python3Parser import Python3Parser
-    from python.antlr.python.Python3Lexer import Python3Lexer
-    from python.antlr.python.Python3Visitor import Python3Visitor
+    from python.antlr.typeScript.TypeScriptParser import TypeScriptParser
+    from python.antlr.typeScript.TypeScriptLexer import TypeScriptLexer
+    from python.antlr.typeScript.TypeScriptParserVisitor import TypeScriptParserVisitor
 
 
-class Visitor(Python3Visitor):
+class Visitor(TypeScriptParserVisitor):
     def __init__(self):
         self.words = set()
 
@@ -26,9 +26,9 @@ class Visitor(Python3Visitor):
 
 
 def get_words_from_python(text):
-    lexer = Python3Lexer(InputStream(text))
+    lexer = TypeScriptLexer(InputStream(text))
     stream = CommonTokenStream(lexer)
-    parser = Python3Parser(stream)
+    parser = TypeScriptParser(stream)
     tree = parser.file_input()
     if parser.getNumberOfSyntaxErrors() != 0:
         print("File contains {} "
