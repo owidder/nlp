@@ -11,6 +11,8 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
+from py4j.java_gateway import JavaGateway
+
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from python.util.dict_util import merge_dict2_into_dict1
 from python.stackexchange.stackexchange import remove_non_stackexchange
@@ -23,6 +25,10 @@ except AttributeError:
     pass
 else:
     ssl._create_default_https_context = _create_unverified_https_context
+
+
+gateway = JavaGateway()
+
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -107,14 +113,19 @@ def get_words_of_file(text, with_stemming=None,
 def get_words_and_tags_of_file(file_path):
     try:
         print(file_path)
-        shakes = open(file_path, 'r')
-        text = shakes.read()
+        text = ""
+        if has_antlr_extension(file_path):
+            text = gateway.entry_point.startListener(file_path)
 
-        if get_bool_env_var(USE_ANTLR, False):
-            if file_path.endswith(".py"):
-                list_of_words = get_words_from_python(text)
-                if len(list_of_words) > 0:
-                    text = " ".join(list_of_words)
+        if len(text) == 0:
+            shakes = open(file_path, 'r')
+            text = shakes.read()
+
+            if get_bool_env_var(USE_ANTLR, False):
+                if file_path.endswith(".py"):
+                    list_of_words = get_words_from_python(text)
+                    if len(list_of_words) > 0:
+                        text = " ".join(list_of_words)
 
         return get_words_of_file(text), get_tags_of_file(text)
     except:
@@ -135,7 +146,14 @@ def has_no_excluded_extension(file_path):
 def has_included_extension(file_path):
     parts = file_path.split(".")
     if len(parts) > 1:
-        return parts[-1].lower() in ["py", "js", "json", "txt", "md", "html", "jsx", "ts", "tsx", "java"]
+        return parts[-1].lower() in ["py", "js", "json", "txt", "md", "html", "jsx", "ts", "tsx", "java", "php"]
+    return False
+
+
+def has_antlr_extension(file_path):
+    parts = file_path.split(".")
+    if len(parts) > 1:
+        return parts[-1].lower() in ["py", "js", "jsx", "ts", "tsx", "java", "php"]
     return False
 
 
