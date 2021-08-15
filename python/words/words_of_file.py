@@ -3,6 +3,7 @@ import pickle
 import re
 import sys
 import traceback
+from random import randrange
 
 import enchant
 import nltk
@@ -16,7 +17,8 @@ from py4j.java_gateway import JavaGateway
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from python.util.dict_util import merge_dict2_into_dict1
 from python.stackexchange.stackexchange import remove_non_stackexchange
-from python.get_args import get_bool_env_var, get_int_env_var, WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, USE_ANTLR
+from python.get_args import get_bool_env_var, get_int_env_var, \
+    WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, USE_ANTLR, SUBSET_MIN_RND
 from python.antlr.pythonParser import get_words_from_python
 
 try:
@@ -36,6 +38,9 @@ nltk.download('stopwords')
 
 en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
+
+
+subset_min_rnd = get_int_env_var(SUBSET_MIN_RND, -1)
 
 
 def split_camel_case(name):
@@ -127,6 +132,7 @@ def get_words_and_tags_of_file(file_path):
                     if len(list_of_words) > 0:
                         text = " ".join(list_of_words)
 
+        text = text + " " + file_path
         return get_words_of_file(text), get_tags_of_file(text)
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
@@ -177,7 +183,7 @@ def create_word_and_tags_dict(doc_path):
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
-            if is_included(file_abs_path):
+            if is_included(file_abs_path) and (subset_min_rnd < 0 or randrange(100) > subset_min_rnd):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
                     words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path)
