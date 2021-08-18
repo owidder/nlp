@@ -18,6 +18,7 @@ from python.stackexchange.stackexchange import remove_non_stackexchange
 from python.get_args import get_bool_env_var, get_int_env_var, \
     WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, USE_ANTLR, SUBSET_MIN_RND, USE_SERVER
 from python.antlr.pythonListener import parse_words_from_python
+from python.antlr.javaListener import parse_words_from_java
 from python.antlr.antlrProxy import AntlrProxy
 from python.antlr.antlrCaller import callAntlr
 
@@ -38,7 +39,7 @@ en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
 
 
-ANTLR_JVM_EXTENSIONS = ["js", "jsx", "ts", "tsx", "java", "php"]
+ANTLR_JVM_EXTENSIONS = ["js", "jsx", "ts", "tsx", "php"]
 
 
 subset_min_rnd = get_int_env_var(SUBSET_MIN_RND, -1)
@@ -134,6 +135,8 @@ def get_words_and_tags_of_file(file_path):
             text = shakes.read()
             if extension == "py":
                 text = parse_words_from_python(text)
+            elif extension == "java":
+                text = parse_words_from_java(text)
 
         text = " ".join([text, file_path])
         wof, tof = get_words_of_file(text), get_tags_of_file(text)
