@@ -33,7 +33,7 @@ class StringPythonLexer(Python3Lexer):
 
     def emitToken(self, t):
         super().emitToken(t)
-        if t.type == 1:
+        if t.type == Python3Lexer.STRING or t.type == Python3Lexer.STRING_LITERAL:
             self.words.append(t.text)
 
 
