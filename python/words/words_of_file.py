@@ -16,9 +16,11 @@ from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_
 from python.util.dict_util import merge_dict2_into_dict1
 from python.stackexchange.stackexchange import remove_non_stackexchange
 from python.get_args import get_bool_env_var, get_int_env_var, \
-    WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, USE_ANTLR, SUBSET_MIN_RND
-from python.antlr.pythonParser import get_words_from_python
+    WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, USE_ANTLR, SUBSET_MIN_RND, USE_SERVER
+from python.antlr.pythonListener import parse_words_from_python
+from python.antlr.javaListener import parse_words_from_java
 from python.antlr.antlrProxy import AntlrProxy
+from python.antlr.antlrCaller import callAntlr
 
 
 try:
@@ -37,8 +39,12 @@ en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
 
 
+ANTLR_JVM_EXTENSIONS = ["js", "jsx", "ts", "tsx", "php"]
+
+
 subset_min_rnd = get_int_env_var(SUBSET_MIN_RND, -1)
-antlrProxy = AntlrProxy()
+use_server = get_bool_env_var(USE_SERVER, False)
+antlrProxy = AntlrProxy() if use_server else None
 
 
 def split_camel_case(name):
@@ -116,22 +122,26 @@ def get_words_of_file(text, with_stemming=None,
 def get_words_and_tags_of_file(file_path):
     try:
         print(file_path)
+        extension = file_path.split(".")[-1]
         text = ""
-        if has_antlr_extension(file_path):
-            text = antlrProxy.startListener(file_path)
+        if extension in ANTLR_JVM_EXTENSIONS:
+            if use_server:
+                text = antlrProxy.startListener(file_path)
+            else:
+                text = callAntlr(file_path)
 
         if len(text) == 0:
             shakes = open(file_path, 'r')
             text = shakes.read()
+            if extension == "py":
+                text = parse_words_from_python(text)
+            elif extension == "java":
+                text = parse_words_from_java(text)
 
-            if get_bool_env_var(USE_ANTLR, False):
-                if file_path.endswith(".py"):
-                    list_of_words = get_words_from_python(text)
-                    if len(list_of_words) > 0:
-                        text = " ".join(list_of_words)
-
-        text = text + " " + file_path
-        return get_words_of_file(text), get_tags_of_file(text)
+        text = " ".join([text, file_path])
+        wof, tof = get_words_of_file(text), get_tags_of_file(text)
+        print(wof)
+        return wof, tof
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
@@ -142,22 +152,10 @@ def is_no_dot_file(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
 
 
-def has_no_excluded_extension(file_path):
-    extension = file_path.split(".")[-1]
-    return extension.lower() not in ["jpg", "jpeg", "png", "bmp", "csv"]
-
-
 def has_included_extension(file_path):
     parts = file_path.split(".")
     if len(parts) > 1:
         return parts[-1].lower() in ["py", "js", "json", "txt", "md", "html", "jsx", "ts", "tsx", "java", "php"]
-    return False
-
-
-def has_antlr_extension(file_path):
-    parts = file_path.split(".")
-    if len(parts) > 1:
-        return parts[-1].lower() in ["py", "js", "jsx", "ts", "tsx", "java", "php"]
     return False
 
 

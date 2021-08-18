@@ -25,3 +25,5 @@ topics/
 /dict/_all
 /dict/axelor
 /dict/erpnext
+
+gen/
