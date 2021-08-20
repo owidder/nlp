@@ -132,13 +132,14 @@ def get_words_and_tags_of_file(file_path):
 
         if len(text) == 0:
             shakes = open(file_path, 'r')
-            text = shakes.read()
+            text = ""
             if extension == "py":
-                text = parse_words_from_python(text)
+                _text = parse_words_from_python(text)
+                text = _text if len(_text) > 0 else shakes.read()
             elif extension == "java":
-                text = parse_words_from_java(text)
+                _text = parse_words_from_java(text)
+                text = _text if len(_text) > 0 else shakes.read()
 
-        text = " ".join([text, file_path])
         wof, tof = get_words_of_file(text), get_tags_of_file(text)
         print(wof)
         return wof, tof
