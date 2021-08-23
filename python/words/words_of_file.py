@@ -132,7 +132,7 @@ def get_words_and_tags_of_file(file_path):
 
         if len(text) == 0:
             shakes = open(file_path, 'r')
-            text = ""
+            text = shakes.read()
             if extension == "py":
                 _text = parse_words_from_python(text)
                 text = _text if len(_text) > 0 else shakes.read()
