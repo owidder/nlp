@@ -24,6 +24,7 @@ from python.antlr.javaListener import parse_words_from_java
 from python.antlr.antlrProxy import AntlrProxy
 from python.antlr.antlrCaller import callAntlr
 
+from typing import List
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -123,7 +124,7 @@ def get_words_of_file(text, unstem_dict: {}, with_stemming=None,
     return words_of_file
 
 
-def get_words_and_tags_of_file(file_path, unstem_dict):
+def get_words_and_tags_of_file(file_path: str, unstem_dict: {}):
     try:
         print(file_path)
         extension = file_path.split(".")[-1]
@@ -179,11 +180,26 @@ def unstem(word_stemmed, unstem_dict):
     return unstem_dict[word_stemmed]
 
 
+def is_stopword(current_path: str, stopword_path: str, word: str, stopwords: List[str]):
+    if stopword_path == "." or current_path.startswith(stopword_path):
+        return word in stopwords
+
+    return False
+
+
+def filter_stopwords(rel_path: str, words: str, stopwords: {}) -> str:
+    wordArray = words.split(" ")
+    for _path in stopwords:
+        wordArray = [word for word in wordArray if not is_stopword(rel_path, _path, word, stopwords[_path])]
+
+    return " ".join(wordArray)
+
+
 def unstem_word_dict(word_dict_stemmed, unstem_dict):
     return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
-def create_word_and_tags_dict(doc_path, out_path=None):
+def create_word_and_tags_dict(doc_path, out_path=None, stopwords = {}):
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
@@ -196,6 +212,7 @@ def create_word_and_tags_dict(doc_path, out_path=None):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
                     words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict=unstem_dict)
+                    words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
                     if len(words_of_file) > 0:
                         word_dict[file_rel_path] = words_of_file
                     if len(tags_of_file) > 0:
