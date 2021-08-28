@@ -44,10 +44,10 @@ def create_word_dict(doc_path):
 
 def main():
     args = get_args(doc_path_required=True, out_path_required=True)
-    word_dict = create_word_and_tags_dict(doc_path=args.docpath)[0]
-    num_topics = get_int_env_var(NUM_TOPICS, 200)
     out_sub_folder = get_str_env_var(OUT_SUB_FOLDER, "")
     out_path = os.path.join(args.outpath, out_sub_folder)
+    word_dict = create_word_and_tags_dict(doc_path=args.docpath, out_path=out_path)[0]
+    num_topics = get_int_env_var(NUM_TOPICS, 200)
     tfidf_word_dict = find_features(word_dict, doc_path=args.docpath, out_path=os.path.join(out_path, "tfidf"))
 
     if get_bool_env_var(CLASSIC_MODE, False):

@@ -1,6 +1,3 @@
-from words.term_filter_level import TermFilterLevel
-
-
 def add_words2_to_words1(words1: str, words2: str) -> str:
     if words1 is None:
         return words2

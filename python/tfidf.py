@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from words.words_of_file import is_included
-from get_args import get_int_env_var, get_float_env_var, MAX_WORDS, MIN_TFIDF
+from get_args import get_int_env_var, get_float_env_var, get_str_env_var, MAX_WORDS, MIN_TFIDF, INCLUDE_FOLDERS
 
 
 def fit(word_dict):
@@ -26,7 +26,8 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = os.path.join(subdir, file)
-            if is_included(file_abs_path):
+            include_folders = get_str_env_var(INCLUDE_FOLDERS, "").split(",")
+            if is_included(file_abs_path, include_folders):
                 file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
                 file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
                 try:
