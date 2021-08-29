@@ -1,6 +1,6 @@
 import os
 
-from get_args import get_args
+from get_args import get_args, get_str_env_var, OUT_SUB_FOLDER
 
 
 FOLDER_VALUES_FILE_NAME = '_.csv'
@@ -45,7 +45,9 @@ def aggregate_folder(folder_path):
 
 def main():
     args = get_args(out_path_required=True)
-    aggregate_folder(folder_path=args.outpath)
+    out_sub_folder = get_str_env_var(OUT_SUB_FOLDER, "")
+    out_path = os.path.join(args.outpath, out_sub_folder)
+    aggregate_folder(folder_path=out_path)
 
 
 if __name__ == "__main__":

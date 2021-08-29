@@ -1,0 +1,50 @@
+{
+    ".": [
+        "public",
+        "column",
+        "type",
+        "import",
+        "test",
+        "frapp",
+        "string",
+        "licens",
+        "item",
+        "line",
+        "valu",
+        "attribut",
+        "element"
+    ],
+    "erpnext": [
+        "index",
+        "self",
+        "set"
+    ],
+    "adempiere": [
+        "append",
+        "tabl",
+        "field",
+        "node",
+        "return"
+    ],
+    "axelor-open-suite": [
+        "file"
+    ],
+    "dolibarr": [
+        "class",
+        "span",
+        "error",
+        "core",
+        "modul",
+        "input",
+        "mode",
+        "width",
+        "token",
+        "select"
+    ],
+    "metafresh": [
+        "final"
+    ],
+    "metafresh/code": [
+        "request"
+    ]
+}
