@@ -140,6 +140,9 @@ def get_words_and_tags_of_file(file_path):
                 _text = parse_words_from_java(text)
                 text = _text if len(_text) > 0 else shakes.read()
 
+        filename_with_extension = file_path.split("/")[-1]
+        filename_without_extension = filename_with_extension.split(".")[0]
+        text = " ".join([text, filename_without_extension])
         wof, tof = get_words_of_file(text), get_tags_of_file(text)
         print(wof)
         return wof, tof
