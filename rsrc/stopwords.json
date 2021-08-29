@@ -12,13 +12,7 @@
         "line",
         "valu",
         "attribut",
-        "element",
-        "Payment",
-        "account",
-        "payment",
-        "invoic",
-        "label",
-        "print"
+        "element"
     ],
     "erpnext": [
         "index",
@@ -47,12 +41,10 @@
         "token",
         "select"
     ],
-    "erpnext/code/accounts/number_card": [
-        "fals",
-        "function",
-        "stat"
+    "metafresh": [
+        "final"
     ],
-    "erpnext/code/accounts/notification": [
-        "creat"
+    "metafresh/code": [
+        "request"
     ]
 }
