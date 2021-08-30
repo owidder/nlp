@@ -50,7 +50,7 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
 
                         tfidf_word_dict[file_rel_path] = ' '.join(fsf)
                         for k in fsf:
-                            print(f"{k}\t{str(f[k])}", file=out_file)
+                            print(f"{k}\t{str(round(f[k], 2))}", file=out_file)
                 except:
                     print(f"Couldn't find {file_rel_path}")
 

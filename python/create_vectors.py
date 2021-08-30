@@ -31,7 +31,7 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
         vec_lsi = lsi[vec_bow]
 
         for entry in vec_lsi:
-            vectors_out_list.append(str(entry[1]))
+            vectors_out_list.append(str(round(entry[1], 2)))
 
         print("\t".join(vectors_out_list), file=vectors_out_file)
 
