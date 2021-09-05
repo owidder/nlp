@@ -4,7 +4,6 @@ import re
 import sys
 import traceback
 import json
-from random import randrange
 
 import enchant
 import nltk
@@ -18,10 +17,9 @@ from python.util.dict_util import merge_dict2_into_dict1
 from python.stackexchange.stackexchange import remove_non_stackexchange
 from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
     WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, \
-    USE_ANTLR, SUBSET_MIN_RND, USE_SERVER, INCLUDE_FOLDERS
+    USE_ANTLR, INCLUDE_FOLDERS
 from python.antlr.pythonListener import parse_words_from_python
 from python.antlr.javaListener import parse_words_from_java
-from python.antlr.antlrProxy import AntlrProxy
 from python.antlr.antlrCaller import callAntlr
 
 from typing import List
@@ -43,11 +41,6 @@ de = enchant.Dict("de_DE")
 
 
 ANTLR_JVM_EXTENSIONS = ["js", "jsx", "ts", "tsx", "php"]
-
-
-subset_min_rnd = get_int_env_var(SUBSET_MIN_RND, -1)
-use_server = get_bool_env_var(USE_SERVER, False)
-antlrProxy = AntlrProxy() if use_server else None
 
 
 def split_camel_case(name):
@@ -129,21 +122,20 @@ def get_words_and_tags_of_file(file_path: str, unstem_dict: {}):
         print(file_path)
         extension = file_path.split(".")[-1]
         text = ""
-        if extension in ANTLR_JVM_EXTENSIONS:
-            if use_server:
-                text = antlrProxy.startListener(file_path)
-            else:
+        if get_bool_env_var(USE_ANTLR, False):
+            if extension in ANTLR_JVM_EXTENSIONS:
                 text = callAntlr(file_path)
 
-        if len(text) == 0:
-            shakes = open(file_path, 'r')
-            text = shakes.read()
-            if extension == "py":
-                _text = parse_words_from_python(text)
-                text = _text if len(_text) > 0 else shakes.read()
-            elif extension == "java":
-                _text = parse_words_from_java(text)
-                text = _text if len(_text) > 0 else shakes.read()
+            if len(text) == 0:
+                text = open(file_path, 'r').read()
+                if extension == "py":
+                    _text = parse_words_from_python(text)
+                    text = _text if len(_text) > 0 else text
+                elif extension == "java":
+                    _text = parse_words_from_java(text)
+                    text = _text if len(_text) > 0 else text
+
+        text = open(file_path, 'r').read() if len(text) == 0 else text
 
         filename_with_extension = file_path.split("/")[-1]
         filename_without_extension = filename_with_extension.split(".")[0]
@@ -211,7 +203,7 @@ def create_word_and_tags_dict(doc_path, out_path=None, stopwords = {}):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
             include_folders = get_str_env_var(INCLUDE_FOLDERS, "").split(",")
-            if is_included(file_abs_path, include_folders) and (subset_min_rnd < 0 or randrange(100) > subset_min_rnd):
+            if is_included(file_abs_path, include_folders):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
                     words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict=unstem_dict)

@@ -1,4 +1,5 @@
 import os
+import sys
 
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -52,7 +53,7 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
                         for k in fsf:
                             print(f"{k}\t{str(round(f[k], 2))}", file=out_file)
                 except:
-                    print(f"Couldn't find {file_rel_path}")
+                    print(f"Error in {file_rel_path}: {sys.exc_info()[0]}")
 
     return tfidf_word_dict
 
