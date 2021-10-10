@@ -1,4 +1,5 @@
 export PYTHONUNBUFFERED=1
+export PYTHONPATH=/root/dev/nlp/python
 export DO_REMOVE_NON_CHARS=True
 export DO_SPLIT_CAMEL_CASE=True
 export DO_REMOVE_STOP_WORDS=True
