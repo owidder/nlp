@@ -19,6 +19,7 @@ def aggregate_values_in_file(file_path, current_values):
 
 
 def aggregate_values_in_subfolder(subdir_path, current_values):
+    print(f"dir: {subdir_path}")
     csv_values_file = f"{subdir_path}/{FOLDER_VALUES_FILE_NAME}"
     if not os.path.isfile(csv_values_file):
         aggregate_folder(subdir_path)
