@@ -22,9 +22,6 @@ nohup*
 mlruns/
 topics/
 
-/dict/_all
-/dict/axelor
-/dict/erpnext
-/dict/mini
+/dict/
 
 gen/
