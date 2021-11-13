@@ -4,9 +4,9 @@ import sys
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from words.words_of_file import is_included
-from get_args import get_int_env_var, get_float_env_var, get_str_env_var, MAX_WORDS, MIN_TFIDF, INCLUDE_FOLDERS
+from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
+from python.words.words_of_file import is_included
+from python.get_args import get_int_env_var, get_float_env_var, get_str_env_var, MAX_WORDS, MIN_TFIDF, INCLUDE_FOLDERS
 
 
 def fit(word_dict):

@@ -3,10 +3,10 @@ import json
 
 from gensim import corpora, models
 
-from words.words_of_file import create_word_and_tags_dict
+from python.words.words_of_file import create_word_and_tags_dict
 from python.tfidf import find_features
-from get_args import get_args, get_int_env_var, get_str_env_var, get_bool_env_var, NUM_TOPICS, OUT_SUB_FOLDER, CLASSIC_MODE, STOPWORDS_PATH
-from util.util import open_file_for_writing_with_path_creation
+from python.get_args import get_args, get_int_env_var, get_str_env_var, get_bool_env_var, NUM_TOPICS, OUT_SUB_FOLDER, CLASSIC_MODE, STOPWORDS_PATH
+from python.util.util import open_file_for_writing_with_path_creation
 
 
 def create_vectors(word_dict: dict, out_path: str, num_topis: int):
