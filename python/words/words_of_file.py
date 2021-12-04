@@ -206,9 +206,12 @@ def create_word_and_tags_dict(doc_path, out_path=None, stopwords = {}):
             if is_included(file_abs_path, include_folders):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
+                    file_out_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
                     words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict=unstem_dict)
                     words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
                     if len(words_of_file) > 0:
+                        out_file = open_file_for_writing_with_path_creation(file_out_path)
+                        print(words_of_file, file=out_file)
                         word_dict[file_rel_path] = words_of_file
                     if len(tags_of_file) > 0:
                         tags_dict[file_rel_path] = tags_of_file
