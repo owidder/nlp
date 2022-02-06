@@ -14,7 +14,6 @@ from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from python.util.dict_util import merge_dict2_into_dict1
-from python.stackexchange.stackexchange import remove_non_stackexchange
 from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
     WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, \
     USE_ANTLR, INCLUDE_FOLDERS
@@ -94,18 +93,12 @@ def filter_non_en_de_words(data):
     return " ".join(list(filter(lambda word: is_en_de(word), tokens)))
 
 
-def get_tags_of_file(text):
-    stackexchange_tags = remove_non_stackexchange(text)
-    stackexchange_tags = remove_stop_words(stackexchange_tags)
-    return stackexchange_tags
-
-
-def get_words_of_file(text, unstem_dict: {}, with_stemming=None,
-                      do_remove_non_chars=False,
-                      do_split_camel_case=False,
-                      do_remove_stop_words=False,
-                      do_filter_non_en_de_words=False,
-                      min_word_size=0):
+def process_words(text, unstem_dict: {}, with_stemming=None,
+                  do_remove_non_chars=False,
+                  do_split_camel_case=False,
+                  do_remove_stop_words=False,
+                  do_filter_non_en_de_words=False,
+                  min_word_size=0):
     words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
     words_of_file = split_camel_case(words_of_file) if get_bool_env_var(DO_SPLIT_CAMEL_CASE, do_split_camel_case) else words_of_file
     _min_word_size = get_int_env_var(MIN_WORD_SIZE, min_word_size)
@@ -117,9 +110,9 @@ def get_words_of_file(text, unstem_dict: {}, with_stemming=None,
     return words_of_file
 
 
-def get_words_and_tags_of_file(file_path: str, unstem_dict: {}):
+def parse_important_words(file_path: str, unstem_dict: {}):
     try:
-        print(file_path)
+        print(f"parse_important_words: [{file_path}] ->")
         extension = file_path.split(".")[-1]
         text = ""
         if get_bool_env_var(USE_ANTLR, False):
@@ -140,13 +133,14 @@ def get_words_and_tags_of_file(file_path: str, unstem_dict: {}):
         filename_with_extension = file_path.split("/")[-1]
         filename_without_extension = filename_with_extension.split(".")[0]
         text = " ".join([text, filename_without_extension])
-        wof, tof = get_words_of_file(text, unstem_dict=unstem_dict), get_tags_of_file(text)
+        wof = process_words(text, unstem_dict=unstem_dict)
         print(wof)
-        return wof, tof
+        print("----------------------------------------------")
+        return wof
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
-        return "", ""
+        return ""
 
 
 def is_no_dot_file(file_path):
@@ -194,11 +188,23 @@ def unstem_word_dict(word_dict_stemmed, unstem_dict):
     return {file_rel_path: " ".join([unstem(word_stemmed, unstem_dict) for word_stemmed in words_stemmed.split()]) for file_rel_path, words_stemmed in word_dict_stemmed.items()}
 
 
-def create_word_and_tags_dict(doc_path, out_path=None, stopwords = {}):
+def read_or_create_unstem_dict(out_path: str) -> dict:
+    unstem_dict_path = os.path.join(out_path, "unstem_dict.json")
+    return json.loads(open(unstem_dict_path, "r").read()) if os.path.isfile(unstem_dict_path) else {}
+
+
+def write_unstem_dict(out_path: str, unstem_dict: dict):
+    unstem_dict_str = json.dumps(unstem_dict)
+    unstem_dict_file = open_file_for_writing_with_path_creation(os.path.join(out_path, "unstem_dict.json"), "w")
+    unstem_dict_file.write(unstem_dict_str)
+    unstem_dict_file.close()
+
+
+def create_words_dict(doc_path, out_path, stopwords) -> dict:
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
-    unstem_dict = {}
+    unstem_dict: dict = read_or_create_unstem_dict(out_path)
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
@@ -206,26 +212,27 @@ def create_word_and_tags_dict(doc_path, out_path=None, stopwords = {}):
             if is_included(file_abs_path, include_folders):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                    file_out_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
-                    words_of_file, tags_of_file = get_words_and_tags_of_file(file_abs_path, unstem_dict=unstem_dict)
-                    words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
+                    word_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
+
+                    if os.path.isfile(word_file_path):
+                        print(f"read from file: [{word_file_path}] ->")
+                        words_of_file = open(word_file_path, "r").read()
+                        print(words_of_file)
+                        print("--------------------------------------------")
+                    else:
+                        words_of_file = parse_important_words(file_abs_path, unstem_dict=unstem_dict)
+                        write_unstem_dict(out_path, unstem_dict)
+                        words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
+                        word_file = open_file_for_writing_with_path_creation(word_file_path)
+                        print(words_of_file, file=word_file)
+
                     if len(words_of_file) > 0:
-                        out_file = open_file_for_writing_with_path_creation(file_out_path)
-                        print(words_of_file, file=out_file)
                         word_dict[file_rel_path] = words_of_file
-                    if len(tags_of_file) > 0:
-                        tags_dict[file_rel_path] = tags_of_file
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
 
-    if out_path is not None:
-        unstem_dict_str = json.dumps(unstem_dict)
-        out_file = open_file_for_writing_with_path_creation(os.path.join(out_path, "unstem_dict.json"), "w")
-        out_file.write(unstem_dict_str)
-        out_file.close()
-
-    return word_dict, tags_dict
+    return word_dict
 
 
 def read_word_dict(word_dict_path):
@@ -233,16 +240,3 @@ def read_word_dict(word_dict_path):
     pickle_bytes = pickle_file.read()
     word_dict = pickle.loads(pickle_bytes)
     return word_dict
-
-
-def read_or_create_word_dict(doc_path, dict_path, name, force=False, with_tags=False):
-    print("read_or_create_word_dict:", locals())
-    word_dict_path = os.path.join(dict_path, f'word_dict.{name}')
-    if not force and os.path.exists(word_dict_path):
-        return read_word_dict(word_dict_path)
-    else:
-        word_dict, tags_dict = create_word_and_tags_dict(doc_path)
-        word_tags_dict = merge_dict2_into_dict1(word_dict, tags_dict) if with_tags else word_dict
-        pickle_file = open_file_for_writing_with_path_creation(word_dict_path, 'wb')
-        pickle.dump(word_tags_dict, pickle_file)
-        return word_dict

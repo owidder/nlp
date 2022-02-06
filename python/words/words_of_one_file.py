@@ -1,4 +1,4 @@
-from words_of_file import get_words_and_tags_of_file
+from words_of_file import parse_important_words
 
 if __name__ == "__main__":
-    wof, tof = get_words_and_tags_of_file("/Users/oliverwidder/Documents/dev/erp_doc/metafresh/doc/_sql_collection/c_order.md")
+    wof, tof = parse_important_words("/Users/oliverwidder/Documents/dev/erp_doc/metafresh/doc/_sql_collection/c_order.md")

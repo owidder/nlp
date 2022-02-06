@@ -11,8 +11,3 @@ def init_stackexchange_tags(tags_path='/Users/oliver/dev/github/nlpDocs/python/t
 
 def is_tag(tag: str) -> bool:
     return (tag.lower() in terms) or (tag.lower() in terms)
-
-
-def remove_non_stackexchange(words: str) -> str:
-    tokens = word_tokenize(words)
-    return " ".join(list(filter(lambda word: is_tag(word), tokens)))
