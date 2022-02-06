@@ -18,18 +18,20 @@ def aggregate_values_in_file(file_path: str, current_values):
             if len(parts) > 2:
                 sum_v = float(parts[SUM_INDEX+1])
                 max_v = float(parts[MAX_INDEX+1])
+                count_v = int(parts[COUNT_INDEX+1])
             else:
                 sum_v = float(parts[1])
                 max_v = float(parts[1])
+                count_v = 1
 
             if k in current_values:
                 current_values[k][SUM_INDEX] += sum_v
-                current_values[k][COUNT_INDEX] += 1
+                current_values[k][COUNT_INDEX] += count_v
                 current_values[k][MAX_INDEX] = max_v if current_values[k][MAX_INDEX] < max_v else current_values[k][MAX_INDEX]
             else:
                 current_values[k] = [None, None, None]
                 current_values[k][SUM_INDEX] = sum_v
-                current_values[k][COUNT_INDEX] = 1
+                current_values[k][COUNT_INDEX] = count_v
                 current_values[k][MAX_INDEX] = max_v
 
 
@@ -55,7 +57,8 @@ def aggregate_folder(folder_path):
 
     with open(f"{folder_path}/{VALUES_FILE_NAME}", 'w') as out_file:
         for k, v in values.items():
-            print(f"{k}\t{str(v[SUM_INDEX])}\t{str(v[MAX_INDEX])}\t{str(round(v[SUM_INDEX]/v[COUNT_INDEX], 2))}", file=out_file)
+            line = f"{k}\t{str(round(v[SUM_INDEX], 2))}\t{str(round(v[MAX_INDEX], 2))}\t{str(v[COUNT_INDEX])}\t{str(round(v[SUM_INDEX]/v[COUNT_INDEX], 2))}"
+            print(line, file=out_file)
 
 
 def main():
