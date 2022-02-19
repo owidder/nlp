@@ -2,14 +2,9 @@ from antlr4 import CommonTokenStream, InputStream, ParseTreeWalker
 from typing import TextIO
 import sys
 
-if __name__ == '__main__':
-    from java.JavaLexer import JavaLexer
-    from java.JavaParser import JavaParser
-    from java.JavaParserListener import JavaParserListener
-else:
-    from python.antlr.java.JavaLexer import JavaLexer
-    from python.antlr.java.JavaParser import JavaParser
-    from python.antlr.java.JavaParserListener import JavaParserListener
+from python.antlr.java.JavaLexer import JavaLexer
+from python.antlr.java.JavaParser import JavaParser
+from python.antlr.java.JavaParserListener import JavaParserListener
 
 
 class JavaListener(JavaParserListener):
@@ -48,10 +43,3 @@ def parse_words_from_java(text):
     ParseTreeWalker().walk(JavaListener(_words), parser.compilationUnit())
 
     return " ".join(_words)
-
-
-if __name__ == '__main__':
-    with open("/Users/oliverwidder/Documents/dev/erp_doc/metafresh/code/backend/de.metas.datev/src/main/java/de/metas/datev/DATEVExportFormat.java", "r") as file:
-        text = file.read()
-        words = parse_words_from_java(text)
-        print(words)

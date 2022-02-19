@@ -2,14 +2,9 @@ from antlr4 import CommonTokenStream, InputStream, ParseTreeWalker
 import sys
 from typing import TextIO
 
-if __name__ == '__main__':
-    from python.Python3Parser import Python3Parser
-    from python.Python3Lexer import Python3Lexer
-    from python.Python3Listener import Python3Listener
-else:
-    from python.antlr.python.Python3Parser import Python3Parser
-    from python.antlr.python.Python3Lexer import Python3Lexer
-    from python.antlr.python.Python3Listener import Python3Listener
+from python.antlr.python.Python3Parser import Python3Parser
+from python.antlr.python.Python3Lexer import Python3Lexer
+from python.antlr.python.Python3Listener import Python3Listener
 
 
 class PythonListener(Python3Listener):
@@ -45,10 +40,3 @@ def parse_words_from_python(text: str) -> str:
     ParseTreeWalker().walk(PythonListener(_words), parser.file_input())
 
     return " ".join(_words)
-
-
-if __name__ == '__main__':
-    with open("/Users/oliverwidder/Documents/dev/erp_doc/erpnext/code/healthcare/doctype/patient_appointment/patient_appointment.py", "r") as file:
-        text = file.read()
-        words = parse_words_from_python(text)
-        print(words)
