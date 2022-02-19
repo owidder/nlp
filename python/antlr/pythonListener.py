@@ -2,6 +2,7 @@ from antlr4 import CommonTokenStream, InputStream, ParseTreeWalker
 import sys
 from typing import TextIO
 
+
 from python.antlr.python.Python3Parser import Python3Parser
 from python.antlr.python.Python3Lexer import Python3Lexer
 from python.antlr.python.Python3Listener import Python3Listener
