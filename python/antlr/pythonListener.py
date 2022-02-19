@@ -32,7 +32,7 @@ class StringPythonLexer(Python3Lexer):
             self.words.append(t.text)
 
 
-def parse_words_from_python(text: str) -> str:
+def extract_essential_words_from_python(text: str) -> str:
     _words = []
     lexer = StringPythonLexer(_words, InputStream(text))
     stream = CommonTokenStream(lexer)
