@@ -21,7 +21,7 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
     tfidf_word_dict = {}
     print("---- do the fitting ----\n")
     tfidf = fit(word_dict)
-    feature_names = tfidf.get_feature_names()
+    feature_names_out = tfidf.get_feature_names_out()
 
     print("--- analyze root path ---\n")
     for subdir, dirs, files in os.walk(doc_path):
@@ -37,7 +37,7 @@ def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
 
                     f = {}
                     for col in file_response.nonzero()[1]:
-                        f[feature_names[col]] = file_response[0, col]
+                        f[feature_names_out[col]] = file_response[0, col]
 
                     if len(list(f.keys())) > 0:
                         out_file = open_file_for_writing_with_path_creation(file_out_path)
