@@ -2,44 +2,41 @@ from antlr4 import CommonTokenStream, InputStream, ParseTreeWalker
 from typing import TextIO
 import sys
 
+
 from python.antlr.java.JavaLexer import JavaLexer
 from python.antlr.java.JavaParser import JavaParser
 from python.antlr.java.JavaParserListener import JavaParserListener
 
 
 class JavaListener(JavaParserListener):
-    def __init__(self, words: []):
-        self.words = words
+    def __init__(self, essential_words: []):
+        self.essential_words = essential_words
 
     def enterClassDeclaration(self, ctx:JavaParser.ClassDeclarationContext):
-        word = ctx.getChild(1).getText()
-        self.words.append(word)
+        self.essential_words.append(ctx.getChild(1).getText())
 
     def enterMethodDeclaration(self, ctx:JavaParser.MethodDeclarationContext):
-        word = ctx.getChild(1).getText()
-        self.words.append(word)
+        self.essential_words.append(ctx.getChild(1).getText())
 
     def enterInterfaceDeclaration(self, ctx:JavaParser.InterfaceDeclarationContext):
-        word = ctx.getChild(1).getText()
-        self.words.append(word)
+        self.essential_words.append(ctx.getChild(1).getText())
 
 
 class StringJavaLexer(JavaLexer):
-    def __init__(self, words: [], input=None, output:TextIO = sys.stdout):
+    def __init__(self, essential_words: [], input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.words = words
+        self.essential_words = essential_words
 
     def emitToken(self, t):
         super().emitToken(t)
         if t.type == JavaLexer.STRING_LITERAL:
-            self.words.append(t.text)
+            self.essential_words.append(t.text)
 
 
 def extract_essential_words_from_java(text):
-    _words = []
-    lexer = StringJavaLexer(_words, InputStream(text))
-    stream = CommonTokenStream(lexer)
-    parser = JavaParser(stream)
-    ParseTreeWalker().walk(JavaListener(_words), parser.compilationUnit())
+    essential_words = []
+    lexer = StringJavaLexer(essential_words, InputStream(text))
+    parser = JavaParser(CommonTokenStream(lexer))
+    ParseTreeWalker().walk(JavaListener(essential_words), parser.compilationUnit())
 
-    return " ".join(_words)
+    return " ".join(essential_words)

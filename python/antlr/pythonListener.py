@@ -9,16 +9,14 @@ from python.antlr.python.Python3Listener import Python3Listener
 
 
 class PythonListener(Python3Listener):
-    def __init__(self, words):
-        self.words = words
+    def __init__(self, essential_words):
+        self.essential_words = essential_words
 
     def enterFuncdef(self, ctx:Python3Parser.FuncdefContext):
-        word = ctx.getChild(1).getText()
-        self.words.append(word)
+        self.essential_words.append(ctx.getChild(1).getText())
 
     def enterClassdef(self, ctx:Python3Parser.ClassdefContext):
-        word = ctx.getChild(1).getText()
-        self.words.append(word)
+        self.essential_words.append(ctx.getChild(1).getText())
 
 
 class StringPythonLexer(Python3Lexer):
@@ -34,10 +32,9 @@ class StringPythonLexer(Python3Lexer):
 
 
 def extract_essential_words_from_python(text: str) -> str:
-    _words = []
-    lexer = StringPythonLexer(_words, InputStream(text))
-    stream = CommonTokenStream(lexer)
-    parser = Python3Parser(stream)
-    ParseTreeWalker().walk(PythonListener(_words), parser.file_input())
+    essential_words = []
+    lexer = StringPythonLexer(essential_words, InputStream(text))
+    parser = Python3Parser(CommonTokenStream(lexer))
+    ParseTreeWalker().walk(PythonListener(essential_words), parser.file_input())
 
-    return " ".join(_words)
+    return " ".join(essential_words)
