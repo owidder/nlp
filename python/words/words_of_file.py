@@ -3,6 +3,7 @@ import re
 import sys
 import traceback
 import json
+from subprocess import check_output
 
 import enchant
 import nltk
@@ -119,7 +120,7 @@ def parse_important_words(file_path: str):
     try:
         extension = file_path.split(".")[-1]
         if extension in ["js", "jsx", "ts", "tsx", "php"]:
-            essential_words = callAntlr(file_path)
+            essential_words = check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8")
         elif extension == "py":
             essential_words = extract_essential_words_from_python(open(file_path, 'r').read())
         elif extension == "java":
