@@ -1,5 +1,4 @@
 import os
-import pickle
 import re
 import sys
 import traceback
@@ -13,10 +12,8 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.util.dict_util import merge_dict2_into_dict1
 from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
-    WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, \
-    USE_ANTLR, INCLUDE_FOLDERS
+    WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, INCLUDE_FOLDERS
 from python.antlr.extract_essential_words_from_python import extract_essential_words_from_python
 from python.antlr.extract_essential_words_from_java import extract_essential_words_from_java
 from python.antlr.antlrCaller import callAntlr
@@ -39,6 +36,25 @@ en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
 
 
+global_unstem_dict: dict = {}
+
+
+def init_global_unstem_dict(out_path: str):
+    global global_unstem_dict
+    unstem_dict_path = os.path.join(out_path, "unstem_dict.json")
+    if(os.path.isfile(unstem_dict_path)):
+        global_unstem_dict = json.loads(open(unstem_dict_path, "r").read())
+
+
+def add_to_global_unstem_dict(word: str, stemmed_word: str):
+    global global_unstem_dict
+    if stemmed_word in global_unstem_dict:
+        if len(word) < len(global_unstem_dict[stemmed_word]):
+            global_unstem_dict[stemmed_word] = word
+    else:
+        global_unstem_dict[stemmed_word] = word
+
+
 def split_camel_case(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name)
 
@@ -59,24 +75,14 @@ def remove_stop_words(data, remove_de=True, remove_en=True):
     return new_text
 
 
-_unstem_dict = None
-
-def add_to_unstem_dict(word: str, stemmed_word: str, unstem_dict: {}):
-    if stemmed_word in unstem_dict:
-        if len(word) < len(unstem_dict[stemmed_word]):
-            unstem_dict[stemmed_word] = word
-    else:
-        unstem_dict[stemmed_word] = word
-
-
-def stemming(data: str, unstem_dict: {}):
+def stemming(data: str):
     stemmer = PorterStemmer()
 
     tokens = word_tokenize(str(data))
     new_text = ""
     for word in tokens:
         stemmed_word = stemmer.stem(word)
-        add_to_unstem_dict(word, stemmed_word, unstem_dict)
+        add_to_global_unstem_dict(word, stemmed_word)
         new_text = new_text + " " + stemmer.stem(word)
 
     return new_text
@@ -92,7 +98,7 @@ def filter_non_en_de_words(data):
     return " ".join(list(filter(lambda word: is_en_de(word), tokens)))
 
 
-def process_words(text, unstem_dict: {}, with_stemming=None,
+def process_words(text, with_stemming=None,
                   do_remove_non_chars=False,
                   do_split_camel_case=False,
                   do_remove_stop_words=False,
@@ -104,12 +110,12 @@ def process_words(text, unstem_dict: {}, with_stemming=None,
     words_of_file = filter_min_word_size(words_of_file, min_word_size=_min_word_size) if _min_word_size > 0 else words_of_file
     words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
     words_of_file = filter_non_en_de_words(words_of_file) if get_bool_env_var(DO_FILTER_NON_EN_DE_WORDS, do_filter_non_en_de_words) else words_of_file
-    words_of_file = stemming(words_of_file, unstem_dict) if get_bool_env_var(WITH_STEMMING, with_stemming) else words_of_file
+    words_of_file = stemming(words_of_file) if get_bool_env_var(WITH_STEMMING, with_stemming) else words_of_file
     words_of_file = words_of_file.lower()
     return words_of_file
 
 
-def parse_important_words(file_path: str, unstem_dict: {}):
+def parse_important_words(file_path: str):
     try:
         extension = file_path.split(".")[-1]
         if extension in ["js", "jsx", "ts", "tsx", "php"]:
@@ -124,7 +130,7 @@ def parse_important_words(file_path: str, unstem_dict: {}):
         filename_with_extension = file_path.split(os.path.sep)[-1]
         filename_without_extension = filename_with_extension.split(".")[0]
         essential_words = " ".join([essential_words, filename_without_extension])
-        wof = process_words(essential_words, unstem_dict=unstem_dict)
+        wof = process_words(essential_words)
         print(wof)
         print("----------------------------------------------")
         return wof
@@ -195,7 +201,7 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
-    unstem_dict: dict = read_or_create_unstem_dict(out_path)
+    init_global_unstem_dict(out_path)
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
@@ -211,8 +217,8 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
                         print(words_of_file)
                         print("--------------------------------------------")
                     else:
-                        words_of_file = parse_important_words(file_abs_path, unstem_dict=unstem_dict)
-                        write_unstem_dict(out_path, unstem_dict)
+                        words_of_file = parse_important_words(file_abs_path)
+                        write_unstem_dict(out_path, global_unstem_dict)
                         words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
                         word_file = open_file_for_writing_with_path_creation(word_file_path)
                         print(words_of_file, file=word_file)
@@ -223,11 +229,4 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
 
-    return word_dict
-
-
-def read_word_dict(word_dict_path):
-    pickle_file = open(word_dict_path, "rb")
-    pickle_bytes = pickle_file.read()
-    word_dict = pickle.loads(pickle_bytes)
     return word_dict
