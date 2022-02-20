@@ -39,9 +39,6 @@ en = enchant.Dict("en_US")
 de = enchant.Dict("de_DE")
 
 
-ANTLR_JVM_EXTENSIONS = ["js", "jsx", "ts", "tsx", "php"]
-
-
 def split_camel_case(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1 \2', name)
 
@@ -61,6 +58,8 @@ def remove_stop_words(data, remove_de=True, remove_en=True):
             new_text = new_text + " " + w
     return new_text
 
+
+_unstem_dict = None
 
 def add_to_unstem_dict(word: str, stemmed_word: str, unstem_dict: {}):
     if stemmed_word in unstem_dict:
@@ -112,28 +111,20 @@ def process_words(text, unstem_dict: {}, with_stemming=None,
 
 def parse_important_words(file_path: str, unstem_dict: {}):
     try:
-        print(f"parse_important_words: [{file_path}] ->")
         extension = file_path.split(".")[-1]
-        text = ""
-        if get_bool_env_var(USE_ANTLR, False):
-            if extension in ANTLR_JVM_EXTENSIONS:
-                text = callAntlr(file_path)
-
-            if len(text) == 0:
-                text = open(file_path, 'r').read()
-                if extension == "py":
-                    _text = extract_essential_words_from_python(text)
-                    text = _text if len(_text) > 0 else text
-                elif extension == "java":
-                    _text = extract_essential_words_from_java(text)
-                    text = _text if len(_text) > 0 else text
-
-        text = open(file_path, 'r').read() if len(text) == 0 else text
+        if extension in ["js", "jsx", "ts", "tsx", "php"]:
+            essential_words = callAntlr(file_path)
+        elif extension == "py":
+            essential_words = extract_essential_words_from_python(open(file_path, 'r').read())
+        elif extension == "java":
+            essential_words = extract_essential_words_from_java(open(file_path, 'r').read())
+        else:
+            essential_words = open(file_path, 'r').read()
 
         filename_with_extension = file_path.split(os.path.sep)[-1]
         filename_without_extension = filename_with_extension.split(".")[0]
-        text = " ".join([text, filename_without_extension])
-        wof = process_words(text, unstem_dict=unstem_dict)
+        essential_words = " ".join([essential_words, filename_without_extension])
+        wof = process_words(essential_words, unstem_dict=unstem_dict)
         print(wof)
         print("----------------------------------------------")
         return wof
