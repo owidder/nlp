@@ -17,8 +17,8 @@ from python.util.dict_util import merge_dict2_into_dict1
 from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
     WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, \
     USE_ANTLR, INCLUDE_FOLDERS
-from python.antlr.pythonListener import extract_essential_words_from_python
-from python.antlr.javaListener import extract_essential_words_from_java
+from python.antlr.extract_essential_words_from_python import extract_essential_words_from_python
+from python.antlr.extract_essential_words_from_java import extract_essential_words_from_java
 from python.antlr.antlrCaller import callAntlr
 
 from typing import List
@@ -130,7 +130,7 @@ def parse_important_words(file_path: str, unstem_dict: {}):
 
         text = open(file_path, 'r').read() if len(text) == 0 else text
 
-        filename_with_extension = file_path.split("/")[-1]
+        filename_with_extension = file_path.split(os.path.sep)[-1]
         filename_without_extension = filename_with_extension.split(".")[0]
         text = " ".join([text, filename_without_extension])
         wof = process_words(text, unstem_dict=unstem_dict)
