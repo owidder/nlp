@@ -33,7 +33,7 @@ class StringJavaLexer(JavaLexer):
             self.essential_words.append(t.text)
 
 
-def extract_essential_words_from_java(source_code: str) -> str:
+def extract_essential_phrases_from_java(source_code: str) -> [str]:
     essential_words = []
     lexer = StringJavaLexer(essential_words, InputStream(source_code))
     parser = JavaParser(CommonTokenStream(lexer))

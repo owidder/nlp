@@ -16,7 +16,7 @@ from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_
 from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
     WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, INCLUDE_FOLDERS
 from python.antlr.extract_essential_words_from_python import extract_essential_words_from_python
-from python.antlr.extract_essential_phrases_from_java import extract_essential_words_from_java
+from python.antlr.extract_essential_phrases_from_java import extract_essential_phrases_from_java
 from python.antlr.antlrCaller import callAntlr
 
 from typing import List
@@ -124,7 +124,7 @@ def parse_important_words(file_path: str) -> str:
         elif extension == "py":
             essential_words = extract_essential_words_from_python(open(file_path, 'r').read())
         elif extension == "java":
-            essential_words = extract_essential_words_from_java(open(file_path, 'r').read())
+            essential_words = extract_essential_phrases_from_java(open(file_path, 'r').read())
         else:
             essential_words = word_tokenize(open(file_path, 'r').read())
 
