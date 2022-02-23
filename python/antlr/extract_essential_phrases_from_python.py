@@ -9,8 +9,8 @@ from python.antlr.python.Python3Listener import Python3Listener
 
 
 class PythonListener(Python3Listener):
-    def __init__(self, essential_words):
-        self.essential_words = essential_words
+    def __init__(self, essential_phrases):
+        self.essential_words = essential_phrases
 
     def enterFuncdef(self, ctx:Python3Parser.FuncdefContext):
         self.essential_words.append(ctx.getChild(1).getText())
