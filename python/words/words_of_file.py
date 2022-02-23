@@ -131,7 +131,6 @@ def parse_important_words(file_path: str) -> str:
         essential_words.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
         essential_words = [re.sub('[^A-Za-z ]+', ' ', word) for word in essential_words] # remove all non chars
         essential_words = [re.sub('([a-z])([A-Z])', r'\1 \2', word) for word in essential_words] # split camel case
-        essential_words = [word_tokenize(word) for word in essential_words]
         essential_words = [word for word_list in [word_tokenize(word) for word in essential_words] for word in word_list]
 
         stemmer = PorterStemmer()
