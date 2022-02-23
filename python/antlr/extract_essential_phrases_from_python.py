@@ -25,10 +25,10 @@ class StringPythonLexer(Python3Lexer):
         super().__init__(input, output)
         self.essential_phrases = essential_phrases
 
-    def emitToken(self, t):
-        super().emitToken(t)
-        if t.type == Python3Lexer.STRING or t.type == Python3Lexer.STRING_LITERAL:
-            self.essential_phrases.append(t.text)
+    def emitToken(self, token):
+        super().emitToken(token)
+        if token.type == Python3Lexer.STRING or token.type == Python3Lexer.STRING_LITERAL:
+            self.essential_phrases.append(token.text)
 
 
 def extract_essential_phrases_from_python(source_code: str) -> str:
