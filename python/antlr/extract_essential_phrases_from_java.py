@@ -34,9 +34,9 @@ class StringJavaLexer(JavaLexer):
 
 
 def extract_essential_phrases_from_java(source_code: str) -> [str]:
-    essential_words = []
-    lexer = StringJavaLexer(essential_words, InputStream(source_code))
+    essential_phrases = []
+    lexer = StringJavaLexer(essential_phrases, InputStream(source_code))
     parser = JavaParser(CommonTokenStream(lexer))
-    ParseTreeWalker().walk(JavaListener(essential_words), parser.compilationUnit())
+    ParseTreeWalker().walk(JavaListener(essential_phrases), parser.compilationUnit())
 
-    return essential_words
+    return essential_phrases
