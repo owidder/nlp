@@ -23,12 +23,12 @@ class StringPythonLexer(Python3Lexer):
 
     def __init__(self, essential_phrases: [], input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.words = essential_phrases
+        self.essential_phrases = essential_phrases
 
     def emitToken(self, t):
         super().emitToken(t)
         if t.type == Python3Lexer.STRING or t.type == Python3Lexer.STRING_LITERAL:
-            self.words.append(t.text)
+            self.essential_phrases.append(t.text)
 
 
 def extract_essential_phrases_from_python(source_code: str) -> str:
