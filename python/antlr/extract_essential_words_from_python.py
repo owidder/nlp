@@ -37,4 +37,4 @@ def extract_essential_words_from_python(source_code: str) -> str:
     parser = Python3Parser(CommonTokenStream(lexer))
     ParseTreeWalker().walk(PythonListener(essential_words), parser.file_input())
 
-    return " ".join(essential_words)
+    return essential_words

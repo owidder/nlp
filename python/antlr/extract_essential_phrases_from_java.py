@@ -39,4 +39,4 @@ def extract_essential_words_from_java(source_code: str) -> str:
     parser = JavaParser(CommonTokenStream(lexer))
     ParseTreeWalker().walk(JavaListener(essential_words), parser.compilationUnit())
 
-    return " ".join(essential_words)
+    return essential_words

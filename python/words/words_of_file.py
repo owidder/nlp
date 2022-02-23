@@ -16,7 +16,7 @@ from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_
 from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
     WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, INCLUDE_FOLDERS
 from python.antlr.extract_essential_words_from_python import extract_essential_words_from_python
-from python.antlr.extract_essential_words_from_java import extract_essential_words_from_java
+from python.antlr.extract_essential_phrases_from_java import extract_essential_words_from_java
 from python.antlr.antlrCaller import callAntlr
 
 from typing import List
@@ -116,25 +116,34 @@ def process_words(text, with_stemming=None,
     return words_of_file
 
 
-def parse_important_words(file_path: str):
+def parse_important_words(file_path: str) -> str:
     try:
-        extension = file_path.split(".")[-1]
+        extension: str = file_path.split(".")[-1]
         if extension in ["js", "jsx", "ts", "tsx", "php"]:
-            essential_words = check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8")
+            essential_words = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
         elif extension == "py":
             essential_words = extract_essential_words_from_python(open(file_path, 'r').read())
         elif extension == "java":
             essential_words = extract_essential_words_from_java(open(file_path, 'r').read())
         else:
-            essential_words = open(file_path, 'r').read()
+            essential_words = word_tokenize(open(file_path, 'r').read())
 
-        filename_with_extension = file_path.split(os.path.sep)[-1]
-        filename_without_extension = filename_with_extension.split(".")[0]
-        essential_words = " ".join([essential_words, filename_without_extension])
-        wof = process_words(essential_words)
-        print(wof)
-        print("----------------------------------------------")
-        return wof
+        essential_words.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
+        essential_words = [re.sub('[^A-Za-z ]+', ' ', word) for word in essential_words] # remove all non chars
+        essential_words = [re.sub('([a-z])([A-Z])', r'\1 \2', word) for word in essential_words] # split camel case
+        essential_words = [word_tokenize(word) for word in essential_words]
+        essential_words = [word for word_list in [word_tokenize(word) for word in essential_words] for word in word_list]
+
+        stemmer = PorterStemmer()
+
+        def stem(word: str):
+            stemmed_word = stemmer.stem(word)
+            add_to_global_unstem_dict(word, stemmed_word)
+            return stemmed_word.lower()
+
+        essential_words = [stem(word) for word in essential_words]
+
+        return " ".join(essential_words)
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
