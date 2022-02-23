@@ -10,13 +10,13 @@ from python.antlr.python.Python3Listener import Python3Listener
 
 class PythonListener(Python3Listener):
     def __init__(self, essential_phrases):
-        self.essential_words = essential_phrases
+        self.essential_phrases = essential_phrases
 
     def enterFuncdef(self, ctx:Python3Parser.FuncdefContext):
-        self.essential_words.append(ctx.getChild(1).getText())
+        self.essential_phrases.append(ctx.getChild(1).getText())
 
     def enterClassdef(self, ctx:Python3Parser.ClassdefContext):
-        self.essential_words.append(ctx.getChild(1).getText())
+        self.essential_phrases.append(ctx.getChild(1).getText())
 
 
 class StringPythonLexer(Python3Lexer):
