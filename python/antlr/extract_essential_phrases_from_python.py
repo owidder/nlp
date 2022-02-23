@@ -21,9 +21,9 @@ class PythonListener(Python3Listener):
 
 class StringPythonLexer(Python3Lexer):
 
-    def __init__(self, words: [], input=None, output:TextIO = sys.stdout):
+    def __init__(self, essential_phrases: [], input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.words = words
+        self.words = essential_phrases
 
     def emitToken(self, t):
         super().emitToken(t)
