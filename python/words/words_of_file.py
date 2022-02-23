@@ -116,22 +116,22 @@ def process_words(text, with_stemming=None,
     return words_of_file
 
 
-def parse_important_words(file_path: str) -> str:
+def parse_essential_words(file_path: str) -> str:
     try:
         extension: str = file_path.split(".")[-1]
         if extension in ["js", "jsx", "ts", "tsx", "php"]:
-            essential_words = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
+            essential_phrases = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
         elif extension == "py":
-            essential_words = extract_essential_phrases_from_python(open(file_path, 'r').read())
+            essential_phrases = extract_essential_phrases_from_python(open(file_path, 'r').read())
         elif extension == "java":
-            essential_words = extract_essential_phrases_from_java(open(file_path, 'r').read())
+            essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
         else:
-            essential_words = word_tokenize(open(file_path, 'r').read())
+            essential_phrases = word_tokenize(open(file_path, 'r').read())
 
-        essential_words.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
-        essential_words = [re.sub('[^A-Za-z ]+', ' ', word) for word in essential_words] # remove all non chars
-        essential_words = [re.sub('([a-z])([A-Z])', r'\1 \2', word) for word in essential_words] # split camel case
-        essential_words = [word for word_list in [word_tokenize(word) for word in essential_words] for word in word_list]
+        essential_phrases.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
+        essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
+        essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
+        essential_words: [str] = [word for word_list in [word_tokenize(phrase) for phrase in essential_phrases] for word in word_list]
 
         stemmer = PorterStemmer()
 
@@ -226,7 +226,7 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
                         print(words_of_file)
                         print("--------------------------------------------")
                     else:
-                        words_of_file = parse_important_words(file_abs_path)
+                        words_of_file = parse_essential_words(file_abs_path)
                         write_unstem_dict(out_path, global_unstem_dict)
                         words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
                         word_file = open_file_for_writing_with_path_creation(word_file_path)
