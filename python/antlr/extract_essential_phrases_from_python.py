@@ -32,9 +32,9 @@ class StringPythonLexer(Python3Lexer):
 
 
 def extract_essential_phrases_from_python(source_code: str) -> str:
-    essential_words = []
-    lexer = StringPythonLexer(essential_words, InputStream(source_code))
+    essential_phrases = []
+    lexer = StringPythonLexer(essential_phrases, InputStream(source_code))
     parser = Python3Parser(CommonTokenStream(lexer))
-    ParseTreeWalker().walk(PythonListener(essential_words), parser.file_input())
+    ParseTreeWalker().walk(PythonListener(essential_phrases), parser.file_input())
 
-    return essential_words
+    return essential_phrases
