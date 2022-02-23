@@ -31,7 +31,7 @@ class StringPythonLexer(Python3Lexer):
             self.essential_phrases.append(token.text)
 
 
-def extract_essential_phrases_from_python(source_code: str) -> str:
+def extract_essential_phrases_from_python(source_code: str) -> [str]:
     essential_phrases = []
     lexer = StringPythonLexer(essential_phrases, InputStream(source_code))
     parser = Python3Parser(CommonTokenStream(lexer))
