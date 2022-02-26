@@ -116,16 +116,17 @@ def process_words(text, with_stemming=None,
     return words_of_file
 
 
-def parse_essential_words(file_path: str) -> str:
+def parse_essential_words(file_path: str) -> [str]:
     try:
-        extension: str = file_path.split(".")[-1]
+        extension: str = file_path.split(".")[-1].lower()
+        essential_phrases: [str] = []
         if extension in ["js", "jsx", "ts", "tsx", "php"]:
             essential_phrases = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
         elif extension == "py":
             essential_phrases = extract_essential_phrases_from_python(open(file_path, 'r').read())
         elif extension == "java":
             essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
-        else:
+        elif extension in ["md", "txt"]:
             essential_phrases = word_tokenize(open(file_path, 'r').read())
 
         essential_phrases.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
@@ -140,9 +141,7 @@ def parse_essential_words(file_path: str) -> str:
             add_to_global_unstem_dict(word, stemmed_word)
             return stemmed_word.lower()
 
-        essential_words = [stem(word) for word in essential_words]
-
-        return " ".join(essential_words)
+        return [stem(word) for word in essential_words]
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
@@ -218,22 +217,23 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
             if is_included(file_abs_path, include_folders):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                    word_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
+                    essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
 
-                    if os.path.isfile(word_file_path):
-                        print(f"read from file: [{word_file_path}] ->")
-                        words_of_file = open(word_file_path, "r").read()
-                        print(words_of_file)
+                    essential_words_str: str = ""
+                    if os.path.isfile(essential_words_file_path):
+                        print(f"read from file: [{essential_words_file_path}] ->")
+                        essential_words_str: str = open(essential_words_file_path, "r").read()
+                        print(essential_words_str)
                         print("--------------------------------------------")
                     else:
-                        words_of_file = parse_essential_words(file_abs_path)
-                        write_unstem_dict(out_path, global_unstem_dict)
-                        words_of_file = filter_stopwords(file_rel_path, words_of_file, stopwords)
-                        word_file = open_file_for_writing_with_path_creation(word_file_path)
-                        print(words_of_file, file=word_file)
+                        essential_words: [str] = parse_essential_words(file_abs_path)
+                        if len(essential_words) > 0:
+                            write_unstem_dict(out_path, global_unstem_dict)
+                            essential_words_str = " ".join(essential_words)
+                            print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
 
-                    if len(words_of_file) > 0:
-                        word_dict[file_rel_path] = words_of_file
+                    if len(essential_words_str) > 0:
+                        word_dict[file_rel_path] = essential_words_str
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
