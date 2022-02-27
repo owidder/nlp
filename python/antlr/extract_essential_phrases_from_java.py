@@ -7,8 +7,8 @@ from python.antlr.java.JavaParserListener import JavaParserListener
 
 
 class JavaListener(JavaParserListener):
-    def __init__(self, essential_phrases: []):
-        self.essential_phrases = essential_phrases
+
+    essential_phrases = []
 
     def enterClassDeclaration(self, ctx:JavaParser.ClassDeclarationContext):
         self.essential_phrases.append(ctx.getChild(1).getText())
@@ -21,8 +21,8 @@ class JavaListener(JavaParserListener):
 
 
 def extract_essential_phrases_from_java(source_code: str) -> [str]:
-    essential_phrases = []
     parser = JavaParser(CommonTokenStream(JavaLexer(InputStream(source_code))))
-    ParseTreeWalker().walk(JavaListener(essential_phrases), parser.compilationUnit())
+    java_listener = JavaListener()
+    ParseTreeWalker().walk(java_listener, parser.compilationUnit())
 
-    return essential_phrases
+    return java_listener.essential_phrases

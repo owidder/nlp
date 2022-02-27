@@ -7,8 +7,8 @@ from python.antlr.python.Python3Listener import Python3Listener
 
 
 class PythonListener(Python3Listener):
-    def __init__(self, essential_phrases):
-        self.essential_phrases = essential_phrases
+
+    essential_phrases = []
 
     def enterFuncdef(self, ctx:Python3Parser.FuncdefContext):
         self.essential_phrases.append(ctx.getChild(1).getText())
@@ -18,8 +18,8 @@ class PythonListener(Python3Listener):
 
 
 def extract_essential_phrases_from_python(source_code: str) -> [str]:
-    essential_phrases = []
     parser = Python3Parser(CommonTokenStream(Python3Lexer(InputStream(source_code))))
-    ParseTreeWalker().walk(PythonListener(essential_phrases), parser.file_input())
+    python_listener = PythonListener()
+    ParseTreeWalker().walk(python_listener, parser.file_input())
 
-    return essential_phrases
+    return python_listener.essential_phrases
