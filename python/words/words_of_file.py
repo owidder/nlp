@@ -131,16 +131,16 @@ def extract_essential_terms(file_path: str) -> [str]:
         essential_phrases.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
         essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
-        essential_terms: [str] = [word for word_list in [word_tokenize(phrase) for phrase in essential_phrases] for word in word_list]
+        essential_terms: [str] = [term for term_list in [word_tokenize(phrase) for phrase in essential_phrases] for term in term_list]
 
         stemmer = PorterStemmer()
 
-        def stem(word: str):
-            stemmed_word = stemmer.stem(word)
-            add_to_global_unstem_dict(word, stemmed_word)
-            return stemmed_word.lower()
+        def stem(term: str):
+            stemmed_term = stemmer.stem(term)
+            add_to_global_unstem_dict(term, stemmed_term)
+            return stemmed_term.lower()
 
-        return [stem(word) for word in essential_terms]
+        return [stem(term) for term in essential_terms]
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
