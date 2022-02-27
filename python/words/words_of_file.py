@@ -116,7 +116,7 @@ def process_words(text, with_stemming=None,
     return words_of_file
 
 
-def parse_essential_words(file_path: str) -> [str]:
+def extract_essential_terms(file_path: str) -> [str]:
     try:
         extension: str = file_path.split(".")[-1].lower()
         if extension in ["js", "jsx", "ts", "tsx"]:
@@ -225,7 +225,7 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
                         print(essential_words_str)
                         print("--------------------------------------------")
                     else:
-                        essential_words: [str] = parse_essential_words(file_abs_path)
+                        essential_words: [str] = extract_essential_terms(file_abs_path)
                         print(f"{file_abs_path}")
                         if len(essential_words) > 0:
                             write_unstem_dict(out_path, global_unstem_dict)
