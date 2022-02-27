@@ -226,10 +226,14 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
                         print("--------------------------------------------")
                     else:
                         essential_words: [str] = parse_essential_words(file_abs_path)
+                        print(f"{file_abs_path}")
                         if len(essential_words) > 0:
                             write_unstem_dict(out_path, global_unstem_dict)
                             essential_words_str = " ".join(essential_words)
+                            print(f"{essential_words_str}")
                             print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
+
+                        print("--------------------------------------------")
 
                     if len(essential_words_str) > 0:
                         word_dict[file_rel_path] = essential_words_str
