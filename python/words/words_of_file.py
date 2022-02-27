@@ -119,7 +119,7 @@ def process_words(text, with_stemming=None,
 def parse_essential_words(file_path: str) -> [str]:
     try:
         extension: str = file_path.split(".")[-1].lower()
-        if extension in ["js", "jsx", "ts", "tsx", "php"]:
+        if extension in ["js", "jsx", "ts", "tsx"]:
             essential_phrases = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
         elif extension == "py":
             essential_phrases = extract_essential_phrases_from_python(open(file_path, 'r').read())
