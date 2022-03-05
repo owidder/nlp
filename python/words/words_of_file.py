@@ -13,8 +13,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.get_args import get_bool_env_var, get_int_env_var, get_str_env_var, \
-    WITH_STEMMING, DO_REMOVE_NON_CHARS, MIN_WORD_SIZE, DO_REMOVE_STOP_WORDS, DO_FILTER_NON_EN_DE_WORDS, DO_SPLIT_CAMEL_CASE, INCLUDE_FOLDERS
+from python.get_args import get_str_env_var, INCLUDE_FOLDERS
 from python.antlr.extract_essential_phrases_from_python import extract_essential_phrases_from_python
 from python.antlr.extract_essential_phrases_from_java import extract_essential_phrases_from_java
 from python.antlr.antlrCaller import callAntlr
@@ -47,13 +46,13 @@ def init_global_unstem_dict(out_path: str):
         global_unstem_dict = json.loads(open(unstem_dict_path, "r").read())
 
 
-def add_to_global_unstem_dict(word: str, stemmed_word: str):
+def add_to_global_unstem_dict(term: str, stemmed_term: str):
     global global_unstem_dict
-    if stemmed_word in global_unstem_dict:
-        if len(word) < len(global_unstem_dict[stemmed_word]):
-            global_unstem_dict[stemmed_word] = word
+    if stemmed_term in global_unstem_dict:
+        if len(term) < len(global_unstem_dict[stemmed_term]):
+            global_unstem_dict[stemmed_term] = term
     else:
-        global_unstem_dict[stemmed_word] = word
+        global_unstem_dict[stemmed_term] = term
 
 
 def split_camel_case(name):
@@ -99,23 +98,6 @@ def filter_non_en_de_words(data):
     return " ".join(list(filter(lambda word: is_en_de(word), tokens)))
 
 
-def process_words(text, with_stemming=None,
-                  do_remove_non_chars=False,
-                  do_split_camel_case=False,
-                  do_remove_stop_words=False,
-                  do_filter_non_en_de_words=False,
-                  min_word_size=0):
-    words_of_file = re.sub('[^A-Za-z ]+', ' ', text) if get_bool_env_var(DO_REMOVE_NON_CHARS, do_remove_non_chars) else text
-    words_of_file = split_camel_case(words_of_file) if get_bool_env_var(DO_SPLIT_CAMEL_CASE, do_split_camel_case) else words_of_file
-    _min_word_size = get_int_env_var(MIN_WORD_SIZE, min_word_size)
-    words_of_file = filter_min_word_size(words_of_file, min_word_size=_min_word_size) if _min_word_size > 0 else words_of_file
-    words_of_file = remove_stop_words(words_of_file) if get_bool_env_var(DO_REMOVE_STOP_WORDS, do_remove_stop_words) else words_of_file
-    words_of_file = filter_non_en_de_words(words_of_file) if get_bool_env_var(DO_FILTER_NON_EN_DE_WORDS, do_filter_non_en_de_words) else words_of_file
-    words_of_file = stemming(words_of_file) if get_bool_env_var(WITH_STEMMING, with_stemming) else words_of_file
-    words_of_file = words_of_file.lower()
-    return words_of_file
-
-
 def extract_essential_terms(file_path: str) -> [str]:
     try:
         extension: str = file_path.split(".")[-1].lower()
@@ -128,7 +110,6 @@ def extract_essential_terms(file_path: str) -> [str]:
         else:
             return []
 
-        essential_phrases.append(file_path.split(os.path.sep)[-1].split(".")[0]) # add the filename w/o extension
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
         essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
         essential_terms: [str] = [term for term_list in [word_tokenize(phrase) for phrase in essential_phrases] for term in term_list]
@@ -204,7 +185,7 @@ def write_unstem_dict(out_path: str, unstem_dict: dict):
     unstem_dict_file.close()
 
 
-def create_words_dict(doc_path, out_path, stopwords) -> dict:
+def create_words_dict(doc_path, out_path) -> dict:
     print("create_word_dict:", locals())
     word_dict = {}
     tags_dict = {}
@@ -225,11 +206,11 @@ def create_words_dict(doc_path, out_path, stopwords) -> dict:
                         print(essential_words_str)
                         print("--------------------------------------------")
                     else:
-                        essential_words: [str] = extract_essential_terms(file_abs_path)
+                        essential_terms: [str] = extract_essential_terms(file_abs_path)
                         print(f"{file_abs_path}")
-                        if len(essential_words) > 0:
+                        if len(essential_terms) > 0:
                             write_unstem_dict(out_path, global_unstem_dict)
-                            essential_words_str = " ".join(essential_words)
+                            essential_words_str = " ".join(essential_terms)
                             print(f"{essential_words_str}")
                             print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
 

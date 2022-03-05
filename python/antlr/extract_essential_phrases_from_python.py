@@ -8,7 +8,9 @@ from python.antlr.python.Python3Listener import Python3Listener
 
 class PythonListener(Python3Listener):
 
-    essential_phrases = []
+    def __init__(self):
+        super().__init__()
+        self.essential_phrases = []
 
     def enterFuncdef(self, ctx:Python3Parser.FuncdefContext):
         self.essential_phrases.append(ctx.getChild(1).getText())
@@ -22,4 +24,4 @@ def extract_essential_phrases_from_python(source_code: str) -> [str]:
     python_listener = PythonListener()
     ParseTreeWalker().walk(python_listener, parser.file_input())
 
-    return python_listener.essential_phrases
+    return python_listener.essential_phrases.copy()

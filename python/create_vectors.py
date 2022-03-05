@@ -4,8 +4,8 @@ import json
 from gensim import corpora, models
 
 from python.words.words_of_file import create_words_dict
-from python.tfidf import find_features
-from python.get_args import get_args, get_int_env_var, get_str_env_var, get_bool_env_var, NUM_TOPICS, OUT_SUB_FOLDER, CLASSIC_MODE, STOPWORDS_PATH
+from python.tfidf import create_tfidf_files
+from python.get_args import get_args, get_int_env_var, get_str_env_var, NUM_TOPICS, OUT_SUB_FOLDER
 from python.util.util import open_file_for_writing_with_path_creation
 
 
@@ -19,9 +19,15 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
     tfidf = models.TfidfModel(document_terms)
     corpus_tfidf = tfidf[document_terms]
 
+    for doc_no in range(len(corpus_tfidf)):
+        tfidf_abs_path = os.path.join(out_path, "tfidf", f"{list(word_dict.keys())[doc_no]}.tfidf2.csv")
+        tfidf_file = open_file_for_writing_with_path_creation(tfidf_abs_path)
+        for tupel_no in range(len(corpus_tfidf[doc_no])):
+            print(f"{dictionary[corpus_tfidf[doc_no][tupel_no][0]]}\t{corpus_tfidf[doc_no][tupel_no][1]}", file=tfidf_file)
+
     lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topis)
 
-    vectors_out_file = open_file_for_writing_with_path_creation(f"{out_path}/vectors.csv")
+    vectors_out_file = open_file_for_writing_with_path_creation(f"{out_path}/vectors2.csv")
 
     print("---- create vectors ----")
     for i, file_rel_path in enumerate(word_dict.keys()):
@@ -40,23 +46,14 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
 
 
 def main():
-    stopwords = {}
-    stopwords_path = get_str_env_var(STOPWORDS_PATH, "")
-    if len(stopwords_path) > 0:
-        stopwordsFile = open(stopwords_path)
-        stopwords = json.load(stopwordsFile)
-
     args = get_args(doc_path_required=True, out_path_required=True)
     out_sub_folder = get_str_env_var(OUT_SUB_FOLDER, "")
     out_path = os.path.join(args.outpath, out_sub_folder)
-    word_dict = create_words_dict(doc_path=args.docpath, out_path=out_path, stopwords=stopwords)
+    word_dict = create_words_dict(doc_path=args.docpath, out_path=out_path)
     num_topics = get_int_env_var(NUM_TOPICS, 200)
-    tfidf_word_dict = find_features(word_dict, doc_path=args.docpath, out_path=os.path.join(out_path, "tfidf"))
+    create_tfidf_files(word_dict, out_path=out_path)
 
-    if get_bool_env_var(CLASSIC_MODE, False):
-        create_vectors(word_dict, out_path=out_path, num_topis=num_topics)
-    else:
-        create_vectors(tfidf_word_dict, out_path=out_path, num_topis=num_topics)
+    create_vectors(word_dict, out_path=out_path, num_topis=num_topics)
 
 
 if __name__ == "__main__":

@@ -1,59 +1,37 @@
 import os
-import sys
-
-import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
+from gensim import corpora, models
 
-from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.words.words_of_file import is_included
-from python.get_args import get_int_env_var, get_float_env_var, get_str_env_var, MAX_WORDS, MIN_TFIDF, INCLUDE_FOLDERS
-
-
-def fit(word_dict):
-    tfidf = TfidfVectorizer(tokenizer=nltk.word_tokenize, stop_words='english', lowercase=False)
-    print("--- start fit transform ---\n")
-    tfidf.fit_transform(word_dict.values())
-    print("--- fit transform ended ---\n")
-    return tfidf
+from python.util.util import open_file_for_writing_with_path_creation
 
 
-def find_features(word_dict: dict, doc_path: str, out_path: str) -> dict:
-    tfidf_word_dict = {}
-    print("---- do the fitting ----\n")
-    tfidf = fit(word_dict)
+def create_tfidf_files(word_dict: dict, out_path: str) -> None:
+    tfidf = TfidfVectorizer()
+    doctermmatrix = tfidf.fit_transform(word_dict.values())
     feature_names_out = tfidf.get_feature_names_out()
 
-    print("--- analyze root path ---\n")
-    for subdir, dirs, files in os.walk(doc_path):
-        for file in files:
-            file_abs_path = os.path.join(subdir, file)
-            include_folders = get_str_env_var(INCLUDE_FOLDERS, "").split(",")
-            if is_included(file_abs_path, include_folders):
-                file_rel_path = rel_path_from_abs_path(base_path=doc_path, abs_path=file_abs_path)
-                file_out_path = os.path.join(out_path, f"{file_rel_path}.tfidf.csv")
-                try:
-                    file_str = word_dict[file_rel_path]
-                    file_response = tfidf.transform([file_str])
+    for doc_id in range(doctermmatrix.shape[0]):
+        out_file_path = os.path.join(out_path, "tfidf", f"{list(word_dict.keys())[doc_id]}.tfidf.csv")
+        out_file = open_file_for_writing_with_path_creation(out_file_path)
+        for term_id in range(doctermmatrix.shape[1]):
+            tfidf_value = doctermmatrix[doc_id, term_id]
+            if tfidf_value > 0:
+                print(f"{feature_names_out[term_id]}\t{str(round(tfidf_value, 2))}", file=out_file)
 
-                    f = {}
-                    for col in file_response.nonzero()[1]:
-                        f[feature_names_out[col]] = file_response[0, col]
+    corpus = [[(v, doctermmatrix[d, v]) for v in range(doctermmatrix.shape[1]) if doctermmatrix[d, v] > 0] for d in range(doctermmatrix.shape[0])]
+    dictionary = {t: feature_names_out[t] for t in range(len(feature_names_out))}
+    lsi = models.LsiModel(corpus=corpus, id2word=dictionary)
 
-                    if len(list(f.keys())) > 0:
-                        out_file = open_file_for_writing_with_path_creation(file_out_path)
-                        sf = sorted(f, key=f.__getitem__, reverse=True)
-                        max_words = get_int_env_var(MAX_WORDS, 0)
-                        if max_words > 0:
-                            fsf = sf[:max_words]
-                        else:
-                            min_tfidf = get_float_env_var(MIN_TFIDF, 0.0)
-                            fsf = [k for k in sf if f[k] > min_tfidf]
+    vectors_out_file = open_file_for_writing_with_path_creation(f"{out_path}/vectors.csv")
 
-                        tfidf_word_dict[file_rel_path] = ' '.join(fsf)
-                        for k in fsf:
-                            print(f"{k}\t{str(round(f[k], 2))}", file=out_file)
-                except:
-                    print(f"Error in {file_rel_path}: {sys.exc_info()[0]}")
+    print("---- create vectors ----")
+    for i, file_rel_path in enumerate(word_dict.keys()):
+        vectors_out_list = [file_rel_path]
+        content = word_dict[file_rel_path].split()
+        vec_bow = [(list(feature_names_out).index(_), content.count(_)) for _ in set(content)]
+        vec_lsi = lsi[vec_bow]
 
-    return tfidf_word_dict
+        for entry in vec_lsi:
+            vectors_out_list.append(str(round(entry[1], 2)))
 
+        print("\t".join(vectors_out_list), file=vectors_out_file)
