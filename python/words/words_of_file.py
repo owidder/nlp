@@ -225,4 +225,5 @@ def create_words_dict(doc_path, out_path) -> dict:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
 
+    print(word_dict)
     return word_dict
