@@ -200,6 +200,7 @@ def create_words_dict(doc_path, out_path) -> dict:
                     essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
 
                     essential_words_str: str = ""
+                    print(f"--> {file_abs_path}")
                     if os.path.isfile(essential_words_file_path):
                         print(f"read from file: [{essential_words_file_path}] ->")
                         essential_words_str: str = open(essential_words_file_path, "r").read()
@@ -207,7 +208,6 @@ def create_words_dict(doc_path, out_path) -> dict:
                         print("--------------------------------------------")
                     else:
                         essential_terms: [str] = extract_essential_terms(file_abs_path)
-                        print(f"{file_abs_path}")
                         if len(essential_terms) > 0:
                             write_unstem_dict(out_path, global_unstem_dict)
                             essential_words_str = " ".join(essential_terms)
