@@ -12,7 +12,9 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
     feature_names_out = tfidf.get_feature_names_out()
 
     for doc_id in range(doc_term_matrix.shape[0]):
-        out_file_path = os.path.join(out_path, "tfidf", f"{list(business_terms_dict.keys())[doc_id]}.tfidf.csv")
+        file_name = f"{list(business_terms_dict.keys())[doc_id]}.tfidf.csv"
+        print(f"create: {file_name}")
+        out_file_path = os.path.join(out_path, "tfidf", file_name)
         if not os.path.exists(os.path.dirname(out_file_path)):
             os.makedirs(os.path.dirname(out_file_path))
         out_file = open(out_file_path, mode="w")
