@@ -196,6 +196,7 @@ def create_words_dict(doc_path, out_path) -> dict:
     for subdir, dirs, files in os.walk(doc_path):
         for file in files:
             file_abs_path = subdir + os.path.sep + file
+            print(f"--> {file_abs_path}")
             include_folders = get_str_env_var(INCLUDE_FOLDERS, "").split(",")
             if is_included(file_abs_path, include_folders):
                 try:
@@ -203,7 +204,6 @@ def create_words_dict(doc_path, out_path) -> dict:
                     essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
 
                     essential_words_str: str = ""
-                    print(f"--> {file_abs_path}")
                     if os.path.isfile(essential_words_file_path):
                         print(f"read from file: [{essential_words_file_path}] ->")
                         essential_words_str: str = open(essential_words_file_path, "r").read()
