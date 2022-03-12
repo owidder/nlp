@@ -100,6 +100,9 @@ def filter_non_en_de_words(data):
 
 def extract_essential_terms(file_path: str) -> [str]:
     try:
+        if os.path.getsize(file_path) < 10 or len(max(open(file_path, "r"), key=len)) > 500:
+            return []
+
         extension: str = file_path.split(".")[-1].lower()
         if extension in ["js", "jsx", "ts", "tsx"]:
             essential_phrases = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
