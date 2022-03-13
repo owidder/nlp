@@ -23,9 +23,10 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
         file_name = f"{list(word_dict.keys())[doc_no]}.tfidf2.csv"
         print(f"create: {file_name}")
         tfidf_abs_path = os.path.join(out_path, "tfidf", file_name)
-        tfidf_file = open_file_for_writing_with_path_creation(tfidf_abs_path)
-        for tupel_no in range(len(corpus_tfidf[doc_no])):
-            print(f"{dictionary[corpus_tfidf[doc_no][tupel_no][0]]}\t{corpus_tfidf[doc_no][tupel_no][1]}", file=tfidf_file)
+        if not os.path.exists(tfidf_abs_path):
+            tfidf_file = open_file_for_writing_with_path_creation(tfidf_abs_path)
+            for tupel_no in range(len(corpus_tfidf[doc_no])):
+                print(f"{dictionary[corpus_tfidf[doc_no][tupel_no][0]]}\t{corpus_tfidf[doc_no][tupel_no][1]}", file=tfidf_file)
 
     lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topis)
 

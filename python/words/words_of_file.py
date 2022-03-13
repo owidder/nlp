@@ -100,7 +100,7 @@ def filter_non_en_de_words(data):
 
 def extract_essential_terms(file_path: str) -> [str]:
     try:
-        if os.path.getsize(file_path) < 10 or len(max(open(file_path, "r"), key=len)) > 500:
+        if os.path.getsize(file_path) == 0 or len(max(open(file_path, "r"), key=len)) > 500:
             return []
 
         extension: str = file_path.split(".")[-1].lower()
