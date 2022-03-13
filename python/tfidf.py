@@ -35,8 +35,10 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
 
     print("---- create vectors ----")
     for i, file_rel_path in enumerate(business_terms_dict.keys()):
+        print(f"---> create vectors: {file_rel_path}")
         vectors_out_list = [file_rel_path]
         content = business_terms_dict[file_rel_path].split()
+        print(content)
         vec_bow = [(list(feature_names_out).index(_), content.count(_)) for _ in set(content)]
         vec_lsi = lsi[vec_bow]
 
