@@ -24,8 +24,11 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
                 if tfidf_value > 0:
                     print(f"{feature_names_out[term_id]}\t{str(round(tfidf_value, 2))}", file=out_file)
 
+    print("---- create corpus ----")
     corpus = [[(v, doc_term_matrix[d, v]) for v in range(doc_term_matrix.shape[1]) if doc_term_matrix[d, v] > 0] for d in range(doc_term_matrix.shape[0])]
+    print("---- create dictionary ----")
     dictionary = {t: feature_names_out[t] for t in range(len(feature_names_out))}
+    print("---- create LsiModel ----")
     lsi = models.LsiModel(corpus=corpus, id2word=dictionary)
 
     vectors_out_file = open_file_for_writing_with_path_creation(f"{out_path}/vectors.csv")
