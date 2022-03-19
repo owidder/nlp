@@ -16,7 +16,6 @@ from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_
 from python.get_args import get_str_env_var, INCLUDE_FOLDERS
 from python.antlr.extract_essential_phrases_from_python import extract_essential_phrases_from_python
 from python.antlr.extract_essential_phrases_from_java import extract_essential_phrases_from_java
-from python.antlr.antlrCaller import callAntlr
 
 from typing import List
 
@@ -131,6 +130,30 @@ def extract_essential_terms(file_path: str) -> [str]:
         return ""
 
 
+def extract_all_terms(file_path: str) -> [str]:
+    try:
+        if os.path.getsize(file_path) == 0 or len(max(open(file_path, "r"), key=len)) > 500:
+            return []
+
+        contents = open(file_path, 'r').read()
+
+        all_terms = re.sub('[^A-Za-z ]+', ' ', contents).split(' ') # remove all non chars
+        all_terms = [re.sub('([a-z])([A-Z])', r'\1 \2', term) for term in all_terms] # split camel case
+
+        stemmer = PorterStemmer()
+
+        def stem(term: str):
+            stemmed_term = stemmer.stem(term)
+            add_to_global_unstem_dict(term, stemmed_term)
+            return stemmed_term.lower()
+
+        return [stem(term) for term in all_terms]
+    except:
+        print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
+        traceback.print_exc(file=sys.stdout)
+        return ""
+
+
 def is_no_dot_file(file_path):
     return len(list(filter(lambda part: part.startswith("."), file_path.split("/")))) == 0
 
@@ -188,9 +211,10 @@ def write_unstem_dict(out_path: str, unstem_dict: dict):
     unstem_dict_file.close()
 
 
-def create_words_dict(doc_path, out_path) -> dict:
+def create_words_dict(doc_path, out_path) -> tuple[dict[any, str], dict[any, str]]:
     print("create_word_dict:", locals())
     word_dict = {}
+    all_word_dict = {}
     tags_dict = {}
     init_global_unstem_dict(out_path)
     for subdir, dirs, files in os.walk(doc_path):
@@ -201,12 +225,12 @@ def create_words_dict(doc_path, out_path) -> dict:
             if is_included(file_abs_path, include_folders):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
-                    essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
 
-                    essential_words_str: str = ""
+                    essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
+                    essential_words_str = ""
                     if os.path.isfile(essential_words_file_path):
                         print(f"read from file: [{essential_words_file_path}] ->")
-                        essential_words_str: str = open(essential_words_file_path, "r").read()
+                        essential_words_str = open(essential_words_file_path, "r").read()
                         print(essential_words_str)
                         print("--------------------------------------------")
                     else:
@@ -221,9 +245,30 @@ def create_words_dict(doc_path, out_path) -> dict:
 
                     if len(essential_words_str) > 0:
                         word_dict[file_rel_path] = essential_words_str
+
+                    all_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._all_words_")
+                    all_words_str = ""
+                    if os.path.isfile(all_words_file_path):
+                        print(f"read from file: [{all_words_file_path}] ->")
+                        all_words_str = open(all_words_file_path, "r").read()
+                        print(all_words_str)
+                        print("--------------------------------------------")
+                    else:
+                        all_terms: [str] = extract_all_terms(file_abs_path)
+                        if len(all_terms) > 0:
+                            write_unstem_dict(out_path, global_unstem_dict)
+                            all_words_str = " ".join(all_terms)
+                            print(f"{all_words_str}")
+                            print(all_words_str, file=open_file_for_writing_with_path_creation(all_words_file_path))
+
+                        print("--------------------------------------------")
+
+                    if len(all_words_str) > 0:
+                        all_word_dict[file_rel_path] = all_words_str
+
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
 
     print(f"number of files = {len(word_dict.keys())}")
-    return word_dict
+    return word_dict, all_word_dict
