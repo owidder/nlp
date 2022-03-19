@@ -26,26 +26,29 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
         if not os.path.exists(tfidf_abs_path):
             tfidf_file = open_file_for_writing_with_path_creation(tfidf_abs_path)
             for tupel_no in range(len(corpus_tfidf[doc_no])):
-                print(f"{dictionary[corpus_tfidf[doc_no][tupel_no][0]]}\t{corpus_tfidf[doc_no][tupel_no][1]}", file=tfidf_file)
+                print(f"{dictionary[corpus_tfidf[doc_no][tupel_no][0]].strip()}\t{corpus_tfidf[doc_no][tupel_no][1]}", file=tfidf_file)
 
-    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topis)
+    vectors_out_path = f"{out_path}/vectors2.csv"
 
-    vectors_out_file = open_file_for_writing_with_path_creation(f"{out_path}/vectors2.csv")
+    if not os.path.exists(vectors_out_path):
+        lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topis)
 
-    print("---- create vectors ----")
-    for i, file_rel_path in enumerate(word_dict.keys()):
-        vectors_out_list = [file_rel_path]
-        content = word_dict[file_rel_path]
-        vec_bow = dictionary.doc2bow(content.split())
-        vec_lsi = lsi[vec_bow]
+        vectors_out_file = open_file_for_writing_with_path_creation(vectors_out_path)
 
-        for entry in vec_lsi:
-            vectors_out_list.append(str(round(entry[1], 2)))
+        print("---- create vectors ----")
+        for i, file_rel_path in enumerate(word_dict.keys()):
+            vectors_out_list = [file_rel_path]
+            content = word_dict[file_rel_path]
+            vec_bow = dictionary.doc2bow(content.split())
+            vec_lsi = lsi[vec_bow]
 
-        print("\t".join(vectors_out_list), file=vectors_out_file)
+            for entry in vec_lsi:
+                vectors_out_list.append(str(round(entry[1], 2)))
 
-        if i%100 == 0:
-            print(i)
+            print("\t".join(vectors_out_list), file=vectors_out_file)
+
+            if i%100 == 0:
+                print(i)
 
 
 def main():

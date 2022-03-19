@@ -3,7 +3,8 @@ import os
 from get_args import get_args, get_str_env_var, OUT_SUB_FOLDER
 
 
-VALUES_FILE_NAME = '_.csv'
+VALUES_FILE_NAME = '_2.csv'
+SUFFIX = "tfidf2.csv"
 
 SUM_INDEX = 0
 MAX_INDEX = 1
@@ -50,7 +51,7 @@ def aggregate_folder(folder_path):
     for f in os.listdir(folder_path):
         full_path = f"{folder_path}/{f}"
         if(os.path.isfile(full_path)):
-            if(f.endswith('tfidf.csv')):
+            if(f.endswith(SUFFIX)):
                 aggregate_values_in_file(file_path=full_path, current_values=values)
         else:
             aggregate_values_in_subfolder(subdir_path=full_path, current_values=values)

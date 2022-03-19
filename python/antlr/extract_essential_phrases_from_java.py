@@ -21,6 +21,9 @@ class JavaListener(JavaParserListener):
     def enterInterfaceDeclaration(self, ctx:JavaParser.InterfaceDeclarationContext):
         self.essential_phrases.append(ctx.getChild(1).getText())
 
+    def enterInterfaceMethodDeclaration(self, ctx:JavaParser.InterfaceMethodDeclarationContext):
+         self.essential_phrases.append(ctx.getChild(1).getText())
+
 
 def extract_essential_phrases_from_java(source_code: str) -> [str]:
     parser = JavaParser(CommonTokenStream(JavaLexer(InputStream(source_code))))
