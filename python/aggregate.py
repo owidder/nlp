@@ -3,8 +3,8 @@ import os
 from get_args import get_args, get_str_env_var, OUT_SUB_FOLDER
 
 
-VALUES_FILE_NAME = '_2.csv'
-SUFFIX = "tfidf2.csv"
+VALUES_FILE_NAME = '_.csv'
+SUFFIX = "tfidf.csv"
 
 SUM_INDEX = 0
 MAX_INDEX = 1
@@ -16,24 +16,25 @@ def aggregate_values_in_file(file_path: str, current_values):
         for line in f:
             parts = line.split("\t")
             k = parts[0]
-            if len(parts) > 2:
-                sum_v = float(parts[SUM_INDEX+1])
-                max_v = float(parts[MAX_INDEX+1])
-                count_v = int(parts[COUNT_INDEX+1])
-            else:
-                sum_v = float(parts[1])
-                max_v = float(parts[1])
-                count_v = 1
+            if len(k) > 0:
+                if len(parts) > 2:
+                    sum_v = float(parts[SUM_INDEX+1])
+                    max_v = float(parts[MAX_INDEX+1])
+                    count_v = int(parts[COUNT_INDEX+1])
+                else:
+                    sum_v = float(parts[1])
+                    max_v = float(parts[1])
+                    count_v = 1
 
-            if k in current_values:
-                current_values[k][SUM_INDEX] += sum_v
-                current_values[k][COUNT_INDEX] += count_v
-                current_values[k][MAX_INDEX] = max_v if current_values[k][MAX_INDEX] < max_v else current_values[k][MAX_INDEX]
-            else:
-                current_values[k] = [None, None, None]
-                current_values[k][SUM_INDEX] = sum_v
-                current_values[k][COUNT_INDEX] = count_v
-                current_values[k][MAX_INDEX] = max_v
+                if k in current_values:
+                    current_values[k][SUM_INDEX] += sum_v
+                    current_values[k][COUNT_INDEX] += count_v
+                    current_values[k][MAX_INDEX] = max_v if current_values[k][MAX_INDEX] < max_v else current_values[k][MAX_INDEX]
+                else:
+                    current_values[k] = [None, None, None]
+                    current_values[k][SUM_INDEX] = sum_v
+                    current_values[k][COUNT_INDEX] = count_v
+                    current_values[k][MAX_INDEX] = max_v
 
 
 def aggregate_values_in_subfolder(subdir_path: str, current_values: dict):
@@ -63,9 +64,23 @@ def aggregate_folder(folder_path):
 
 
 def main():
+    global VALUES_FILE_NAME
+    global SUFFIX
+
     args = get_args(out_path_required=True)
     out_sub_folder = get_str_env_var(OUT_SUB_FOLDER, "")
     out_path = os.path.join(args.outpath, out_sub_folder)
+
+    VALUES_FILE_NAME = '_.csv'
+    SUFFIX = "tfidf.csv"
+    aggregate_folder(folder_path=out_path)
+
+    VALUES_FILE_NAME = '_2.csv'
+    SUFFIX = "tfidf2.csv"
+    aggregate_folder(folder_path=out_path)
+
+    VALUES_FILE_NAME = '_all.csv'
+    SUFFIX = "tfidf_all.csv"
     aggregate_folder(folder_path=out_path)
 
 

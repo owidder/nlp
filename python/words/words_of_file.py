@@ -138,7 +138,8 @@ def extract_all_terms(file_path: str) -> [str]:
         contents = open(file_path, 'r').read()
 
         all_terms = re.sub('[^A-Za-z ]+', ' ', contents).split(' ') # remove all non chars
-        all_terms = [re.sub('([a-z])([A-Z])', r'\1 \2', term) for term in all_terms] # split camel case
+        all_terms = [re.sub('([a-z])([A-Z])', r'\1 \2', term).split() for term in all_terms] # split camel case
+        all_terms = [term for term_list in all_terms for term in term_list]
 
         stemmer = PorterStemmer()
 

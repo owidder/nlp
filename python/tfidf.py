@@ -6,7 +6,7 @@ import numpy
 from python.util.util import open_file_for_writing_with_path_creation
 
 
-def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
+def create_tfidf_files(business_terms_dict: dict, out_path: str, num_topics: int) -> None:
     tfidf = TfidfVectorizer()
     doc_term_matrix = tfidf.fit_transform(business_terms_dict.values())
     feature_names_out = tfidf.get_feature_names_out()
@@ -25,15 +25,15 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
                     print(f"{feature_names_out[term_id]}\t{str(round(tfidf_value, 2))}", file=out_file)
 
     vectors_out_path = f"{out_path}/vectors.csv"
-    vectors_out_file = open_file_for_writing_with_path_creation(vectors_out_path)
 
     if not os.path.exists(vectors_out_path):
+        vectors_out_file = open_file_for_writing_with_path_creation(vectors_out_path)
         print("---- create corpus ----")
         corpus = [[(v, doc_term_matrix[d, v]) for v in range(doc_term_matrix.shape[1]) if doc_term_matrix[d, v] > 0] for d in range(doc_term_matrix.shape[0])]
         print("---- create dictionary ----")
         dictionary = {t: feature_names_out[t] for t in range(len(feature_names_out))}
         print("---- create LsiModel ----")
-        lsi = models.LsiModel(corpus=corpus, id2word=dictionary)
+        lsi = models.LsiModel(corpus=corpus, id2word=dictionary, num_topics=num_topics)
 
         print("---- create vectors ----")
         for i, file_rel_path in enumerate(business_terms_dict.keys()):

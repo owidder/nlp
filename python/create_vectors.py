@@ -9,9 +9,10 @@ from python.get_args import get_args, get_int_env_var, get_str_env_var, NUM_TOPI
 from python.util.util import open_file_for_writing_with_path_creation
 
 
-def create_vectors(word_dict: dict, out_path: str, num_topis: int):
+def create_vectors(word_dict: dict, out_path: str, num_topics: int, tfidf_suffix = "tfidf2.csv", vectors_file_name = "vectors2.csv"):
     print("---- create word dict ----")
-    documents = [word.split(' ') for word in list(word_dict.values())]
+    only_long_words = {file_path: list(filter(lambda w: len(w) > 2, word_dict[file_path].split(' '))) for file_path in list(word_dict.keys())}
+    documents = list(only_long_words.values())
     dictionary = corpora.Dictionary(documents)
     document_terms = [dictionary.doc2bow(doc) for doc in documents]
 
@@ -20,7 +21,7 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
     corpus_tfidf = tfidf[document_terms]
 
     for doc_no in range(len(corpus_tfidf)):
-        file_name = f"{list(word_dict.keys())[doc_no]}.tfidf2.csv"
+        file_name = f"{list(only_long_words.keys())[doc_no]}.{tfidf_suffix}"
         print(f"create: {file_name}")
         tfidf_abs_path = os.path.join(out_path, "tfidf", file_name)
         if not os.path.exists(tfidf_abs_path):
@@ -28,18 +29,17 @@ def create_vectors(word_dict: dict, out_path: str, num_topis: int):
             for tupel_no in range(len(corpus_tfidf[doc_no])):
                 print(f"{dictionary[corpus_tfidf[doc_no][tupel_no][0]].strip()}\t{corpus_tfidf[doc_no][tupel_no][1]}", file=tfidf_file)
 
-    vectors_out_path = f"{out_path}/vectors2.csv"
+    vectors_out_path = f"{out_path}/{vectors_file_name}"
 
     if not os.path.exists(vectors_out_path):
-        lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topis)
+        lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
 
         vectors_out_file = open_file_for_writing_with_path_creation(vectors_out_path)
 
         print("---- create vectors ----")
-        for i, file_rel_path in enumerate(word_dict.keys()):
+        for i, file_rel_path in enumerate(only_long_words.keys()):
             vectors_out_list = [file_rel_path]
-            content = word_dict[file_rel_path]
-            vec_bow = dictionary.doc2bow(content.split())
+            vec_bow = dictionary.doc2bow(only_long_words[file_rel_path])
             vec_lsi = lsi[vec_bow]
 
             for entry in vec_lsi:
@@ -57,9 +57,10 @@ def main():
     out_path = os.path.join(args.outpath, out_sub_folder)
     word_dict, all_word_dict = create_words_dict(doc_path=args.docpath, out_path=out_path)
     num_topics = get_int_env_var(NUM_TOPICS, 200)
-    create_tfidf_files(word_dict, out_path=out_path)
+    create_tfidf_files(word_dict, out_path=out_path, num_topics=num_topics)
 
-    create_vectors(word_dict, out_path=out_path, num_topis=num_topics)
+    create_vectors(word_dict, out_path=out_path, num_topics=num_topics)
+    create_vectors(all_word_dict, out_path=out_path, num_topics=num_topics, tfidf_suffix="tfidf_all.csv", vectors_file_name="vectors_all.csv")
 
 
 if __name__ == "__main__":
