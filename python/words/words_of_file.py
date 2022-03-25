@@ -14,8 +14,8 @@ from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
 from python.get_args import get_str_env_var, INCLUDE_FOLDERS
-from python.antlr.extract_essential_phrases_from_python import extract_essential_phrases_from_python
-from python.antlr.extract_essential_phrases_from_java import extract_essential_phrases_from_java
+from python.antlr.extract_essential_phrases_from_python_with_strings import extract_essential_phrases_from_python
+from python.antlr.extract_essential_phrases_from_java_with_strings import extract_essential_phrases_from_java
 
 from typing import List
 

@@ -21,6 +21,12 @@ class JavaListener(JavaParserListener):
     def enterInterfaceDeclaration(self, ctx:JavaParser.InterfaceDeclarationContext):
         self.essential_phrases.append(ctx.getChild(1).getText())
 
+    def enterInterfaceMethodDeclaration(self, ctx:JavaParser.InterfaceMethodDeclarationContext):
+         self.essential_phrases.append(ctx.getChild(1).getText())
+
+    def enterMethodCall(self, ctx:JavaParser.MethodCallContext):
+         self.essential_phrases.append(ctx.getChild(1).getText())
+
 
 class StringJavaLexer(JavaLexer):
     def __init__(self, essential_phrases: [], input=None, output:TextIO = sys.stdout):
