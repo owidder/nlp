@@ -64,4 +64,5 @@ def get_float_env_var(name: str, defvalue: float) -> float:
 NUM_TOPICS = "NUM_TOPICS"
 OUT_SUB_FOLDER = "OUT_SUB_FOLDER"
 INCLUDE_FOLDERS = "INCLUDE_FOLDERS"
+EXCLUDE_FOLDERS = "EXCLUDE_FOLDERS"
 

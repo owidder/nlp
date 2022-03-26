@@ -13,7 +13,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.get_args import get_str_env_var, INCLUDE_FOLDERS
+from python.get_args import get_str_env_var, INCLUDE_FOLDERS, EXCLUDE_FOLDERS
 from python.antlr.extract_essential_phrases_from_python_with_strings import extract_essential_phrases_from_python
 from python.antlr.extract_essential_phrases_from_java_with_strings import extract_essential_phrases_from_java
 
@@ -166,8 +166,23 @@ def has_included_extension(file_path):
     return False
 
 
-def is_included(file_path, include_folders: []):
-    _is_included = is_no_dot_file(file_path) and has_included_extension(file_path)
+def is_in_excluded_path(file_path: str) -> bool:
+    if file_path.find("/static/") > -1:
+        return True
+
+    if file_path.find("/lib/") > -1:
+        return True
+
+    return False
+
+
+def is_in_excluded_folder(file_path: str, exclude_folders: [str]) -> bool:
+    parts: [str] = file_path.split(os.sep)
+    return len(list(filter(lambda part: part in exclude_folders, parts))) > 0
+
+
+def is_included(file_path, include_folders: [str], exclude_folders: [str]):
+    _is_included = is_no_dot_file(file_path) and has_included_extension(file_path) and not is_in_excluded_folder(file_path, exclude_folders)
 
     for include_folder in include_folders:
         if file_path.find(include_folder) > -1:
@@ -223,24 +238,25 @@ def create_words_dict(doc_path, out_path) -> tuple[dict[any, str], dict[any, str
             file_abs_path = subdir + os.path.sep + file
             print(f"--> {file_abs_path}")
             include_folders = get_str_env_var(INCLUDE_FOLDERS, "").split(",")
-            if is_included(file_abs_path, include_folders):
+            exclude_folders = get_str_env_var(EXCLUDE_FOLDERS, "").split(",")
+            if is_included(file_abs_path, include_folders, exclude_folders):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
 
                     essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
                     essential_words_str = ""
                     if os.path.isfile(essential_words_file_path):
-                        print(f"read from file: [{essential_words_file_path}] ->")
+                        print(f"read from file: <{essential_words_file_path}> ->")
                         essential_words_str = open(essential_words_file_path, "r").read()
-                        print(essential_words_str)
+                        print(f"[{essential_words_str}]")
                         print("--------------------------------------------")
                     else:
                         essential_terms: [str] = extract_essential_terms(file_abs_path)
+                        essential_words_str = " ".join(essential_terms)
+                        print(f"[{essential_words_str}]")
+                        print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
                         if len(essential_terms) > 0:
                             write_unstem_dict(out_path, global_unstem_dict)
-                            essential_words_str = " ".join(essential_terms)
-                            print(f"{essential_words_str}")
-                            print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
 
                         print("--------------------------------------------")
 
