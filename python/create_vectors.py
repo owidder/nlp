@@ -63,6 +63,7 @@ def main():
     # create_vectors(word_dict, out_path=out_path, num_topics=num_topics)
     # create_vectors(all_word_dict, out_path=out_path, num_topics=num_topics, tfidf_suffix="tfidf_all.csv", vectors_file_name="vectors_all.csv")
 
+    print("------- FINISH --------")
 
 if __name__ == "__main__":
     main()
