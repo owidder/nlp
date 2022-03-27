@@ -1,1 +1,2 @@
-nohup ./start-vector-do-gen.sh school 2>&1 &
+./start-vector-do-gen.sh school
+
