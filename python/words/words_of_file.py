@@ -227,7 +227,7 @@ def write_unstem_dict(out_path: str, unstem_dict: dict):
     unstem_dict_file.close()
 
 
-def create_words_dict(doc_path, out_path) -> tuple[dict[any, str], dict[any, str]]:
+def create_words_dict(doc_path, out_path):
     print("create_word_dict:", locals())
     word_dict = {}
     all_word_dict = {}
