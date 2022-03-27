@@ -13,4 +13,4 @@ export MIN_TFIDF=0
 export PATH_TO_JAR=/root/dev/antlr/build/libs/antlr-1.0-SNAPSHOT.jar
 export USE_ANTLR=True
 export EXCLUDE_FOLDERS=static,lib,jquery
-python3 -m python.create_vectors --outpath /root/dev/nlp/dict/$1 --docpath /root/dev/erp_doc/$1
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/_all/$1 --docpath /root/dev/erp_doc/$1
