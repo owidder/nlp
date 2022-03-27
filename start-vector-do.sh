@@ -12,9 +12,12 @@ export OUT_SUB_FOLDER=antlr
 export MIN_TFIDF=0
 export PATH_TO_JAR=/root/dev/antlr/build/libs/antlr-1.0-SNAPSHOT.jar
 export USE_ANTLR=True
-#python3 -m python.create_vectors --outpath /root/dev/nlp/dict/erpnext --docpath /root/dev/erp_doc/erpnext
-#python3 -m python.create_vectors --outpath /root/dev/nlp/dict/adempiere --docpath /root/dev/erp_doc/adempiere
-#python3 -m python.create_vectors --outpath /root/dev/nlp/dict/axelor-open-suite --docpath /root/dev/erp_doc/axelor-open-suite
-#python3 -m python.create_vectors --outpath /root/dev/nlp/dict/dolibarr --docpath /root/dev/erp_doc/dolibarr
-#python3 -m python.create_vectors --outpath /root/dev/nlp/dict/metafresh --docpath /root/dev/erp_doc/metafresh
-python3 -m python.create_vectors --outpath /root/dev/nlp/dict/_all --docpath /root/dev/erp_doc
+export EXCLUDE_FOLDERS=static,lib,jquery
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/erpnext --docpath /root/dev/erp_doc/erpnext
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/adempiere --docpath /root/dev/erp_doc/adempiere
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/axelor-open-suite --docpath /root/dev/erp_doc/axelor-open-suite
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/metafresh --docpath /root/dev/erp_doc/metafresh
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/metafresh --docpath /root/dev/erp_doc/books
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/metafresh --docpath /root/dev/erp_doc/odoo
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/metafresh --docpath /root/dev/erp_doc/ofbiz-framework
+python3 -m python.create_vectors --outpath /root/dev/nlp/dict/metafresh --docpath /root/dev/erp_doc/school
