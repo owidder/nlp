@@ -227,6 +227,10 @@ def write_unstem_dict(out_path: str, unstem_dict: dict):
     unstem_dict_file.close()
 
 
+def remove_duplicates(word_str: str) -> str:
+    return " ".join(set(word_tokenize(word_str)))
+
+
 def create_words_dict(doc_path, out_path):
     print("create_word_dict:", locals())
     word_dict = {}
