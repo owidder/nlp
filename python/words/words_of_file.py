@@ -110,7 +110,7 @@ def extract_essential_terms(file_path: str) -> [str]:
         elif extension == "java":
             essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
         else:
-            return []
+            return word_tokenize(open(file_path, 'r').read())
 
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
         essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
@@ -162,7 +162,7 @@ def is_no_dot_file(file_path):
 def has_included_extension(file_path):
     parts = file_path.split(".")
     if len(parts) > 1:
-        return parts[-1].lower() in ["py", "java"]
+        return parts[-1].lower() in ["py", "js", "txt", "md", "jsx", "ts", "tsx", "java"]
     return False
 
 
@@ -267,25 +267,25 @@ def create_words_dict(doc_path, out_path):
                     if len(essential_words_str) > 0:
                         word_dict[file_rel_path] = essential_words_str
 
-                    # all_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._all_words_")
-                    # all_words_str = ""
-                    # if os.path.isfile(all_words_file_path):
-                    #     print(f"read from file: [{all_words_file_path}] ->")
-                    #     all_words_str = open(all_words_file_path, "r").read()
-                    #     print(all_words_str)
-                    #     print("--------------------------------------------")
-                    # else:
-                    #     all_terms: [str] = extract_all_terms(file_abs_path)
-                    #     if len(all_terms) > 0:
-                    #         write_unstem_dict(out_path, global_unstem_dict)
-                    #         all_words_str = " ".join(all_terms)
-                    #         print(f"{all_words_str}")
-                    #         print(all_words_str, file=open_file_for_writing_with_path_creation(all_words_file_path))
-                    #
-                    #     print("--------------------------------------------")
-                    #
-                    # if len(all_words_str) > 0:
-                    #     all_word_dict[file_rel_path] = all_words_str
+                    all_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._all_words_")
+                    all_words_str = ""
+                    if os.path.isfile(all_words_file_path):
+                        print(f"read from file: [{all_words_file_path}] ->")
+                        all_words_str = open(all_words_file_path, "r").read()
+                        print(all_words_str)
+                        print("--------------------------------------------")
+                    else:
+                        all_terms: [str] = extract_all_terms(file_abs_path)
+                        if len(all_terms) > 0:
+                            write_unstem_dict(out_path, global_unstem_dict)
+                            all_words_str = " ".join(all_terms)
+                            print(f"{all_words_str}")
+                            print(all_words_str, file=open_file_for_writing_with_path_creation(all_words_file_path))
+
+                        print("--------------------------------------------")
+
+                    if len(all_words_str) > 0:
+                        all_word_dict[file_rel_path] = all_words_str
 
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
