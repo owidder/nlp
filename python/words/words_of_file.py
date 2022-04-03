@@ -110,7 +110,7 @@ def extract_essential_terms(file_path: str) -> [str]:
         elif extension == "java":
             essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
         else:
-            return word_tokenize(open(file_path, 'r').read())
+            essential_phrases = word_tokenize(open(file_path, 'r').read())
 
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
         essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
