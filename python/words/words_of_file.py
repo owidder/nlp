@@ -112,8 +112,10 @@ def extract_essential_terms(file_path: str) -> [str]:
         else:
             essential_phrases = word_tokenize(open(file_path, 'r').read())
 
+        essential_phrases = [re.sub('^(.*)$', r' \1 ', phrase) for phrase in essential_phrases] # insert space at beginning and end of line
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
         essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
+        essential_phrases = [re.sub('(?<= )([A-Z]+)([A-Z][a-z]+)(?= )', r'\2', phrase) for phrase in essential_phrases] # remove more than one cap at beginning of word
         essential_terms: [str] = [term for term_list in [word_tokenize(phrase) for phrase in essential_phrases] for term in term_list]
 
         stemmer = PorterStemmer()
