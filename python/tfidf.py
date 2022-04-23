@@ -40,14 +40,11 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str, num_topics: int
             print(f"---> create vectors: {file_rel_path}")
             vectors_out_list = [file_rel_path]
             content = business_terms_dict[file_rel_path].split()
-            print(content)
 
             filtered_content = filter(lambda _: _ in list(feature_names_out), content)
 
             if len(list(filtered_content)) != len(content):
                 print(f"!!! {file_rel_path} !!!")
-                print(list(filtered_content))
-                print(content)
                 print("!!!!!!!!!!!!!!!!!!!")
             else:
                 vec_bow = [(list(feature_names_out).index(_), content.count(_)) for _ in set(content)]

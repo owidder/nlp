@@ -37,7 +37,7 @@ def create_vectors(word_dict: dict, out_path: str, num_topics: int, tfidf_suffix
         vectors_out_file = open_file_for_writing_with_path_creation(vectors_out_path)
 
         print("---- create vectors ----")
-        only_many_words = {file_path: only_long_words[file_path] for file_path in list(filter(lambda k: len(only_long_words[k]) > 20, only_long_words.keys()))}
+        only_many_words = {file_path: only_long_words[file_path] for file_path in list(filter(lambda k: len(only_long_words[k]) > 2, only_long_words.keys()))}
         for i, file_rel_path in enumerate(only_many_words.keys()):
             vectors_out_list = [file_rel_path]
             vec_bow = dictionary.doc2bow(only_many_words[file_rel_path])
@@ -60,8 +60,8 @@ def main():
     num_topics = get_int_env_var(NUM_TOPICS, 200)
     create_tfidf_files(word_dict, out_path=out_path, num_topics=num_topics)
 
-    # create_vectors(word_dict, out_path=out_path, num_topics=num_topics)
-    # create_vectors(all_word_dict, out_path=out_path, num_topics=num_topics, tfidf_suffix="tfidf_all.csv", vectors_file_name="vectors_all.csv")
+    create_vectors(word_dict, out_path=out_path, num_topics=num_topics)
+    #create_vectors(all_word_dict, out_path=out_path, num_topics=num_topics, tfidf_suffix="tfidf_all.csv", vectors_file_name="vectors_all.csv")
 
     print("------- FINISH --------")
 
