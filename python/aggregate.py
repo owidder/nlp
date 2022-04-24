@@ -75,13 +75,13 @@ def main():
     SUFFIX = "tfidf.csv"
     aggregate_folder(folder_path=out_path)
 
-    VALUES_FILE_NAME = '_2.csv'
-    SUFFIX = "tfidf2.csv"
-    aggregate_folder(folder_path=out_path)
-
-    VALUES_FILE_NAME = '_all.csv'
-    SUFFIX = "tfidf_all.csv"
-    aggregate_folder(folder_path=out_path)
+    # VALUES_FILE_NAME = '_2.csv'
+    # SUFFIX = "tfidf2.csv"
+    # aggregate_folder(folder_path=out_path)
+    #
+    # VALUES_FILE_NAME = '_all.csv'
+    # SUFFIX = "tfidf_all.csv"
+    # aggregate_folder(folder_path=out_path)
 
 
 if __name__ == "__main__":

@@ -48,7 +48,7 @@ def init_global_unstem_dict(out_path: str):
 def add_to_global_unstem_dict(term: str, stemmed_term: str):
     global global_unstem_dict
     if stemmed_term in global_unstem_dict:
-        if len(term) < len(global_unstem_dict[stemmed_term]):
+        if len(term) > len(global_unstem_dict[stemmed_term]):
             global_unstem_dict[stemmed_term] = term
     else:
         global_unstem_dict[stemmed_term] = term
@@ -267,25 +267,25 @@ def create_words_dict(doc_path, out_path):
                     if len(essential_words_str) > 0:
                         word_dict[file_rel_path] = essential_words_str
 
-                    all_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._all_words_")
-                    all_words_str = ""
-                    if os.path.isfile(all_words_file_path):
-                        print(f"read from file: [{all_words_file_path}] ->")
-                        all_words_str = open(all_words_file_path, "r").read()
-                        print(all_words_str)
-                        print("--------------------------------------------")
-                    else:
-                        all_terms: [str] = extract_all_terms(file_abs_path)
-                        if len(all_terms) > 0:
-                            write_unstem_dict(out_path, global_unstem_dict)
-                            all_words_str = " ".join(all_terms)
-                            print(f"{all_words_str}")
-                            print(all_words_str, file=open_file_for_writing_with_path_creation(all_words_file_path))
-
-                        print("--------------------------------------------")
-
-                    if len(all_words_str) > 0:
-                        all_word_dict[file_rel_path] = all_words_str
+                    # all_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._all_words_")
+                    # all_words_str = ""
+                    # if os.path.isfile(all_words_file_path):
+                    #     print(f"read from file: [{all_words_file_path}] ->")
+                    #     all_words_str = open(all_words_file_path, "r").read()
+                    #     print(all_words_str)
+                    #     print("--------------------------------------------")
+                    # else:
+                    #     all_terms: [str] = extract_all_terms(file_abs_path)
+                    #     if len(all_terms) > 0:
+                    #         write_unstem_dict(out_path, global_unstem_dict)
+                    #         all_words_str = " ".join(all_terms)
+                    #         print(f"{all_words_str}")
+                    #         print(all_words_str, file=open_file_for_writing_with_path_creation(all_words_file_path))
+                    #
+                    #     print("--------------------------------------------")
+                    #
+                    # if len(all_words_str) > 0:
+                    #     all_word_dict[file_rel_path] = all_words_str
 
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
