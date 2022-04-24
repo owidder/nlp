@@ -164,7 +164,7 @@ def is_no_dot_file(file_path):
 def has_included_extension(file_path):
     parts = file_path.split(".")
     if len(parts) > 1:
-        return parts[-1].lower() in ["py", "js", "txt", "md", "jsx", "ts", "tsx", "java"]
+        return parts[-1].lower() in ["py", "js", "jsx", "ts", "tsx", "java"]
     return False
 
 
