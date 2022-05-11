@@ -8,7 +8,6 @@ from subprocess import check_output
 import enchant
 import nltk
 import ssl
-from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
@@ -28,7 +27,6 @@ else:
 
 
 nltk.download('punkt')
-nltk.download('stopwords')
 
 
 en = enchant.Dict("en_US")
@@ -60,18 +58,6 @@ def split_camel_case(name):
 
 def filter_min_word_size(string, min_word_size):
     return ' '.join([w for w in string.split() if len(w) >= min_word_size])
-
-
-def remove_stop_words(data, remove_de=True, remove_en=True):
-    stop_words_en = stopwords.words('english') if remove_en else []
-    stop_words_de = stopwords.words('german') if remove_de else []
-    stop_words = stop_words_en + stop_words_de
-    words = word_tokenize(str(data))
-    new_text = ""
-    for w in words:
-        if w.lower() not in stop_words and len(w) > 1:
-            new_text = new_text + " " + w
-    return new_text
 
 
 def stemming(data: str):
