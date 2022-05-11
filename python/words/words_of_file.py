@@ -11,7 +11,6 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.get_args import get_str_env_var, INCLUDE_FOLDERS, EXCLUDE_FOLDERS
 from python.antlr.extract_essential_phrases_from_python import extract_essential_phrases_from_python
 from python.antlr.extract_essential_phrases_from_java import extract_essential_phrases_from_java
 
@@ -51,7 +50,9 @@ def extract_essential_terms(file_path: str) -> [str]:
 
         extension: str = file_path.split(".")[-1].lower()
         if extension in ["js", "jsx", "ts", "tsx"]:
-            essential_phrases = word_tokenize(check_output(["java", "-jar", os.environ["PATH_TO_JAR"], file_path]).decode("utf-8"))
+            path_to_jar = os.getenv("PATH_TO_JAR", "bin/antlr-1.0-SNAPSHOT.jar")
+            abs_path_to_jar = os.path.abspath(path_to_jar)
+            essential_phrases = word_tokenize(check_output(["java", "-jar", abs_path_to_jar, file_path]).decode("utf-8"))
         elif extension == "py":
             essential_phrases = extract_essential_phrases_from_python(open(file_path, 'r').read())
         elif extension == "java":
