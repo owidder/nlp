@@ -56,12 +56,11 @@ def main():
     args = get_args(doc_path_required=True, out_path_required=True)
     out_sub_folder = get_str_env_var(OUT_SUB_FOLDER, "")
     out_path = os.path.join(args.outpath, out_sub_folder)
-    word_dict, all_word_dict = create_words_dict(doc_path=args.docpath, out_path=out_path)
+    word_dict = create_words_dict(doc_path=args.docpath, out_path=out_path)
     num_topics = get_int_env_var(NUM_TOPICS, 200)
     create_tfidf_files(word_dict, out_path=out_path, num_topics=num_topics)
 
     create_vectors(word_dict, out_path=out_path, num_topics=num_topics)
-    #create_vectors(all_word_dict, out_path=out_path, num_topics=num_topics, tfidf_suffix="tfidf_all.csv", vectors_file_name="vectors_all.csv")
 
     print("------- FINISH --------")
 
