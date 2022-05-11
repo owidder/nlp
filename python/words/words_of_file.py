@@ -5,7 +5,6 @@ import traceback
 import json
 from subprocess import check_output
 
-import enchant
 import nltk
 import ssl
 from nltk.stem import PorterStemmer
@@ -27,10 +26,6 @@ else:
 
 
 nltk.download('punkt')
-
-
-en = enchant.Dict("en_US")
-de = enchant.Dict("de_DE")
 
 
 global_unstem_dict: dict = {}
