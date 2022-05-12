@@ -7,6 +7,7 @@ from python.words_of_file import create_words_dict
 from python.tfidf import create_tfidf_files
 from python.util.util import open_file_for_writing_with_path_creation
 from python.aggregate import aggregate_folder
+from python.git_info import create_base_url_files
 
 
 def create_vectors(word_dict: dict, out_path: str, num_topics: int, vectors_file_name = "vectors2.csv"):
@@ -53,6 +54,7 @@ def main():
     create_tfidf_files(word_dict, out_path=args.outpath)
     create_vectors(word_dict, out_path=args.outpath, num_topics=2000)
     aggregate_folder(folder_path=args.outpath)
+    create_base_url_files(doc_path=args.docpath, out_path=args.outpath)
 
 
 if __name__ == "__main__":
