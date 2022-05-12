@@ -1,7 +1,5 @@
 import os
-
-from get_args import get_args, get_str_env_var, OUT_SUB_FOLDER
-
+import argparse
 
 VALUES_FILE_NAME = '_.csv'
 SUFFIX = "tfidf.csv"
@@ -67,21 +65,11 @@ def main():
     global VALUES_FILE_NAME
     global SUFFIX
 
-    args = get_args(out_path_required=True)
-    out_sub_folder = get_str_env_var(OUT_SUB_FOLDER, "")
-    out_path = os.path.join(args.outpath, out_sub_folder)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
+    args = parser.parse_args()
 
-    VALUES_FILE_NAME = '_.csv'
-    SUFFIX = "tfidf.csv"
-    aggregate_folder(folder_path=out_path)
-
-    # VALUES_FILE_NAME = '_2.csv'
-    # SUFFIX = "tfidf2.csv"
-    # aggregate_folder(folder_path=out_path)
-    #
-    # VALUES_FILE_NAME = '_all.csv'
-    # SUFFIX = "tfidf_all.csv"
-    # aggregate_folder(folder_path=out_path)
+    aggregate_folder(folder_path=args.outpath)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ from gensim import corpora, models
 from python.words.words_of_file import create_words_dict
 from python.tfidf import create_tfidf_files
 from python.util.util import open_file_for_writing_with_path_creation
+from python.aggregate import aggregate_folder
 
 
 def create_vectors(word_dict: dict, out_path: str, num_topics: int, vectors_file_name = "vectors2.csv"):
@@ -51,6 +52,8 @@ def main():
     word_dict = create_words_dict(doc_path=args.docpath, out_path=args.outpath)
     create_tfidf_files(word_dict, out_path=args.outpath)
     create_vectors(word_dict, out_path=args.outpath, num_topics=2000)
+    aggregate_folder(folder_path=args.outpath)
+
 
 if __name__ == "__main__":
     main()
