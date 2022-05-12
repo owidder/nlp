@@ -3,7 +3,7 @@ import argparse
 
 from gensim import corpora, models
 
-from python.words.words_of_file import create_words_dict
+from python.words_of_file import create_words_dict
 from python.tfidf import create_tfidf_files
 from python.util.util import open_file_for_writing_with_path_creation
 from python.aggregate import aggregate_folder
