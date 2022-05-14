@@ -13,7 +13,7 @@ def get_base_url(path_to_repo: str):
     commit_sha: str = repo.head.commit.hexsha
     remote_url: str = repo.remotes.origin.url
 
-    base_url = "???"
+    base_url = ""
     if remote_url.startswith("https://github.com"):
         base_url = f"{remote_url[0:-4]}/tree/{commit_sha}"
     elif remote_url.startswith("git@github.com:"):
