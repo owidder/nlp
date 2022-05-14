@@ -1,4 +1,6 @@
 import os
+import argparse
+
 from git import Repo
 from python.util.util import open_file_for_writing_with_path_creation
 
@@ -30,4 +32,8 @@ def create_base_url_files(doc_path: str, out_path: str):
 
 
 if __name__ == "__main__":
-    create_base_url_files("/Users/oliverwidder/dev/erp_doc", "/Users/oliverwidder/dev/github/nlp/dict/_all/antlr")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--docpath', required=True, action='store', help='Path to the documents')
+    parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
+    args = parser.parse_args()
+    create_base_url_files(doc_path=args.docpath, out_path=args.outpath)
