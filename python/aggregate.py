@@ -69,7 +69,7 @@ def main():
     parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
     args = parser.parse_args()
 
-    aggregate_folder(folder_path=args.outpath)
+    aggregate_folder(folder_path=f"{args.outpath}/tfidf")
 
 
 if __name__ == "__main__":

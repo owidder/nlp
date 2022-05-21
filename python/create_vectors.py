@@ -53,7 +53,7 @@ def main():
     word_dict = create_words_dict(doc_path=args.docpath, out_path=args.outpath)
     create_tfidf_files(word_dict, out_path=args.outpath)
     create_vectors(word_dict, out_path=args.outpath, num_topics=2000)
-    aggregate_folder(folder_path=args.outpath)
+    aggregate_folder(folder_path=f"{args.outpath}/tfidf")
     create_base_url_files(doc_path=args.docpath, out_path=args.outpath)
 
 
