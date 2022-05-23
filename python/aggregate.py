@@ -7,6 +7,8 @@ SUFFIX = "tfidf.csv"
 SUM_INDEX = 0
 MAX_INDEX = 1
 COUNT_INDEX = 2
+WEIGHTED_SUM_INDEX = 3
+WEIGHTED_MAX_INDEX = 4
 
 
 def aggregate_values_in_file(file_path: str, current_values):
@@ -16,9 +18,11 @@ def aggregate_values_in_file(file_path: str, current_values):
             k = parts[0]
             if len(k) > 0:
                 if len(parts) > 2:
-                    sum_v = float(parts[SUM_INDEX+1])
-                    max_v = float(parts[MAX_INDEX+1])
-                    count_v = int(parts[COUNT_INDEX+1])
+                    sum_v = float(parts[1])
+                    max_v = float(parts[1])
+                    weighted_sum_v = float(parts[2])
+                    weighted_max_v = float(parts[2])
+                    count_v = 1
                 else:
                     sum_v = float(parts[1])
                     max_v = float(parts[1])
@@ -26,13 +30,17 @@ def aggregate_values_in_file(file_path: str, current_values):
 
                 if k in current_values:
                     current_values[k][SUM_INDEX] += sum_v
-                    current_values[k][COUNT_INDEX] += count_v
                     current_values[k][MAX_INDEX] = max_v if current_values[k][MAX_INDEX] < max_v else current_values[k][MAX_INDEX]
+                    current_values[k][COUNT_INDEX] += count_v
+                    current_values[k][WEIGHTED_SUM_INDEX] += weighted_sum_v
+                    current_values[k][WEIGHTED_MAX_INDEX] = weighted_max_v if current_values[k][WEIGHTED_MAX_INDEX] < weighted_max_v else current_values[k][WEIGHTED_MAX_INDEX]
                 else:
-                    current_values[k] = [None, None, None]
+                    current_values[k] = [None, None, None, None, None]
                     current_values[k][SUM_INDEX] = sum_v
-                    current_values[k][COUNT_INDEX] = count_v
                     current_values[k][MAX_INDEX] = max_v
+                    current_values[k][COUNT_INDEX] = count_v
+                    current_values[k][WEIGHTED_SUM_INDEX] = weighted_sum_v
+                    current_values[k][WEIGHTED_MAX_INDEX] = weighted_max_v
 
 
 def aggregate_values_in_subfolder(subdir_path: str, current_values: dict):
@@ -57,7 +65,8 @@ def aggregate_folder(folder_path):
 
     with open(f"{folder_path}/{VALUES_FILE_NAME}", 'w') as out_file:
         for k, v in values.items():
-            line = f"{k}\t{str(round(v[SUM_INDEX], 2))}\t{str(round(v[MAX_INDEX], 2))}\t{str(v[COUNT_INDEX])}\t{str(round(v[SUM_INDEX]/v[COUNT_INDEX], 2))}"
+            line = f"{k}\t{str(round(v[SUM_INDEX], 2))}\t{str(round(v[MAX_INDEX], 2))}\t{str(v[COUNT_INDEX])}\t{str(round(v[SUM_INDEX]/v[COUNT_INDEX], 2))}" \
+                   f"\t{str(round(v[WEIGHTED_SUM_INDEX], 2))}\t{str(round(v[WEIGHTED_MAX_INDEX], 2))}"
             print(line, file=out_file)
 
 
