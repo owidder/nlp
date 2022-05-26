@@ -26,6 +26,8 @@ def aggregate_values_in_file(file_path: str, current_values):
                 else:
                     sum_v = float(parts[1])
                     max_v = float(parts[1])
+                    weighted_sum_v = 0
+                    weighted_max_v = 0
                     count_v = 1
 
                 if k in current_values:
@@ -65,8 +67,15 @@ def aggregate_folder(folder_path):
 
     with open(f"{folder_path}/{VALUES_FILE_NAME}", 'w') as out_file:
         for k, v in values.items():
-            line = f"{k}\t{str(round(v[SUM_INDEX], 2))}\t{str(round(v[MAX_INDEX], 2))}\t{str(v[COUNT_INDEX])}\t{str(round(v[SUM_INDEX]/v[COUNT_INDEX], 2))}" \
-                   f"\t{str(round(v[WEIGHTED_SUM_INDEX], 2))}\t{str(round(v[WEIGHTED_MAX_INDEX], 2))}"
+            count = v[COUNT_INDEX]
+            sum = v[SUM_INDEX]
+            max = v[MAX_INDEX]
+            avg = sum / count
+            weighted_sum = v[WEIGHTED_SUM_INDEX]
+            weighted_max = v[WEIGHTED_MAX_INDEX]
+            weighted_avg = weighted_sum / count
+            line = f"{k}\t{str(round(sum, 2))}\t{str(round(max, 2))}\t{str(count)}\t{str(round(avg, 2))}" \
+                   f"\t{str(round(weighted_sum, 2))}\t{str(round(weighted_max, 2))}\t{str(round(weighted_avg, 2))}"
             print(line, file=out_file)
 
 
