@@ -36,17 +36,17 @@ def init_global_unstem_dict(out_path: str):
 def add_to_global_unstem_dict(term: str, stemmed_term: str):
     global global_unstem_dict
     if stemmed_term in global_unstem_dict:
-        if len(term) > len(global_unstem_dict[stemmed_term]):
-            global_unstem_dict[stemmed_term] = term
+        if not term in global_unstem_dict[stemmed_term]:
+            global_unstem_dict[stemmed_term].append(term)
     else:
-        global_unstem_dict[stemmed_term] = term
+        global_unstem_dict[stemmed_term] = [term]
 
 
-def extract_essential_terms(file_path: str) -> [str]:
+def extract_essential_terms(file_path: str) -> tuple[[str], [str]]:
     try:
         # we do not need files with super long lines, because they are most probably semi-binary (e.g. js bundles)
         if os.path.getsize(file_path) == 0 or len(max(open(file_path, "r"), key=len)) > 500:
-            return []
+            return [], []
 
         extension: str = file_path.split(".")[-1].lower()
         if extension in ["js", "jsx", "ts", "tsx"]:
@@ -58,7 +58,7 @@ def extract_essential_terms(file_path: str) -> [str]:
         elif extension == "java":
             essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
         else:
-            return []
+            return [], []
 
         essential_phrases = [re.sub('^(.*)$', r' \1 ', phrase) for phrase in essential_phrases] # insert space at beginning and end of line
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
@@ -73,11 +73,11 @@ def extract_essential_terms(file_path: str) -> [str]:
             add_to_global_unstem_dict(term, stemmed_term)
             return stemmed_term.lower()
 
-        return [stem(term) for term in essential_terms]
+        return [stem(term.lower()) for term in essential_terms], [term.lower() for term in essential_terms]
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
-        return ""
+        return [], []
 
 
 def is_no_dot_file(file_path):
@@ -125,15 +125,18 @@ def create_words_dict(doc_path, out_path):
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
 
                     essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
+                    essential_words_long_file_path = os.path.join(out_path, "words", f"{file_rel_path}._long_words_")
                     essential_words_str = ""
                     if os.path.isfile(essential_words_file_path):
                         print(f"read from file: <{essential_words_file_path}> ->")
                         essential_words_str = open(essential_words_file_path, "r").read()
                         print("--------------------------------------------")
                     else:
-                        essential_terms: [str] = extract_essential_terms(file_abs_path)
+                        essential_terms, essential_terms_long  = extract_essential_terms(file_abs_path)
                         essential_words_str = " ".join(essential_terms)
+                        essential_words_long_str = " ".join(essential_terms_long)
                         print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
+                        print(essential_words_long_str, file=open_file_for_writing_with_path_creation(essential_words_long_file_path))
                         if len(essential_terms) > 0:
                             write_unstem_dict(out_path, global_unstem_dict)
 
