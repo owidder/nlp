@@ -17,17 +17,17 @@ def aggregate_values_in_file(file_path: str, current_values):
             parts = line.split("\t")
             k = parts[0]
             if len(k) > 0:
-                if len(parts) > 2:
+                if file_path.endswith("_.csv"):
                     sum_v = float(parts[1])
-                    max_v = float(parts[1])
-                    weighted_sum_v = float(parts[2])
-                    weighted_max_v = float(parts[2])
+                    max_v = float(parts[2])
+                    weighted_sum_v = float(parts[5])
+                    weighted_max_v = float(parts[6])
                     count_v = 1
                 else:
                     sum_v = float(parts[1])
                     max_v = float(parts[1])
-                    weighted_sum_v = 0
-                    weighted_max_v = 0
+                    weighted_sum_v = float(parts[2])
+                    weighted_max_v = float(parts[2])
                     count_v = 1
 
                 if k in current_values:
