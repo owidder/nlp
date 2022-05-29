@@ -117,10 +117,9 @@ def log_count(doc_path: str):
     global global_log_counter
     extension: str = doc_path.split(".")[-1].lower()
 
-    if global_log_counter[extension] > 0:
-        global_log_counter[extension] += 1
-    else:
-        global_log_counter[extension] = 1
+    count = global_log_counter.get(extension, 0)
+    count += 1
+    global_log_counter[extension] = count
 
     print(f"{extension}: {global_log_counter[extension]}")
 
