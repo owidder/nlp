@@ -155,7 +155,7 @@ def write_words_files_parallel(doc_path: str, out_path: str):
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
                     traceback.print_exc(file=sys.stdout)
 
-    print([result.get() for result in results])
+    print(filter(lambda r: r != "OK", [result.get() for result in results]))
 
 
 def create_words_dict(doc_path, out_path):
