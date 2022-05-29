@@ -22,7 +22,7 @@ def aggregate_values_in_file(file_path: str, current_values):
                     max_v = float(parts[2])
                     weighted_sum_v = float(parts[5])
                     weighted_max_v = float(parts[6])
-                    count_v = 1
+                    count_v = float(parts[3])
                 else:
                     sum_v = float(parts[1])
                     max_v = float(parts[1])
