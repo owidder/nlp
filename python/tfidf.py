@@ -45,4 +45,4 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
 
         results.append(pool.apply_async(create_one_tfidf_file, (doc_id, doc_name, out_path, out_file_path, doc_term_matrix, feature_names_out,)))
 
-    [result.get() for result in results]
+    print([result.get() for result in results])
