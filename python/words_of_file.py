@@ -113,9 +113,9 @@ def write_unstem_dict(out_path: str, unstem_dict: dict):
     unstem_dict_file.close()
 
 
-def log_count(doc_path: str):
+def log_count(file_path: str):
     global global_log_counter
-    extension: str = doc_path.split(".")[-1].lower()
+    extension: str = file_path.split(".")[-1].lower()
 
     count = global_log_counter.get(extension, 0)
     count += 1
@@ -136,7 +136,7 @@ def create_words_dict(doc_path, out_path):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
 
-                    log_count(doc_path)
+                    log_count(file_abs_path)
 
                     essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
                     essential_words_long_file_path = os.path.join(out_path, "words", f"{file_rel_path}._long_words_")
