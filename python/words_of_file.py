@@ -4,6 +4,7 @@ import sys
 import traceback
 import json
 from subprocess import check_output
+import multiprocessing as mp
 
 import nltk
 import ssl
@@ -122,6 +123,41 @@ def log_count(file_path: str):
     global_log_counter[extension] = count
 
     print(f"{extension}: {global_log_counter[extension]}")
+
+
+def write_one_words_file(file_abs_path: str, essential_words_file_path: str, essential_words_long_file_path: str) -> str:
+    print(f"create: {essential_words_file_path}")
+    essential_terms, essential_terms_long = extract_essential_terms(file_abs_path)
+    essential_words_str = " ".join(essential_terms)
+    essential_words_long_str = " ".join(essential_terms_long)
+    print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
+    print(essential_words_long_str, file=open_file_for_writing_with_path_creation(essential_words_long_file_path))
+
+    return "OK"
+
+
+def write_words_files_parallel(doc_path: str, out_path: str):
+    pool = mp.Pool(mp.cpu_count())
+
+    results = []
+
+    for subdir, dirs, files in os.walk(doc_path):
+        for file in files:
+            file_abs_path = subdir + os.path.sep + file
+            if is_included(file_abs_path):
+                try:
+                    file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
+
+                    essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
+                    essential_words_long_file_path = os.path.join(out_path, "words", f"{file_rel_path}._long_words_")
+                    if not os.path.isfile(essential_words_file_path):
+                        results.append(pool.apply_async(write_one_words_file, (file_abs_path, essential_words_file_path, essential_words_long_file_path,)))
+
+                except:
+                    print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
+                    traceback.print_exc(file=sys.stdout)
+
+    [result.get() for result in results]
 
 
 def create_words_dict(doc_path, out_path):
