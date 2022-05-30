@@ -44,7 +44,7 @@ def add_to_global_unstem_dict(term: str, stemmed_term: str):
         global_unstem_dict[stemmed_term] = [term]
 
 
-def extract_essential_terms(file_path: str) -> [str]:
+def extract_essential_terms(file_path: str, doStem = True) -> [str]:
     try:
         # we do not need files with super long lines, because they are most probably semi-binary (e.g. js bundles)
         if os.path.getsize(file_path) == 0 or len(max(open(file_path, "r"), key=len)) > 500:
@@ -75,7 +75,7 @@ def extract_essential_terms(file_path: str) -> [str]:
             add_to_global_unstem_dict(term, stemmed_term)
             return stemmed_term.lower()
 
-        return [stem(term.lower()) for term in essential_terms]
+        return [stem(term.lower()) if doStem else term.lower() for term in essential_terms]
     except:
         print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
         traceback.print_exc(file=sys.stdout)
@@ -125,11 +125,11 @@ def log_count(file_path: str):
     print(f"{extension}: {global_log_counter[extension]}")
 
 
-def write_one_words_file(file_abs_path: str, essential_words_file_path: str) -> str:
-    print(f"create: {essential_words_file_path}")
-    essential_terms = extract_essential_terms(file_abs_path)
-    essential_words_str = " ".join(essential_terms)
-    print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
+def write_one_long_words_file(file_abs_path: str, essential_long_words_file_path: str) -> str:
+    print(f"create: {essential_long_words_file_path}")
+    essential_long_terms = extract_essential_terms(file_abs_path, False)
+    essential_long_words_str = " ".join(essential_long_terms)
+    print(essential_long_words_str, file=open_file_for_writing_with_path_creation(essential_long_words_file_path))
 
     return "OK"
 
@@ -146,10 +146,9 @@ def write_words_files_parallel(doc_path: str, out_path: str):
                 try:
                     file_rel_path = rel_path_from_abs_path(doc_path, file_abs_path)
 
-                    essential_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._words_")
-                    essential_words_long_file_path = os.path.join(out_path, "words", f"{file_rel_path}._long_words_")
-                    if not os.path.isfile(essential_words_file_path):
-                        results.append(pool.apply_async(write_one_words_file, (file_abs_path, essential_words_file_path, essential_words_long_file_path,)))
+                    essential_long_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._long_words_")
+                    if not os.path.isfile(essential_long_words_file_path):
+                        results.append(pool.apply_async(write_one_long_words_file, (file_abs_path, essential_long_words_file_path,)))
 
                 except:
                     print("Unexpected error:", sys.exc_info()[0], sys.exc_info()[1])
