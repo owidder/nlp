@@ -27,6 +27,8 @@ nltk.download('punkt')
 global_unstem_dict: dict = {}
 global_log_counter: dict[str, int] = {}
 
+stemmer = PorterStemmer()
+
 
 def init_global_unstem_dict(out_path: str):
     global global_unstem_dict
@@ -42,6 +44,12 @@ def add_to_global_unstem_dict(term: str, stemmed_term: str):
             global_unstem_dict[stemmed_term].append(term)
     else:
         global_unstem_dict[stemmed_term] = [term]
+
+
+def stem(term: str):
+    stemmed_term = stemmer.stem(term)
+    add_to_global_unstem_dict(term, stemmed_term)
+    return stemmed_term.lower()
 
 
 def extract_essential_terms(file_path: str, doStem = True) -> [str]:
@@ -68,12 +76,6 @@ def extract_essential_terms(file_path: str, doStem = True) -> [str]:
         essential_phrases = [re.sub('(?<= )([A-Z]+)([A-Z][a-z]+)(?= )', r'\2', phrase) for phrase in essential_phrases] # remove more than one cap at beginning of word
         essential_terms: [str] = [term for term_list in [word_tokenize(phrase) for phrase in essential_phrases] for term in term_list]
 
-        stemmer = PorterStemmer()
-
-        def stem(term: str):
-            stemmed_term = stemmer.stem(term)
-            add_to_global_unstem_dict(term, stemmed_term)
-            return stemmed_term.lower()
 
         return [stem(term.lower()) if doStem else term.lower() for term in essential_terms]
     except:
@@ -178,7 +180,13 @@ def create_words_dict(doc_path, out_path):
                         essential_words_str = open(essential_words_file_path, "r").read()
                         print("--------------------------------------------")
                     else:
-                        essential_terms  = extract_essential_terms(file_abs_path)
+                        essential_long_words_file_path = os.path.join(out_path, "words", f"{file_rel_path}._long_words_")
+                        if os.path.isfile(essential_long_words_file_path):
+                            essential_long_words_str = open(essential_long_words_file_path, "r").read()
+                            essential_terms = [stem(word) for word in word_tokenize(essential_long_words_str)]
+                        else:
+                            essential_terms  = extract_essential_terms(file_abs_path)
+
                         essential_words_str = " ".join(essential_terms)
                         print(essential_words_str, file=open_file_for_writing_with_path_creation(essential_words_file_path))
                         if len(essential_terms) > 0:
