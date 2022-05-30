@@ -125,7 +125,7 @@ def log_count(file_path: str):
     print(f"{extension}: {global_log_counter[extension]}")
 
 
-def write_one_words_file(file_abs_path: str, essential_words_file_path: str, essential_words_long_file_path: str) -> str:
+def write_one_words_file(file_abs_path: str, essential_words_file_path: str) -> str:
     print(f"create: {essential_words_file_path}")
     essential_terms = extract_essential_terms(file_abs_path)
     essential_words_str = " ".join(essential_terms)
