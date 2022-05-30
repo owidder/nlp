@@ -134,7 +134,7 @@ def write_one_long_words_file(file_abs_path: str, essential_long_words_file_path
     return "OK"
 
 
-def write_words_files_parallel(doc_path: str, out_path: str):
+def write_long_words_files_parallel(doc_path: str, out_path: str):
     pool = mp.Pool(mp.cpu_count())
 
     results = []

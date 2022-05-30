@@ -3,7 +3,7 @@ import argparse
 
 from gensim import corpora, models
 
-from python.words_of_file import create_words_dict, write_words_files_parallel
+from python.words_of_file import create_words_dict, write_long_words_files_parallel
 from python.tfidf import create_tfidf_files
 from python.util.util import open_file_for_writing_with_path_creation
 from python.aggregate import aggregate_folder
@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
     args = parser.parse_args()
 
-    write_words_files_parallel(doc_path=args.docpath, out_path=args.outpath)
+    write_long_words_files_parallel(doc_path=args.docpath, out_path=args.outpath)
     word_dict = create_words_dict(doc_path=args.docpath, out_path=args.outpath)
     create_tfidf_files(word_dict, out_path=args.outpath)
     create_vectors(word_dict, out_path=args.outpath, num_topics=2000)
