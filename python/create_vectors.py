@@ -11,19 +11,20 @@ from python.git_info import create_base_url_files
 
 
 def create_vectors(word_dict: dict, out_path: str, num_topics: int, vectors_file_name = "vectors2.csv"):
-    print("---- create word dict ----")
-    only_long_words = {file_path: list(filter(lambda w: len(w) > 2, word_dict[file_path].split(' '))) for file_path in list(word_dict.keys())}
-    documents = list(only_long_words.values())
-    dictionary = corpora.Dictionary(documents)
-    document_terms = [dictionary.doc2bow(doc) for doc in documents]
-
-    print("--- create lsi model ----")
-    tfidf = models.TfidfModel(document_terms)
-    corpus_tfidf = tfidf[document_terms]
-
     vectors_out_path = f"{out_path}/{vectors_file_name}"
 
     if not os.path.exists(vectors_out_path):
+        print("---- create word dict ----")
+        only_long_words = {file_path: list(filter(lambda w: len(w) > 2, word_dict[file_path].split(' '))) for file_path
+                           in list(word_dict.keys())}
+        documents = list(only_long_words.values())
+        dictionary = corpora.Dictionary(documents)
+        document_terms = [dictionary.doc2bow(doc) for doc in documents]
+
+        print("--- create lsi model ----")
+        tfidf = models.TfidfModel(document_terms)
+        corpus_tfidf = tfidf[document_terms]
+
         lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=num_topics)
 
         vectors_out_file = open_file_for_writing_with_path_creation(vectors_out_path)

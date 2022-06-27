@@ -14,6 +14,7 @@ def get_word_count(doc_name: str, out_path: str) -> int:
 
 
 def create_one_tfidf_file(doc_id: int, doc_name: str, out_path: str, out_file_path: str, doc_term_matrix, feature_names_out) -> str:
+    print(f"create: {out_file_path}")
     out_file = open(out_file_path, mode="w")
     word_count = get_word_count(doc_name, out_path)
     for term_id in range(doc_term_matrix.shape[1]):
@@ -37,12 +38,10 @@ def create_tfidf_files(business_terms_dict: dict, out_path: str) -> None:
     for doc_id in range(doc_term_matrix.shape[0]):
         doc_name = list(business_terms_dict.keys())[doc_id]
         file_name = f"{doc_name}.tfidf.csv"
-        print(f"create: {file_name}")
         out_file_path = os.path.join(out_path, "tfidf", file_name)
         if not os.path.exists(out_file_path):
             if not os.path.exists(os.path.dirname(out_file_path)):
                 os.makedirs(os.path.dirname(out_file_path))
-
-        results.append(pool.apply_async(create_one_tfidf_file, (doc_id, doc_name, out_path, out_file_path, doc_term_matrix, feature_names_out,)))
+            results.append(pool.apply_async(create_one_tfidf_file, (doc_id, doc_name, out_path, out_file_path, doc_term_matrix, feature_names_out,)))
 
     print(filter(lambda r: r != "OK", [result.get() for result in results]))
