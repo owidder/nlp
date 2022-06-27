@@ -6,7 +6,7 @@ from gensim import corpora, models
 from python.words_of_file import create_words_dict, write_long_words_files_parallel
 from python.tfidf import create_tfidf_files
 from python.util.util import open_file_for_writing_with_path_creation
-from python.aggregate import aggregate_folder
+from python.aggregate import aggregate_folder_for_values
 from python.git_info import create_base_url_files
 
 
@@ -54,7 +54,7 @@ def main():
     word_dict = create_words_dict(doc_path=args.docpath, out_path=args.outpath)
     create_tfidf_files(word_dict, out_path=args.outpath)
     create_vectors(word_dict, out_path=args.outpath, num_topics=2000)
-    aggregate_folder(folder_path=f"{args.outpath}/tfidf")
+    aggregate_folder_for_values(folder_path=f"{args.outpath}/tfidf")
     create_base_url_files(doc_path=args.docpath, out_path=args.outpath)
 
 

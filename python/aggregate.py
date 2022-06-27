@@ -66,7 +66,7 @@ def aggregate_values_in_subfolder(subdir_path: str, current_values: dict):
     print(f"dir: {subdir_path}")
     values_file = f"{subdir_path}/{VALUES_FILE_NAME}"
     if not os.path.isfile(values_file):
-        aggregate_folder(subdir_path)
+        aggregate_folder_for_values(subdir_path)
 
     aggregate_values_in_file(file_path=values_file, current_values=current_values)
 
@@ -86,7 +86,7 @@ def aggregate_folder__words(folder_path):
         print(" ".join(current_words), file=out_file)
 
 
-def aggregate_folder(folder_path):
+def aggregate_folder_for_values(folder_path):
     values = {}
 
     for f in os.listdir(folder_path):
@@ -119,7 +119,7 @@ def main():
     parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
     args = parser.parse_args()
 
-    aggregate_folder(folder_path=f"{args.outpath}/tfidf")
+    aggregate_folder_for_values(folder_path=f"{args.outpath}/tfidf")
 
 
 if __name__ == "__main__":
