@@ -2,7 +2,9 @@ import os
 import argparse
 
 VALUES_FILE_NAME = '_.csv'
-SUFFIX = "tfidf.csv"
+TFIDF_SUFFIX = "tfidf.csv"
+LONG_WORDS_SUFFIX = "_long_words_"
+WORDS_FILE_NAME = "_._long_words_of_folder"
 
 SUM_INDEX = 0
 MAX_INDEX = 1
@@ -11,19 +13,26 @@ WEIGHTED_SUM_INDEX = 3
 WEIGHTED_MAX_INDEX = 4
 
 
-def aggregate_values_in_file(file_path: str, current_values):
+def aggregate_words_in_file(file_path: str, current_words: set):
+    with open(file_path, 'r') as f:
+        for line in f:
+            long_words = line.split(" ")
+            current_words.update(long_words)
+
+
+def aggregate_values_in_file(file_path: str, current_values: dict):
     with open(file_path, 'r') as f:
         for line in f:
             parts = line.split("\t")
             k = parts[0]
             if len(k) > 0:
-                if file_path.endswith("_.csv"):
+                if file_path.endswith(VALUES_FILE_NAME):
                     sum_v = float(parts[1])
                     max_v = float(parts[2])
                     weighted_sum_v = float(parts[5])
                     weighted_max_v = float(parts[6])
                     count_v = float(parts[3])
-                else:
+                elif file_path.endswith(TFIDF_SUFFIX):
                     sum_v = float(parts[1])
                     max_v = float(parts[1])
                     weighted_sum_v = float(parts[2])
@@ -45,6 +54,14 @@ def aggregate_values_in_file(file_path: str, current_values):
                     current_values[k][WEIGHTED_MAX_INDEX] = weighted_max_v
 
 
+def aggregate_words_in_subfolder(subdir_path: str, current_words: set):
+    words_file = f"{subdir_path}/{WORDS_FILE_NAME}"
+    if not os.path.isfile(words_file):
+        aggregate_folder__words(subdir_path)
+
+    aggregate_words_in_file(file_path=words_file, current_words=current_words)
+
+
 def aggregate_values_in_subfolder(subdir_path: str, current_values: dict):
     print(f"dir: {subdir_path}")
     values_file = f"{subdir_path}/{VALUES_FILE_NAME}"
@@ -54,13 +71,28 @@ def aggregate_values_in_subfolder(subdir_path: str, current_values: dict):
     aggregate_values_in_file(file_path=values_file, current_values=current_values)
 
 
+def aggregate_folder__words(folder_path):
+    current_words = set()
+
+    for f in os.listdir(folder_path):
+        full_path = f"{folder_path}/{f}"
+        if(os.path.isfile(full_path)):
+            if(f.endswith(LONG_WORDS_SUFFIX)):
+                aggregate_words_in_file(file_path=full_path, current_words=current_words)
+        else:
+            aggregate_words_in_subfolder(subdir_path=full_path, current_words=current_words)
+
+    with open(f"{folder_path}/{WORDS_FILE_NAME}", 'w') as out_file:
+        print(" ".join(current_words), file=out_file)
+
+
 def aggregate_folder(folder_path):
     values = {}
 
     for f in os.listdir(folder_path):
         full_path = f"{folder_path}/{f}"
         if(os.path.isfile(full_path)):
-            if(f.endswith(SUFFIX)):
+            if(f.endswith(TFIDF_SUFFIX)):
                 aggregate_values_in_file(file_path=full_path, current_values=values)
         else:
             aggregate_values_in_subfolder(subdir_path=full_path, current_values=values)
@@ -81,7 +113,7 @@ def aggregate_folder(folder_path):
 
 def main():
     global VALUES_FILE_NAME
-    global SUFFIX
+    global TFIDF_SUFFIX
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--outpath', required=True, action='store', help='Path to the output folder')
