@@ -57,7 +57,7 @@ def aggregate_values_in_file(file_path: str, current_values: dict):
 def aggregate_words_in_subfolder(subdir_path: str, current_words: set):
     words_file = f"{subdir_path}/{WORDS_FILE_NAME}"
     if not os.path.isfile(words_file):
-        aggregate_folder__words(subdir_path)
+        aggregate_folder_for_words(subdir_path)
 
     aggregate_words_in_file(file_path=words_file, current_words=current_words)
 
@@ -71,7 +71,7 @@ def aggregate_values_in_subfolder(subdir_path: str, current_values: dict):
     aggregate_values_in_file(file_path=values_file, current_values=current_values)
 
 
-def aggregate_folder__words(folder_path):
+def aggregate_folder_for_words(folder_path):
     current_words = set()
 
     for f in os.listdir(folder_path):
