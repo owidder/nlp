@@ -12,8 +12,8 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_path_creation
-from python.antlr.extract_essential_phrases_from_python import extract_essential_phrases_from_python
-from python.antlr.extract_essential_phrases_from_java import extract_essential_phrases_from_java
+from python.antlr.extract_essential_phrases_from_python_with_strings import extract_essential_phrases_from_python
+from python.antlr.extract_essential_phrases_from_java_with_strings import extract_essential_phrases_from_java
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context

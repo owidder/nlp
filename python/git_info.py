@@ -17,7 +17,10 @@ def get_base_url(path_to_repo: str):
     if remote_url.startswith("https://github.com"):
         base_url = f"{remote_url[0:-4]}/tree/{commit_sha}"
     elif remote_url.startswith("git@github.com:"):
-        base_url = f"https://github.com/{remote_url[len('git@github.com:'):-4]}/tree/{commit_sha}"
+        if remote_url.endswith(".git"):
+            base_url = f"https://github.com/{remote_url[len('git@github.com:'):-4]}/tree/{commit_sha}"
+        else:
+            base_url = f"https://github.com/{remote_url[len('git@github.com:'):]}/tree/{commit_sha}"
 
     return base_url
 
