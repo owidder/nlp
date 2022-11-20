@@ -15,6 +15,7 @@ from python.util.util import rel_path_from_abs_path, open_file_for_writing_with_
 from python.antlr.extract_essential_phrases_from_python_with_strings import extract_essential_phrases_from_python
 from python.antlr.extract_essential_phrases_from_java_with_strings import extract_essential_phrases_from_java
 
+
 try:
     _create_unverified_https_context = ssl._create_unverified_context
 except AttributeError:
@@ -59,23 +60,25 @@ def extract_essential_terms(file_path: str, doStem = True) -> [str]:
             return []
 
         extension: str = file_path.split(".")[-1].lower()
-        if extension in ["js", "jsx", "ts", "tsx"]:
-            path_to_jar = os.getenv("PATH_TO_JAR", "bin/antlr-1.0-SNAPSHOT.jar")
-            abs_path_to_jar = os.path.abspath(path_to_jar)
-            essential_phrases = word_tokenize(check_output(["java", "-jar", abs_path_to_jar, file_path]).decode("utf-8"))
-        elif extension == "py":
-            essential_phrases = extract_essential_phrases_from_python(open(file_path, 'r').read())
-        elif extension == "java":
-            essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
+        if(os.environ["NO_PARSING"]):
+            essential_phrases = word_tokenize(open(file_path, 'r').read())
         else:
-            return []
+            if extension in ["js", "jsx", "ts", "tsx"]:
+                path_to_jar = os.getenv("PATH_TO_JAR", "bin/antlr-1.0-SNAPSHOT.jar")
+                abs_path_to_jar = os.path.abspath(path_to_jar)
+                essential_phrases = word_tokenize(check_output(["java", "-jar", abs_path_to_jar, file_path]).decode("utf-8"))
+            elif extension == "py":
+                essential_phrases = extract_essential_phrases_from_python(open(file_path, 'r').read())
+            elif extension == "java":
+                essential_phrases = extract_essential_phrases_from_java(open(file_path, 'r').read())
+            else:
+                return []
 
         essential_phrases = [re.sub('^(.*)$', r' \1 ', phrase) for phrase in essential_phrases] # insert space at beginning and end of line
         essential_phrases = [re.sub('[^A-Za-z ]+', ' ', phrase) for phrase in essential_phrases] # remove all non chars
         essential_phrases = [re.sub('([a-z])([A-Z])', r'\1 \2', phrase) for phrase in essential_phrases] # split camel case
         essential_phrases = [re.sub('(?<= )([A-Z]+)([A-Z][a-z]+)(?= )', r'\2', phrase) for phrase in essential_phrases] # remove more than one cap at beginning of word
         essential_terms: [str] = [term for term_list in [word_tokenize(phrase) for phrase in essential_phrases] for term in term_list]
-
 
         return [stem(term.lower()) if doStem else term.lower() for term in essential_terms]
     except:
